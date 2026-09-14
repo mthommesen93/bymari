@@ -3,11 +3,13 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Logo } from "../brand/Logo";
-import { Menu, X } from "lucide-react";
+import { useContent } from "@/lib/content-context";
+import { Menu, X, Shield } from "lucide-react";
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { isAdmin } = useContent();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -46,10 +48,19 @@ export function Header() {
               {link.label}
             </Link>
           ))}
+          {isAdmin && (
+            <Link
+              href="/admin"
+              className="text-sm font-medium text-forest-green hover:text-forest-green-hover transition-colors flex items-center space-x-1 bg-forest-green/10 px-3 py-1 rounded-sm"
+            >
+              <Shield className="w-3.5 h-3.5" />
+              <span>Adminpanel</span>
+            </Link>
+          )}
         </nav>
 
         {/* Desktop CTA */}
-        <div className="hidden md:block">
+        <div className="hidden md:flex items-center space-x-4">
           <Link
             href="#kontakt"
             className="inline-flex items-center justify-center px-6 py-3 text-sm font-medium text-warm-white bg-forest-green hover:bg-forest-green-hover transition-colors rounded-sm tracking-wide focus:outline-none focus-visible:ring-2 focus-visible:ring-forest-green focus-visible:ring-offset-2"

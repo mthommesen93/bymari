@@ -155,12 +155,14 @@ export const defaultSiteContent: SiteContent = {
 interface ContentContextType {
   content: SiteContent;
   isEditing: boolean;
+  isAdmin: boolean;
   setIsEditing: (val: boolean) => void;
   updateField: (path: string, value: any) => void;
   updateServiceDetail: (serviceIndex: number, detailIndex: number, value: string) => void;
   saveContent: () => Promise<boolean>;
   resetContent: () => void;
   hasUnsavedChanges: boolean;
+  logout: () => void;
 }
 
 const ContentContext = createContext<ContentContextType | undefined>(undefined);
@@ -168,18 +170,27 @@ const ContentContext = createContext<ContentContextType | undefined>(undefined);
 export function ContentProvider({ children }: { children: React.ReactNode }) {
   const [content, setContent] = useState<SiteContent>(defaultSiteContent);
   const [isEditing, setIsEditing] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-  // Load persisted content on mount
+  // Check admin session and load persisted content on mount
   useEffect(() => {
     try {
+      // Check admin status
+      const authCookie = document.cookie.split("; ").find(row => row.startsWith("bymari_auth="));
+      const hasCookieAuth = authCookie && authCookie.split("=")[1] === "active";
+      const hasStorageAuth = localStorage.getItem("bymari_admin_session") === "true";
+      const userIsAdmin = Boolean(hasCookieAuth || hasStorageAuth);
+      setIsAdmin(userIsAdmin);
+
       const saved = localStorage.getItem("bymari_site_content");
       if (saved) {
         setContent(JSON.parse(saved));
       }
-      // Check url param or session for auto edit mode
+
+      // Only allow auto-edit mode if user is authorized as admin
       const params = new URLSearchParams(window.location.search);
-      if (params.get("edit") === "true") {
+      if (userIsAdmin && params.get("edit") === "true") {
         setIsEditing(true);
       }
     } catch (e) {
@@ -188,6 +199,7 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const updateField = (path: string, value: any) => {
+    if (!isAdmin) return;
     setContent(prev => {
       const copy = JSON.parse(JSON.stringify(prev));
       const parts = path.split(".");
@@ -202,6 +214,7 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateServiceDetail = (serviceIndex: number, detailIndex: number, value: string) => {
+    if (!isAdmin) return;
     setContent(prev => {
       const copy = JSON.parse(JSON.stringify(prev));
       if (copy.services.items[serviceIndex]?.details) {
@@ -213,6 +226,7 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
   };
 
   const saveContent = async () => {
+    if (!isAdmin) return false;
     try {
       localStorage.setItem("bymari_site_content", JSON.stringify(content));
       setHasUnsavedChanges(false);
@@ -224,6 +238,7 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
   };
 
   const resetContent = () => {
+    if (!isAdmin) return;
     if (confirm("Vil du tilbakestille alle tekster til de opprinnelige By Mari standardtekstene?")) {
       setContent(defaultSiteContent);
       localStorage.removeItem("bymari_site_content");
@@ -231,17 +246,34 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const logout = () => {
+    document.cookie = "bymari_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    localStorage.removeItem("bymari_admin_session");
+    setIsAdmin(false);
+    setIsEditing(false);
+  };
+
+  const handleSetIsEditing = (val: boolean) => {
+    if (!isAdmin) {
+      setIsEditing(false);
+      return;
+    }
+    setIsEditing(val);
+  };
+
   return (
     <ContentContext.Provider
       value={{
         content,
-        isEditing,
-        setIsEditing,
+        isEditing: isAdmin && isEditing,
+        isAdmin,
+        setIsEditing: handleSetIsEditing,
         updateField,
         updateServiceDetail,
         saveContent,
         resetContent,
-        hasUnsavedChanges
+        hasUnsavedChanges,
+        logout
       }}
     >
       {children}
@@ -255,13 +287,16 @@ export function useContent() {
     return {
       content: defaultSiteContent,
       isEditing: false,
+      isAdmin: false,
       setIsEditing: () => {},
       updateField: () => {},
       updateServiceDetail: () => {},
       saveContent: async () => false,
       resetContent: () => {},
-      hasUnsavedChanges: false
+      hasUnsavedChanges: false,
+      logout: () => {}
     };
   }
   return context;
 }
+

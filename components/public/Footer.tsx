@@ -5,10 +5,12 @@ import Link from "next/link";
 import { Logo } from "../brand/Logo";
 import { useContent } from "@/lib/content-context";
 import { EditableText } from "@/components/editor/EditableText";
+import { Lock, Shield } from "lucide-react";
+
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
-  const { content, updateField } = useContent();
+  const { content, updateField, isAdmin } = useContent();
 
   return (
     <footer className="border-t border-sand bg-warm-white py-16">
@@ -60,10 +62,32 @@ export function Footer() {
 
         {/* Bottom Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-charcoal/60 space-y-4 sm:space-y-0">
-          <p>© {currentYear} by mari. Alle rettigheter reservert.</p>
+          <div className="flex items-center space-x-4">
+            <p>© {currentYear} by mari. Alle rettigheter reservert.</p>
+            <span className="text-sand-dark">•</span>
+            {isAdmin ? (
+              <Link 
+                href="/admin" 
+                className="inline-flex items-center space-x-1 text-forest-green hover:underline font-medium"
+              >
+                <Shield className="w-3 h-3" />
+                <span>Adminpanel</span>
+              </Link>
+            ) : (
+              <Link 
+                href="/admin/login" 
+                className="inline-flex items-center space-x-1 text-charcoal/40 hover:text-charcoal transition-colors"
+                title="Logg inn som administrator"
+              >
+                <Lock className="w-3 h-3" />
+                <span>Admin innlogging</span>
+              </Link>
+            )}
+          </div>
           <p className="tracking-wide-editorial font-mono">bymari.no</p>
         </div>
       </div>
     </footer>
   );
 }
+
