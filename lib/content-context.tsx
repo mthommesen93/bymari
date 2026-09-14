@@ -183,10 +183,24 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
       const userIsAdmin = Boolean(hasCookieAuth || hasStorageAuth);
       setIsAdmin(userIsAdmin);
 
+      // 1. First check local cache for instant render
       const saved = localStorage.getItem("bymari_site_content");
       if (saved) {
-        setContent(JSON.parse(saved));
+        try {
+          setContent(JSON.parse(saved));
+        } catch {}
       }
+
+      // 2. Fetch live global content from server/database for everyone
+      fetch("/api/content")
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.content) {
+            setContent(data.content);
+            localStorage.setItem("bymari_site_content", JSON.stringify(data.content));
+          }
+        })
+        .catch(err => console.warn("Could not fetch remote content:", err));
 
       // Only allow auto-edit mode if user is authorized as admin
       const params = new URLSearchParams(window.location.search);
@@ -229,6 +243,18 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
     if (!isAdmin) return false;
     try {
       localStorage.setItem("bymari_site_content", JSON.stringify(content));
+      
+      // Save globally to server / Supabase
+      const res = await fetch("/api/content", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content })
+      });
+
+      if (res.ok) {
+        setHasUnsavedChanges(false);
+        return true;
+      }
       setHasUnsavedChanges(false);
       return true;
     } catch (e) {
@@ -242,6 +268,11 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
     if (confirm("Vil du tilbakestille alle tekster til de opprinnelige By Mari standardtekstene?")) {
       setContent(defaultSiteContent);
       localStorage.removeItem("bymari_site_content");
+      fetch("/api/content", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: defaultSiteContent })
+      }).catch(console.error);
       setHasUnsavedChanges(false);
     }
   };

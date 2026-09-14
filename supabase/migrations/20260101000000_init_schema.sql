@@ -245,3 +245,17 @@ WITH CHECK (true);
 
 CREATE POLICY "Public can insert uploaded files" ON public.uploaded_files FOR INSERT TO anon
 WITH CHECK (true);
+
+-- ==============================================================================
+-- 11. SITE CONTENT (CMS / Live Text Edits)
+-- ==============================================================================
+CREATE TABLE IF NOT EXISTS public.site_content (
+    key TEXT PRIMARY KEY,
+    content JSONB NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE public.site_content ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public can view site_content" ON public.site_content FOR SELECT TO anon, authenticated USING (true);
+CREATE POLICY "Admins have full access to site_content" ON public.site_content FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
