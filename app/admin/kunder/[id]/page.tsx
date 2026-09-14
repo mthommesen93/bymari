@@ -53,17 +53,29 @@ export default function KundeDetailPage() {
 
   const loadClientData = async () => {
     setLoading(true);
-    const [c, n, d, s] = await Promise.all([
-      dataStore.getClientById(id),
-      dataStore.getClientNotes(id),
-      dataStore.getDistributions({ clientId: id }),
-      dataStore.getSubmissions({ clientId: id })
-    ]);
+    let c: Client | null = null;
+    try {
+      const res = await fetch(`/api/clients/${id}`);
+      if (res.ok) {
+        const json = await res.json();
+        c = json.client || null;
+      }
+    } catch {}
+
+    if (!c) {
+      c = await dataStore.getClientById(id);
+    }
 
     if (!c) {
       router.push("/admin/kunder");
       return;
     }
+
+    const [n, d, s] = await Promise.all([
+      dataStore.getClientNotes(id),
+      dataStore.getDistributions({ clientId: id }),
+      dataStore.getSubmissions({ clientId: id })
+    ]);
 
     setClient(c);
     setEditForm(c);

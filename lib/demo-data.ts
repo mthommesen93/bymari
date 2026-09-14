@@ -2,76 +2,21 @@ import { Client, Form, FormDistribution, Submission, ClientNote, Activity } from
 
 export const initialClients: Client[] = [
   {
-    id: "c1-nordic-light",
-    name: "Henrik Solberg",
-    company: "Nordic Light Kaffe",
-    email: "henrik@nordiclightkaffe.no",
-    phone: "+47 912 34 567",
-    status: "Aktiv kunde",
-    requested_service: "Nettsider & Enkel Nettbutikk",
-    internal_notes: "Kvalitetsfokusert mikrobrenneri. Trenger ny nettside med abonnementsmodul og rolig skandinavisk formspråk.",
-    next_activity_date: "2026-09-22T10:00:00Z",
-    is_archived: false,
-    created_at: "2026-08-10T09:30:00Z",
-    updated_at: "2026-09-12T14:20:00Z"
-  },
-  {
-    id: "c2-fjord-ark",
-    name: "Astrid Lindgren",
-    company: "Fjord Arkitektur AS",
-    email: "astrid@fjordarkitektur.no",
-    phone: "+47 988 77 665",
-    status: "Tilbud sendt",
-    requested_service: "Design og prototyper",
-    internal_notes: "Arkitektkontor i Oslo. Ønsker porteføljeside med fokus på store bilder og presis typografi. Tilbud oversendt forrige uke.",
-    next_activity_date: "2026-09-18T14:00:00Z",
-    is_archived: false,
-    created_at: "2026-09-02T11:00:00Z",
-    updated_at: "2026-09-10T16:45:00Z"
-  },
-  {
-    id: "c3-oslo-keramikk",
-    name: "Sofie Dahl",
-    company: "Oslo Keramikkverksted",
-    email: "sofie@oslokeramikk.no",
-    phone: "+47 412 90 811",
-    status: "Møte avtalt",
-    requested_service: "Nettsider",
-    internal_notes: "Verksted og galleri på Grünerløkka. Skal ha kursoversikt og påmeldingsskjema.",
-    next_activity_date: "2026-09-16T13:30:00Z",
-    is_archived: false,
-    created_at: "2026-09-08T08:15:00Z",
-    updated_at: "2026-09-13T10:00:00Z"
-  },
-  {
-    id: "c4-varde-konsulent",
-    name: "Magnus Berg",
-    company: "Varde Rådgivning",
-    email: "magnus@varderadgivning.no",
-    phone: "+47 900 12 345",
+    id: "c-gro-drage-evjen",
+    name: "Gro Drage Evjen",
+    company: "",
+    email: "grodrageevjen@gmail.com",
+    phone: "",
     status: "Ny",
-    requested_service: "Applikasjoner",
-    internal_notes: "Innsendt via nettsidens kontaktskjema. Ønsker et internt beregningsverktøy for energimerking.",
-    next_activity_date: "2026-09-15T09:00:00Z",
-    is_archived: false,
-    created_at: "2026-09-14T07:20:00Z",
-    updated_at: "2026-09-14T07:20:00Z"
-  },
-  {
-    id: "c5-bark-mobler",
-    name: "Eirik Haugen",
-    company: "Bark Møbeldesign",
-    email: "eirik@barkdesign.no",
-    phone: "+47 480 23 119",
-    status: "Avsluttet",
     requested_service: "Nettsider",
-    internal_notes: "Prosjekt levert og godkjent våren 2026. Svært fornøyd kunde.",
-    next_activity_date: null,
+    internal_notes: "Innsendt henvendelse via nettsiden bymari.no.",
+    next_activity_date: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
     is_archived: false,
-    created_at: "2026-03-01T10:00:00Z",
-    updated_at: "2026-06-15T12:00:00Z"
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
   }
 ];
+
 
 export const initialForms: Form[] = [
   {
@@ -1277,193 +1222,33 @@ export const initialForms: Form[] = [
 
 export const initialDistributions: FormDistribution[] = [
   {
-  "id": "dist-prosjektskjema-hoved",
-  "form_id": "f-prosjektskjema",
-  "client_id": null,
-  "token": "prosjektskjema",
-  "email_subject": "Prosjektskjema fra By Mari",
-  "email_intro": "Hei! For at vi skal få et best mulig bilde av virksomheten og prosjektet ditt, ber vi deg vennligst fylle ut dette skjemaet.",
-  "expires_at": null,
-  "status": "sent",
-  "opened_at": null,
-  "submitted_at": null,
-  "created_at": "2026-09-14T20:05:55.731Z",
-  "updated_at": "2026-09-14T20:05:55.731Z"
-},
-
-  {
-    id: "dist-1",
-    form_id: "f1-oppstart",
-    client_id: "c1-nordic-light",
-    token: "nordic-light-oppstart-2026",
-    email_subject: "Prosjektoppstart med by mari – Behovsavklaring",
-    email_intro: "Hei Henrik, vi gleder oss til å gå i gang med den nye nettsiden for Nordic Light Kaffe. Vennligst fyll ut dette skjemaet når det passer.",
-    expires_at: "2026-10-31T23:59:59Z",
-    status: "submitted",
-    opened_at: "2026-09-12T10:15:00Z",
-    submitted_at: "2026-09-12T14:10:00Z",
-    created_at: "2026-09-10T09:00:00Z",
-    updated_at: "2026-09-12T14:10:00Z"
-  },
-  {
-    id: "dist-2",
-    form_id: "f1-oppstart",
-    client_id: "c2-fjord-ark",
-    token: "fjord-ark-oppstart-9821",
-    email_subject: "Behovsavklaring for Fjord Arkitektur",
-    email_intro: "Hei Astrid, her er skjemaet for å avklare innhold og mål for porteføljesiden.",
-    expires_at: "2026-10-15T23:59:59Z",
-    status: "opened",
-    opened_at: "2026-09-13T16:20:00Z",
-    submitted_at: null,
-    created_at: "2026-09-13T14:00:00Z",
-    updated_at: "2026-09-13T16:20:00Z"
-  },
-  {
-    id: "dist-3",
-    form_id: "f2-innhold",
-    client_id: "c3-oslo-keramikk",
-    token: "oslo-keramikk-innhold-3401",
-    email_subject: "Materiell og tekst for Oslo Keramikkverksted",
-    email_intro: "Hei Sofie, vennligst last opp bilder og tekst når du har det klart.",
-    expires_at: "2026-11-01T23:59:59Z",
+    id: "dist-prosjektskjema-hoved",
+    form_id: "f-prosjektskjema",
+    client_id: null,
+    token: "prosjektskjema",
+    email_subject: "Prosjektskjema fra By Mari",
+    email_intro: "Hei! For at vi skal få et best mulig bilde av virksomheten og prosjektet ditt, ber vi deg vennligst fylle ut dette skjemaet.",
+    expires_at: null,
     status: "sent",
     opened_at: null,
     submitted_at: null,
-    created_at: "2026-09-14T08:00:00Z",
-    updated_at: "2026-09-14T08:00:00Z"
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
   }
 ];
 
-export const initialSubmissions: Submission[] = [
-  {
-    id: "sub-1",
-    form_id: "f1-oppstart",
-    client_id: "c1-nordic-light",
-    distribution_id: "dist-1",
-    status: "read",
-    internal_notes: "Gode og tydelige svar. Henrik prioriterer mobilvisning og enkel abonnementsbestilling for kaffebønner.",
-    submitted_at: "2026-09-12T14:10:00Z",
-    created_at: "2026-09-12T14:10:00Z",
-    updated_at: "2026-09-13T09:00:00Z",
-    answers: [
-      {
-        id: "ans-1",
-        submission_id: "sub-1",
-        field_id: "fld-2",
-        field_label: "Hva er virksomhetens viktigste mål med den nye løsningen?",
-        value: "Vi ønsker å fremstå som det fremste kvalitetsbrenneriet i regionen og gjøre det lekende lett for privatkunder å abonnere på ferskbrent kaffe."
-      },
-      {
-        id: "ans-2",
-        submission_id: "sub-1",
-        field_id: "fld-3",
-        field_label: "Hvem er den primære målgruppen?",
-        value: "Kaffeentusiaster i alderen 25-55 år, samt kafeer og bedrifter som ønsker spesialkaffe av høyeste kvalitet."
-      },
-      {
-        id: "ans-3",
-        submission_id: "sub-1",
-        field_id: "fld-4",
-        field_label: "Hvilke funksjoner eller elementer trengs?",
-        value: ["Responsiv nettside for mobil og desktop", "Portefølje eller prosjektvisning", "Kontaktskjema med e-postvarsling"]
-      },
-      {
-        id: "ans-4",
-        submission_id: "sub-1",
-        field_id: "fld-5",
-        field_label: "Hva er ønsket tidsramme for ferdigstilling?",
-        value: "1 til 2 måneder"
-      },
-      {
-        id: "ans-5",
-        submission_id: "sub-1",
-        field_id: "fld-7",
-        field_label: "Er det andre tanker eller inspirasjon du ønsker å dele?",
-        value: "Vi liker rene, jordnære farger og masse luft, akkurat som By Mari sin stil!"
-      }
-    ],
-    files: [
-      {
-        id: "fil-1",
-        submission_id: "sub-1",
-        client_id: "c1-nordic-light",
-        distribution_id: "dist-1",
-        file_name: "nordic_light_brandguide_v2.pdf",
-        file_path: "nordic-light-oppstart-2026/nordic_light_brandguide_v2.pdf",
-        file_size: 2450000,
-        mime_type: "application/pdf",
-        created_at: "2026-09-12T14:09:00Z"
-      }
-    ]
-  }
-];
 
-export const initialNotes: ClientNote[] = [
-  {
-    id: "n-1",
-    client_id: "c1-nordic-light",
-    author_name: "Mari",
-    content: "Gjennomførte en hyggelig digital oppstartssamtale. Henrik likte skissene for layout og fargeprofil.",
-    created_at: "2026-09-13T11:00:00Z",
-    updated_at: "2026-09-13T11:00:00Z"
-  },
-  {
-    id: "n-2",
-    client_id: "c2-fjord-ark",
-    author_name: "Mari",
-    content: "Sendte tilbud på komplett redesign og porteføljeoppsett med fokus på arkitekturfotografi.",
-    created_at: "2026-09-10T16:45:00Z",
-    updated_at: "2026-09-10T16:45:00Z"
-  }
-];
+export const initialSubmissions: Submission[] = [];
+
+export const initialNotes: ClientNote[] = [];
 
 export const initialActivities: Activity[] = [
   {
-    id: "act-1",
+    id: "act-init-1",
     event_type: "contact_inquiry",
-    description: "Ny henvendelse mottatt fra Magnus Berg (Varde Rådgivning) via kontaktskjema.",
-    client_id: "c4-varde-konsulent",
-    client_name: "Magnus Berg",
-    created_at: "2026-09-14T07:20:00Z"
-  },
-  {
-    id: "act-2",
-    event_type: "form_sent",
-    description: "Skjema «Innsamling av tekst og innhold» sendt til Sofie Dahl (Oslo Keramikkverksted).",
-    client_id: "c3-oslo-keramikk",
-    client_name: "Sofie Dahl",
-    form_id: "f2-innhold",
-    form_title: "Innsamling av tekst og innhold",
-    created_at: "2026-09-14T08:00:00Z"
-  },
-  {
-    id: "act-3",
-    event_type: "form_opened",
-    description: "Skjema «Prosjektoppstart & Behovsavklaring» åpnet av Astrid Lindgren (Fjord Arkitektur AS).",
-    client_id: "c2-fjord-ark",
-    client_name: "Astrid Lindgren",
-    form_id: "f1-oppstart",
-    form_title: "Prosjektoppstart & Behovsavklaring",
-    created_at: "2026-09-13T16:20:00Z"
-  },
-  {
-    id: "act-4",
-    event_type: "note_added",
-    description: "Internt notat lagt til på Henrik Solberg (Nordic Light Kaffe).",
-    client_id: "c1-nordic-light",
-    client_name: "Henrik Solberg",
-    created_at: "2026-09-13T11:00:00Z"
-  },
-  {
-    id: "act-5",
-    event_type: "form_submitted",
-    description: "Henrik Solberg sendte inn svar på «Prosjektoppstart & Behovsavklaring».",
-    client_id: "c1-nordic-light",
-    client_name: "Henrik Solberg",
-    form_id: "f1-oppstart",
-    form_title: "Prosjektoppstart & Behovsavklaring",
-    submission_id: "sub-1",
-    created_at: "2026-09-12T14:10:00Z"
+    description: "Henvendelse mottatt fra Gro Drage Evjen via nettsiden bymari.no.",
+    client_id: "c-gro-drage-evjen",
+    client_name: "Gro Drage Evjen",
+    created_at: new Date().toISOString()
   }
 ];

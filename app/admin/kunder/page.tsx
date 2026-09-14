@@ -31,16 +31,38 @@ export default function KunderPage() {
 
   const loadClients = async () => {
     setLoading(true);
-    const filterOptions: any = { is_archived: showArchived };
-    if (selectedStatus !== "Alle") {
-      filterOptions.status = selectedStatus as ClientStatus;
+    try {
+      const res = await fetch("/api/clients");
+      const json = await res.json();
+      let data: Client[] = json.clients || [];
+
+      if (showArchived) {
+        data = data.filter(c => c.is_archived);
+      } else {
+        data = data.filter(c => !c.is_archived);
+      }
+
+      if (selectedStatus !== "Alle") {
+        data = data.filter(c => c.status === selectedStatus);
+      }
+
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        data = data.filter(c =>
+          c.name.toLowerCase().includes(q) ||
+          (c.company && c.company.toLowerCase().includes(q)) ||
+          c.email.toLowerCase().includes(q) ||
+          (c.requested_service && c.requested_service.toLowerCase().includes(q))
+        );
+      }
+
+      setClients(data);
+    } catch {
+      const fallback = await dataStore.getClients();
+      setClients(fallback);
+    } finally {
+      setLoading(false);
     }
-    if (searchQuery.trim()) {
-      filterOptions.query = searchQuery;
-    }
-    const data = await dataStore.getClients(filterOptions);
-    setClients(data);
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -51,17 +73,25 @@ export default function KunderPage() {
     e.preventDefault();
     if (!formData.name || !formData.email) return;
 
-    await dataStore.createClient({
-      name: formData.name,
-      company: formData.company || null,
-      email: formData.email,
-      phone: formData.phone || null,
-      status: formData.status,
-      requested_service: formData.requested_service || null,
-      internal_notes: formData.internal_notes || null,
-      next_activity_date: formData.next_activity_date ? new Date(formData.next_activity_date).toISOString() : null,
-      is_archived: false
-    });
+    try {
+      await fetch("/api/clients", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          company: formData.company || null,
+          email: formData.email,
+          phone: formData.phone || null,
+          status: formData.status,
+          requested_service: formData.requested_service || null,
+          internal_notes: formData.internal_notes || null,
+          next_activity_date: formData.next_activity_date ? new Date(formData.next_activity_date).toISOString() : null,
+          is_archived: false
+        })
+      });
+    } catch (e) {
+      await dataStore.createClient({ ...formData, is_archived: false });
+    }
 
     setIsCreateModalOpen(false);
     setFormData({
