@@ -41,18 +41,53 @@ export default function CustomerFormRunnerPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
+  // Helper to determine if the deadline has passed (with end-of-day grace period)
+  const isFormExpired = (expiresAt?: string | null) => {
+    if (!expiresAt) return false;
+    const exp = new Date(expiresAt);
+    if (isNaN(exp.getTime())) return false;
+    // If the time is set to midnight UTC/local (00:00:00), grant until 23:59:59.999 of that day
+    if (exp.getUTCHours() === 0 && exp.getUTCMinutes() === 0 && exp.getUTCSeconds() === 0) {
+      exp.setUTCHours(23, 59, 59, 999);
+    }
+    return exp.getTime() < Date.now();
+  };
+
   useEffect(() => {
     async function loadForm() {
       setLoading(true);
-      const dist = await dataStore.getDistributionByToken(token);
-      if (dist && dist.form) {
-        setDistribution(dist);
-        setForm(dist.form);
-        await dataStore.markDistributionOpened(token);
+      try {
+        const res = await fetch(`/api/forms/${token}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.distribution && data.form) {
+            setDistribution(data.distribution);
+            setForm(data.form);
+          } else {
+            setDistribution(null);
+            setForm(null);
+          }
+        } else {
+          // Fallback to dataStore
+          const dist = await dataStore.getDistributionByToken(token);
+          if (dist && dist.form) {
+            setDistribution(dist);
+            setForm(dist.form);
+          }
+        }
+      } catch (err) {
+        console.warn("Fetch form error, attempting fallback:", err);
+        const dist = await dataStore.getDistributionByToken(token);
+        if (dist && dist.form) {
+          setDistribution(dist);
+          setForm(dist.form);
+        }
       }
       setLoading(false);
     }
-    loadForm();
+    if (token) {
+      loadForm();
+    }
   }, [token]);
 
   if (loading) {
@@ -116,14 +151,14 @@ export default function CustomerFormRunnerPage() {
     );
   }
 
-  if (distribution.expires_at && new Date(distribution.expires_at) < new Date()) {
+  if (isFormExpired(distribution.expires_at)) {
     return (
       <div className="min-h-screen bg-warm-white flex items-center justify-center p-6">
         <div className="max-w-md w-full bg-white border border-sand p-8 text-center rounded-sm shadow-sm space-y-4">
           <Logo size="md" showLink={false} />
           <h1 className="text-xl font-medium text-charcoal mt-4">Tidsfristen har utløpt</h1>
           <p className="text-sm text-charcoal/70 font-light leading-relaxed">
-            Fristen for å besvare dette skjemaet gikk ut {new Date(distribution.expires_at).toLocaleDateString("no-NO")}.
+            Fristen for å besvare dette skjemaet gikk ut {new Date(distribution.expires_at!).toLocaleDateString("no-NO")}.
           </p>
         </div>
       </div>
@@ -238,23 +273,33 @@ export default function CustomerFormRunnerPage() {
           value: answers[f.id] ?? ""
         }));
 
-      await dataStore.createSubmission({
-        form_id: form.id,
-        client_id: distribution.client_id,
-        distribution_id: distribution.id,
-        token,
-        answers: answersPayload,
-        files: uploadedFiles
+      const res = await fetch("/api/forms/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token,
+          form_id: form.id,
+          client_id: distribution.client_id,
+          distribution_id: distribution.id,
+          answers: answersPayload,
+          files: uploadedFiles
+        })
       });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Det oppstod en feil under innsendingen.");
+      }
 
       setSubmitting(false);
       router.push(`/f/${token}/takk`);
     } catch (err: any) {
-      console.error(err);
+      console.error("Submission error:", err);
       setSubmitting(false);
-      setErrorMessage("Det oppstod en feil under innsendingen. Vennligst prøv igjen.");
+      setErrorMessage(err.message || "Det oppstod en feil under innsendingen. Vennligst prøv igjen.");
     }
   };
+
 
   return (
     <div className="min-h-screen bg-warm-white py-12 md:py-20 px-6 sm:px-8">

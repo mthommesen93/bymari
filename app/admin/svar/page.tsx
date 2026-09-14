@@ -16,13 +16,33 @@ export default function SvarPage() {
 
   const loadSubmissions = async () => {
     setLoading(true);
-    const filterOptions: any = {};
-    if (selectedStatus !== "Alle") {
-      filterOptions.status = selectedStatus as ResponseStatus;
+    try {
+      const filterOptions: any = {};
+      if (selectedStatus !== "Alle") {
+        filterOptions.status = selectedStatus as ResponseStatus;
+      }
+
+      let data: Submission[] = [];
+      try {
+        const res = await fetch("/api/forms/submissions");
+        if (res.ok) {
+          const json = await res.json();
+          if (json.submissions) data = json.submissions;
+        }
+      } catch {}
+
+      if (data.length === 0) {
+        data = await dataStore.getSubmissions(filterOptions);
+      } else if (selectedStatus !== "Alle") {
+        data = data.filter(s => s.status === selectedStatus);
+      }
+
+      setSubmissions(data);
+    } catch (err) {
+      console.error("loadSubmissions error:", err);
+    } finally {
+      setLoading(false);
     }
-    const data = await dataStore.getSubmissions(filterOptions);
-    setSubmissions(data);
-    setLoading(false);
   };
 
   useEffect(() => {

@@ -157,3 +157,58 @@ export async function sendFormDistributionEmail(data: {
     return { success: false, error };
   }
 }
+
+export async function sendFormSubmissionNotificationEmail(data: {
+  formTitle: string;
+  clientName?: string;
+  clientEmail?: string;
+  token?: string;
+  submissionId: string;
+  answers: { field_label: string; value: any }[];
+}) {
+  if (process.env.NODE_ENV === "test" || !process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === "demo_key") {
+    console.log("[Resend Simulator] Submission notification received for:", data.formTitle);
+    return { success: true, simulated: true };
+  }
+
+  const answersHtml = data.answers
+    .map(
+      (a) => `
+      <div style="margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #ECE7DF;">
+        <p style="margin: 0 0 4px 0; font-size: 12px; color: #877B6C; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">${a.field_label}</p>
+        <p style="margin: 0; font-size: 14px; color: #20211F; white-space: pre-wrap;">${Array.isArray(a.value) ? a.value.join(", ") : (a.value || "—")}</p>
+      </div>`
+    )
+    .join("");
+
+  const contentHtml = `
+    <div style="background-color: #F7F5F0; padding: 20px; border-radius: 4px; border: 1px solid #DED7CB; margin-bottom: 20px;">
+      <p style="margin: 0 0 8px 0;"><strong>Skjema:</strong> ${data.formTitle}</p>
+      ${data.clientName ? `<p style="margin: 0 0 8px 0;"><strong>Innsender:</strong> ${data.clientName}</p>` : ""}
+      ${data.clientEmail ? `<p style="margin: 0 0 8px 0;"><strong>E-post:</strong> <a href="mailto:${data.clientEmail}" style="color: #34463B;">${data.clientEmail}</a></p>` : ""}
+    </div>
+    <div style="margin-top: 16px;">
+      <h3 style="font-size: 15px; font-weight: 600; color: #20211F; margin-bottom: 12px;">Mottatte svar:</h3>
+      ${answersHtml}
+    </div>
+  `;
+
+  try {
+    const res = await resend.emails.send({
+      from: DEFAULT_FROM_EMAIL,
+      to: ADMIN_NOTIFICATION_EMAIL,
+      subject: `Nytt skjemasvar: ${data.formTitle}${data.clientName ? " fra " + data.clientName : ""}`,
+      html: renderByMariEmailHtml({
+        title: `Nytt svar på ${data.formTitle}`,
+        intro: `Et nytt svar er registrert${data.clientName ? " fra " + data.clientName : ""}.`,
+        contentHtml,
+        ctaText: "Se alle svar i adminpanelet",
+        ctaUrl: `${APP_URL}/admin/svar`
+      })
+    });
+    return { success: true, data: res };
+  } catch (error) {
+    console.error("Resend form submission notification error:", error);
+    return { success: false, error };
+  }
+}

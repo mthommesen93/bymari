@@ -19,12 +19,25 @@ export default function SubmissionConfirmationPage() {
 
   useEffect(() => {
     async function load() {
+      try {
+        const res = await fetch(`/api/forms/${token}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.form) {
+            setForm(data.form);
+            return;
+          }
+        }
+      } catch (e) {}
+
       const dist = await dataStore.getDistributionByToken(token);
       if (dist && dist.form) {
         setForm(dist.form);
       }
     }
-    load();
+    if (token) {
+      load();
+    }
   }, [token]);
 
   return (

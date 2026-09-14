@@ -46,22 +46,48 @@ export default function DistribuerSkjemaPage() {
 
   const loadData = async () => {
     setLoading(true);
-    const [f, c, d] = await Promise.all([
-      dataStore.getFormById(formId),
-      dataStore.getClients(),
-      dataStore.getDistributions({ formId })
-    ]);
+    try {
+      // 1. Fetch form
+      const f = await dataStore.getFormById(formId);
+      setForm(f);
 
-    setForm(f);
-    setClients(c);
-    setDistributions(d);
+      // 2. Fetch clients
+      let loadedClients: Client[] = [];
+      try {
+        const clientRes = await fetch("/api/clients");
+        if (clientRes.ok) {
+          const clientData = await clientRes.json();
+          if (clientData.clients) loadedClients = clientData.clients;
+        }
+      } catch {}
+      if (loadedClients.length === 0) {
+        loadedClients = await dataStore.getClients();
+      }
+      setClients(loadedClients);
 
-    if (f) {
-      setEmailSubject(`Skjema fra by mari: ${f.title}`);
-      setEmailIntro(`Hei, vi gleder oss til samarbeidet. Vennligst fyll ut dette skjemaet når du har mulighet.`);
+      // 3. Fetch distributions
+      let loadedDists: FormDistribution[] = [];
+      try {
+        const distRes = await fetch(`/api/forms/distribute?formId=${formId}`);
+        if (distRes.ok) {
+          const distData = await distRes.json();
+          if (distData.distributions) loadedDists = distData.distributions;
+        }
+      } catch {}
+      if (loadedDists.length === 0) {
+        loadedDists = await dataStore.getDistributions({ formId });
+      }
+      setDistributions(loadedDists);
+
+      if (f) {
+        setEmailSubject(`Skjema fra by mari: ${f.title}`);
+        setEmailIntro(`Hei, vi gleder oss til samarbeidet. Vennligst fyll ut dette skjemaet når du har mulighet.`);
+      }
+    } catch (err) {
+      console.error("loadData error:", err);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   useEffect(() => {
