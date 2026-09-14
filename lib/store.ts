@@ -20,8 +20,10 @@ import {
   initialNotes, 
   initialActivities 
 } from "./demo-data";
+import { createClient as createBrowserClient } from "./supabase/client";
+import { createAdminClient } from "./supabase/admin";
 
-// In-memory data structures (persisted in global memory during dev server lifecycle)
+// Global cache for instant rendering
 let clients: Client[] = [...initialClients];
 let forms: Form[] = [...initialForms];
 let distributions: FormDistribution[] = [...initialDistributions];
@@ -29,20 +31,53 @@ let submissions: Submission[] = [...initialSubmissions];
 let notes: ClientNote[] = [...initialNotes];
 let activities: Activity[] = [...initialActivities];
 
-// Helper to simulate asynchronous database operations
-const delay = (ms = 50) => new Promise(res => setTimeout(res, ms));
+function getSupabase() {
+  try {
+    if (typeof window !== "undefined") {
+      return createBrowserClient();
+    }
+    return createAdminClient();
+  } catch (e) {
+    return null;
+  }
+}
+
+// LocalStorage helpers for browser caching
+const CLIENTS_STORAGE_KEY = "bymari_clients_cache";
+const FORMS_STORAGE_KEY = "bymari_forms_cache";
+const ACTIVITIES_STORAGE_KEY = "bymari_activities_cache";
+
+function getStored<T>(key: string, fallback: T): T {
+  if (typeof window === "undefined") return fallback;
+  try {
+    const item = localStorage.getItem(key);
+    return item ? JSON.parse(item) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function setStored(key: string, value: any) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {}
+}
 
 export const dataStore = {
   // --------------------------------------------------------------------------
   // DASHBOARD METRICS
   // --------------------------------------------------------------------------
   async getMetrics(): Promise<DashboardMetrics> {
-    await delay();
-    const activeClientsCount = clients.filter(c => !c.is_archived && c.status === "Aktiv kunde").length;
-    const newLeadsCount = clients.filter(c => !c.is_archived && c.status === "Ny").length;
-    const awaitingFormsCount = distributions.filter(d => d.status === "sent" || d.status === "opened").length;
-    const newResponsesCount = submissions.filter(s => s.status === "new").length;
-    const upcomingFollowupsCount = clients.filter(c => c.next_activity_date && new Date(c.next_activity_date) >= new Date()).length;
+    const currentClients = await this.getClients();
+    const currentDistributions = await this.getDistributions();
+    const currentSubmissions = await this.getSubmissions();
+
+    const activeClientsCount = currentClients.filter(c => !c.is_archived && c.status === "Aktiv kunde").length;
+    const newLeadsCount = currentClients.filter(c => !c.is_archived && c.status === "Ny").length;
+    const awaitingFormsCount = currentDistributions.filter(d => d.status === "sent" || d.status === "opened").length;
+    const newResponsesCount = currentSubmissions.filter(s => s.status === "new").length;
+    const upcomingFollowupsCount = currentClients.filter(c => c.next_activity_date && new Date(c.next_activity_date) >= new Date()).length;
 
     return {
       activeClientsCount,
@@ -57,9 +92,40 @@ export const dataStore = {
   // CLIENTS (CRM)
   // --------------------------------------------------------------------------
   async getClients(filters?: { query?: string; status?: ClientStatus; is_archived?: boolean }): Promise<Client[]> {
-    await delay();
-    let result = [...clients];
+    const supabase = getSupabase();
+    if (supabase) {
+      try {
+        let query = supabase.from("clients").select("*").order("created_at", { ascending: false });
+        if (filters?.is_archived !== undefined) {
+          query = query.eq("is_archived", filters.is_archived);
+        } else {
+          query = query.eq("is_archived", false);
+        }
+        if (filters?.status) {
+          query = query.eq("status", filters.status);
+        }
+        const { data, error } = await query;
+        if (!error && data && data.length > 0) {
+          clients = data as Client[];
+          setStored(CLIENTS_STORAGE_KEY, clients);
+        }
+      } catch (err) {
+        console.warn("Supabase clients query error:", err);
+      }
+    }
 
+    if (typeof window !== "undefined") {
+      const local = getStored<Client[]>(CLIENTS_STORAGE_KEY, []);
+      if (local.length > 0) {
+        // Merge
+        const ids = new Set(clients.map(c => c.id));
+        local.forEach(l => {
+          if (!ids.has(l.id)) clients.push(l);
+        });
+      }
+    }
+
+    let result = [...clients];
     if (filters?.is_archived !== undefined) {
       result = result.filter(c => c.is_archived === filters.is_archived);
     } else {
@@ -84,12 +150,20 @@ export const dataStore = {
   },
 
   async getClientById(id: string): Promise<Client | null> {
-    await delay();
+    const supabase = getSupabase();
+    if (supabase) {
+      try {
+        const { data, error } = await supabase.from("clients").select("*").eq("id", id).single();
+        if (!error && data) return data as Client;
+      } catch {}
+    }
+    const all = await this.getClients({ is_archived: false });
+    const match = all.find(c => c.id === id);
+    if (match) return match;
     return clients.find(c => c.id === id) || null;
   },
 
   async createClient(data: Omit<Client, "id" | "created_at" | "updated_at">): Promise<Client> {
-    await delay();
     const newClient: Client = {
       ...data,
       id: "c-" + Date.now().toString(36) + Math.random().toString(36).substr(2, 4),
@@ -97,7 +171,33 @@ export const dataStore = {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };
+
+    const supabase = getSupabase();
+    if (supabase) {
+      try {
+        const { data: inserted, error } = await supabase.from("clients").insert([{
+          name: newClient.name,
+          company: newClient.company || null,
+          email: newClient.email,
+          phone: newClient.phone || null,
+          status: newClient.status || "Ny",
+          requested_service: newClient.requested_service || null,
+          internal_notes: newClient.internal_notes || null,
+          next_activity_date: newClient.next_activity_date || null,
+          is_archived: false
+        }]).select().single();
+
+        if (!error && inserted) {
+          newClient.id = inserted.id;
+          newClient.created_at = inserted.created_at;
+        }
+      } catch (err) {
+        console.warn("Supabase create client error:", err);
+      }
+    }
+
     clients.unshift(newClient);
+    setStored(CLIENTS_STORAGE_KEY, clients);
 
     await this.logActivity({
       event_type: "client_created",
@@ -110,16 +210,32 @@ export const dataStore = {
   },
 
   async updateClient(id: string, updates: Partial<Client>): Promise<Client | null> {
-    await delay();
     const index = clients.findIndex(c => c.id === id);
-    if (index === -1) return null;
-
     const updated = {
-      ...clients[index],
+      ...(index !== -1 ? clients[index] : {}),
       ...updates,
+      id,
       updated_at: new Date().toISOString()
-    };
-    clients[index] = updated;
+    } as Client;
+
+    if (index !== -1) {
+      clients[index] = updated;
+    } else {
+      clients.unshift(updated);
+    }
+    setStored(CLIENTS_STORAGE_KEY, clients);
+
+    const supabase = getSupabase();
+    if (supabase) {
+      try {
+        await supabase.from("clients").update({
+          ...updates,
+          updated_at: new Date().toISOString()
+        }).eq("id", id);
+      } catch (err) {
+        console.warn("Supabase update client error:", err);
+      }
+    }
 
     await this.logActivity({
       event_type: "client_updated",
@@ -132,26 +248,26 @@ export const dataStore = {
   },
 
   async archiveClient(id: string, is_archived = true): Promise<boolean> {
-    await delay();
-    const client = clients.find(c => c.id === id);
-    if (!client) return false;
-    client.is_archived = is_archived;
-    client.updated_at = new Date().toISOString();
-    return true;
+    return (await this.updateClient(id, { is_archived })) !== null;
   },
 
   async deleteClient(id: string): Promise<boolean> {
-    await delay();
-    const initialLen = clients.length;
     clients = clients.filter(c => c.id !== id);
-    return clients.length < initialLen;
+    setStored(CLIENTS_STORAGE_KEY, clients);
+
+    const supabase = getSupabase();
+    if (supabase) {
+      try {
+        await supabase.from("clients").delete().eq("id", id);
+      } catch {}
+    }
+    return true;
   },
 
   // --------------------------------------------------------------------------
   // FORMS (Form Builder)
   // --------------------------------------------------------------------------
   async getForms(filters?: { status?: FormStatus; is_template?: boolean }): Promise<Form[]> {
-    await delay();
     let result = [...forms];
     if (filters?.status) {
       result = result.filter(f => f.status === filters.status);
@@ -163,17 +279,14 @@ export const dataStore = {
   },
 
   async getFormById(id: string): Promise<Form | null> {
-    await delay();
     return forms.find(f => f.id === id) || null;
   },
 
   async getFormBySlug(slug: string): Promise<Form | null> {
-    await delay();
     return forms.find(f => f.slug === slug) || null;
   },
 
   async createForm(data: Partial<Form>): Promise<Form> {
-    await delay();
     const newForm: Form = {
       id: "f-" + Date.now().toString(36) + Math.random().toString(36).substr(2, 4),
       title: data.title || "Uten tittel",
@@ -205,7 +318,6 @@ export const dataStore = {
   },
 
   async updateForm(id: string, updates: Partial<Form>): Promise<Form | null> {
-    await delay();
     const index = forms.findIndex(f => f.id === id);
     if (index === -1) return null;
 
@@ -219,7 +331,6 @@ export const dataStore = {
   },
 
   async deleteForm(id: string): Promise<boolean> {
-    await delay();
     const initialLen = forms.length;
     forms = forms.filter(f => f.id !== id);
     return forms.length < initialLen;
@@ -229,7 +340,6 @@ export const dataStore = {
   // FORM DISTRIBUTIONS
   // --------------------------------------------------------------------------
   async getDistributions(filters?: { clientId?: string; formId?: string }): Promise<FormDistribution[]> {
-    await delay();
     let result = [...distributions];
     if (filters?.clientId) {
       result = result.filter(d => d.client_id === filters.clientId);
@@ -245,7 +355,6 @@ export const dataStore = {
   },
 
   async getDistributionByToken(token: string): Promise<FormDistribution | null> {
-    await delay();
     const dist = distributions.find(d => d.token === token);
     if (!dist) return null;
 
@@ -263,7 +372,6 @@ export const dataStore = {
     email_intro?: string;
     expires_at?: string | null;
   }): Promise<FormDistribution> {
-    await delay();
     const token = "bm-" + Math.random().toString(36).substring(2, 10) + "-" + Date.now().toString(36);
     const newDist: FormDistribution = {
       id: "dist-" + Date.now().toString(36),
@@ -321,7 +429,6 @@ export const dataStore = {
   },
 
   async revokeDistribution(id: string): Promise<boolean> {
-    await delay();
     const dist = distributions.find(d => d.id === id);
     if (!dist) return false;
     dist.status = "revoked";
@@ -333,7 +440,6 @@ export const dataStore = {
   // SUBMISSIONS & ANSWERS
   // --------------------------------------------------------------------------
   async getSubmissions(filters?: { status?: ResponseStatus; clientId?: string; formId?: string }): Promise<Submission[]> {
-    await delay();
     let result = [...submissions];
 
     if (filters?.status) {
@@ -355,7 +461,6 @@ export const dataStore = {
   },
 
   async getSubmissionById(id: string): Promise<Submission | null> {
-    await delay();
     const s = submissions.find(item => item.id === id);
     if (!s) return null;
 
@@ -375,7 +480,6 @@ export const dataStore = {
     answers: { field_id?: string; field_label: string; value: any }[];
     files?: UploadedFile[];
   }): Promise<Submission> {
-    await delay();
     const newSub: Submission = {
       id: "sub-" + Date.now().toString(36) + Math.random().toString(36).substr(2, 4),
       form_id: payload.form_id,
@@ -400,7 +504,6 @@ export const dataStore = {
     newSub.answers?.forEach(a => { a.submission_id = newSub.id; });
     submissions.unshift(newSub);
 
-    // Update distribution status to submitted
     if (payload.distribution_id) {
       const dist = distributions.find(d => d.id === payload.distribution_id);
       if (dist) {
@@ -438,7 +541,6 @@ export const dataStore = {
   },
 
   async updateSubmission(id: string, updates: { status?: ResponseStatus; internal_notes?: string }): Promise<Submission | null> {
-    await delay();
     const index = submissions.findIndex(s => s.id === id);
     if (index === -1) return null;
 
@@ -467,14 +569,12 @@ export const dataStore = {
   // CLIENT NOTES
   // --------------------------------------------------------------------------
   async getClientNotes(clientId: string): Promise<ClientNote[]> {
-    await delay();
     return notes
       .filter(n => n.client_id === clientId)
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   },
 
   async addClientNote(clientId: string, content: string, authorName = "Mari"): Promise<ClientNote> {
-    await delay();
     const newNote: ClientNote = {
       id: "note-" + Date.now().toString(36),
       client_id: clientId,
@@ -497,7 +597,6 @@ export const dataStore = {
   },
 
   async deleteClientNote(noteId: string): Promise<boolean> {
-    await delay();
     const initialLen = notes.length;
     notes = notes.filter(n => n.id !== noteId);
     return notes.length < initialLen;
@@ -507,7 +606,16 @@ export const dataStore = {
   // ACTIVITIES (Audit Log)
   // --------------------------------------------------------------------------
   async getActivities(limit = 50): Promise<Activity[]> {
-    await delay();
+    const supabase = getSupabase();
+    if (supabase) {
+      try {
+        const { data, error } = await supabase.from("activities").select("*").order("created_at", { ascending: false }).limit(limit);
+        if (!error && data && data.length > 0) {
+          activities = data as Activity[];
+          setStored(ACTIVITIES_STORAGE_KEY, activities);
+        }
+      } catch {}
+    }
     return activities.slice(0, limit);
   },
 
@@ -534,6 +642,22 @@ export const dataStore = {
       created_at: new Date().toISOString()
     };
     activities.unshift(act);
+    setStored(ACTIVITIES_STORAGE_KEY, activities);
+
+    const supabase = getSupabase();
+    if (supabase) {
+      try {
+        await supabase.from("activities").insert([{
+          event_type: data.event_type,
+          description: data.description,
+          client_id: data.client_id || null,
+          form_id: data.form_id || null,
+          submission_id: data.submission_id || null,
+          metadata: data.metadata || {}
+        }]);
+      } catch {}
+    }
+
     return act;
   },
 
@@ -547,6 +671,10 @@ export const dataStore = {
     submissions = [...initialSubmissions];
     notes = [...initialNotes];
     activities = [...initialActivities];
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(CLIENTS_STORAGE_KEY);
+      localStorage.removeItem(ACTIVITIES_STORAGE_KEY);
+    }
     return true;
   }
 };
