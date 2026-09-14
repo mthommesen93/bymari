@@ -1267,70 +1267,44 @@ export const initialSubmissions: Submission[] = [
     client: initialClients[0],
     form: initialForms[0],
     answers: [
-      {
-        id: "ans-1",
-        submission_id: "sub-gro-drage-evjen",
-        field_id: "fld-ps-1",
-        field_label: "1. Hva heter virksomheten?",
-        value: "Gro Drage Evjen",
-        created_at: new Date().toISOString()
-      },
-      {
-        id: "ans-2",
-        submission_id: "sub-gro-drage-evjen",
-        field_id: "fld-ps-2",
-        field_label: "2. Hva heter kontaktpersonen?",
-        value: "Gro Drage Evjen",
-        created_at: new Date().toISOString()
-      },
-      {
-        id: "ans-3",
-        submission_id: "sub-gro-drage-evjen",
-        field_id: "fld-ps-3",
-        field_label: "3. Hva er epostadressen din?",
-        value: "grodrageevjen@gmail.com",
-        created_at: new Date().toISOString()
-      },
-      {
-        id: "ans-4",
-        submission_id: "sub-gro-drage-evjen",
-        field_id: "fld-ps-4",
-        field_label: "4. Hva er telefonnummeret ditt?",
-        value: "—",
-        created_at: new Date().toISOString()
-      },
-      {
-        id: "ans-5",
-        submission_id: "sub-gro-drage-evjen",
-        field_id: "fld-ps-5",
-        field_label: "5. Hva tilbyr virksomheten?",
-        value: "Nye nettsider og digital profil.",
-        created_at: new Date().toISOString()
-      },
-      {
-        id: "ans-6",
-        submission_id: "sub-gro-drage-evjen",
-        field_id: "fld-ps-6",
-        field_label: "6. Hvem er de viktigste kundene deres?",
-        value: "Både private og bedriftskunder.",
-        created_at: new Date().toISOString()
-      },
-      {
-        id: "ans-7",
-        submission_id: "sub-gro-drage-evjen",
-        field_id: "fld-ps-7",
-        field_label: "7. Hva er hovedformålet med nettsiden?",
-        value: "Få et profesjonelt og innbydende uttrykk som gjør det enkelt å ta kontakt.",
-        created_at: new Date().toISOString()
-      },
-      {
-        id: "ans-8",
-        submission_id: "sub-gro-drage-evjen",
-        field_id: "fld-ps-8",
-        field_label: "8. Har dere profilmanual eller logo fra før?",
-        value: "Trenger hjelp med helhetlig oppsett.",
-        created_at: new Date().toISOString()
-      }
+      { id: "ans-1", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-1", field_label: "1. Hva heter virksomheten?", value: "Gro Drage Evjen", created_at: new Date().toISOString() },
+      { id: "ans-2", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-2", field_label: "2. Hva heter kontaktpersonen?", value: "Gro Drage Evjen", created_at: new Date().toISOString() },
+      { id: "ans-3", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-3", field_label: "3. Hva er epostadressen din?", value: "grodrageevjen@gmail.com", created_at: new Date().toISOString() },
+      { id: "ans-4", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-4", field_label: "4. Hva er telefonnummeret ditt?", value: "—", created_at: new Date().toISOString() },
+      { id: "ans-5", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-5", field_label: "5. Hva tilbyr virksomheten?", value: "Nye nettsider og digital profil for små og mellomstore virksomheter.", created_at: new Date().toISOString() },
+      { id: "ans-6", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-6", field_label: "6. Hvem er de viktigste kundene deres?", value: "Små og mellomstore bedrifter, samt privatkunder som ønsker en profesjonell tilstedeværelse.", created_at: new Date().toISOString() },
+      { id: "ans-7", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-7", field_label: "7. Hva skiller virksomheten fra konkurrentene?", value: "Personlig oppfølging, høy kvalitet og skreddersydde løsninger.", created_at: new Date().toISOString() },
+      { id: "ans-8", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-8", field_label: "8. Hvor holder virksomheten til, og hvilke områder betjener dere?", value: "Oslo og omegn, men betjener kunder i hele Norge digitalt.", created_at: new Date().toISOString() },
+      { id: "ans-9", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-9", field_label: "9. Hva ønsker dere hjelp med?", value: ["Ny nettside", "Design og prototype"], created_at: new Date().toISOString() },
+      { id: "ans-10", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-10", field_label: "10. Hvorfor ønsker dere en ny løsning?", value: "Ønsker et moderne, tillitvekkende uttrykk som gjør det enkelt for kunder å henvende seg og få oversikt over tjenestene.", created_at: new Date().toISOString() },
+      { id: "ans-11", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-11", field_label: "11. Hva er det viktigste løsningen skal oppnå?", value: ["Skaffe flere henvendelser", "Bygge tillit", "Presentere produkter eller tjenester"], created_at: new Date().toISOString() },
+      { id: "ans-12", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-12", field_label: "12. Hva ønsker dere at besøkende først og fremst skal gjøre?", value: "Ta kontakt", created_at: new Date().toISOString() },
+      { id: "ans-13", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-13", field_label: "13. Hvilke sider eller områder ønsker dere?", value: ["Forside", "Om virksomheten", "Tjenester", "Kontakt", "Referanser eller kundeomtaler"], created_at: new Date().toISOString() },
+      { id: "ans-14", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-14", field_label: "14. Hvilket innhold har dere allerede?", value: ["Bilder", "Tekster", "Vi trenger hjelp med innholdet"], created_at: new Date().toISOString() },
+      { id: "ans-15", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-15", field_label: "15. Hvem skal skrive tekstene?", value: "Vi leverer et utkast", created_at: new Date().toISOString() },
+      { id: "ans-16", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-16", field_label: "16. Last gjerne opp logo, bilder eller annet relevant materiale.", value: "—", created_at: new Date().toISOString() },
+      { id: "ans-17", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-17", field_label: "17. Hvilke funksjoner ønsker dere?", value: ["Kontaktskjema", "Kart og veibeskrivelse"], created_at: new Date().toISOString() },
+      { id: "ans-18", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-18", field_label: "18. Skal brukerne kunne opprette en konto?", value: "Nei", created_at: new Date().toISOString() },
+      { id: "ans-19", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-19", field_label: "19. Skal løsningen motta betaling?", value: "Nei", created_at: new Date().toISOString() },
+      { id: "ans-20", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-20", field_label: "20. Må løsningen kobles til andre systemer?", value: "E-postvarsling ved henvendelser", created_at: new Date().toISOString() },
+      { id: "ans-21", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-21", field_label: "21. Hvordan ønsker dere at løsningen skal oppleves?", value: ["Profesjonell", "Moderne", "Varm", "Trygg", "Minimalistisk"], created_at: new Date().toISOString() },
+      { id: "ans-22", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-22", field_label: "22. Har dere en eksisterende visuell profil?", value: ["Logo", "Farger"], created_at: new Date().toISOString() },
+      { id: "ans-23", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-23", field_label: "23. Er det bestemte farger eller uttrykk dere ønsker å bruke eller unngå?", value: "Rolige, naturlige jordtoner og varm hvit. Rent og harmonisk skandinavisk uttrykk.", created_at: new Date().toISOString() },
+      { id: "ans-24", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-24", field_label: "24. Finnes det nettsider eller applikasjoner dere liker?", value: "Liker stilen på bymari.no — rolig og behagelig.", created_at: new Date().toISOString() },
+      { id: "ans-25", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-25", field_label: "25. Finnes det uttrykk eller løsninger dere ikke liker?", value: "For mye støy, masete popups og rotete typografi.", created_at: new Date().toISOString() },
+      { id: "ans-26", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-26", field_label: "26. Har dere en nettside eller applikasjon i dag?", value: "Nei", created_at: new Date().toISOString() },
+      { id: "ans-27", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-27", field_label: "27. Hva fungerer godt med dagens løsning?", value: "—", created_at: new Date().toISOString() },
+      { id: "ans-28", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-28", field_label: "28. Hva fungerer dårlig eller bør forbedres?", value: "—", created_at: new Date().toISOString() },
+      { id: "ans-29", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-29", field_label: "29. Er det innhold eller funksjoner som skal videreføres?", value: "—", created_at: new Date().toISOString() },
+      { id: "ans-30", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-30", field_label: "30. Hvem skal oppdatere løsningen etter lansering?", value: "En kombinasjon", created_at: new Date().toISOString() },
+      { id: "ans-31", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-31", field_label: "31. Ønsker dere opplæring i hvordan løsningen brukes og oppdateres?", value: "Ja", created_at: new Date().toISOString() },
+      { id: "ans-32", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-32", field_label: "32. Når ønsker dere at løsningen skal være ferdig?", value: "Så snart som mulig, gjerne i løpet av neste måned.", created_at: new Date().toISOString() },
+      { id: "ans-33", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-33", field_label: "33. Er lanseringen knyttet til en bestemt hendelse eller frist?", value: "Ingen bestemt frist, men ønsker god fremdrift.", created_at: new Date().toISOString() },
+      { id: "ans-34", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-34", field_label: "34. Har dere satt av et budsjett?", value: "Fra 15 000 til 30 000 kroner", created_at: new Date().toISOString() },
+      { id: "ans-35", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-35", field_label: "35. Hvem skal godkjenne design, innhold og kostnader?", value: "Gro Drage Evjen", created_at: new Date().toISOString() },
+      { id: "ans-36", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-36", field_label: "36. Hva er det viktigste at den første demoen viser?", value: "Forsiden, strukturen på tjenestene og det visuelle formspråket.", created_at: new Date().toISOString() },
+      { id: "ans-37", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-37", field_label: "37. Hvilke sider eller funksjoner bør prioriteres i demoen?", value: "Forside og kontaktside.", created_at: new Date().toISOString() },
+      { id: "ans-38", submission_id: "sub-gro-drage-evjen", field_id: "fld-ps-38", field_label: "38. Er det noe annet jeg bør vite før jeg starter?", value: "Gleder meg veldig til å se det første utkastet!", created_at: new Date().toISOString() }
     ],
     files: []
   }

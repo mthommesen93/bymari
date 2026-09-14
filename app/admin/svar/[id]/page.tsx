@@ -190,26 +190,99 @@ export default function SvarDetailPage() {
         )}
 
         {/* Structured Answers Section */}
-        <div className="space-y-6 pt-2">
-          <h2 className="text-sm uppercase tracking-wider text-charcoal/60 font-mono font-medium border-b border-sand pb-2">
-            Innsendte svar
-          </h2>
+        <div className="space-y-8 pt-2">
+          <div className="flex items-center justify-between border-b border-sand pb-3">
+            <h2 className="text-sm uppercase tracking-wider text-charcoal/70 font-mono font-medium">
+              Innsendte svar ({submission.answers?.length || 0} spørsmål besvart)
+            </h2>
+            <span className="text-xs font-mono text-charcoal/50">
+              {submission.form?.title || "Prosjektskjema"}
+            </span>
+          </div>
 
+          {/* Render answers structured by form fields / sections */}
           <div className="space-y-6">
-            {(submission.answers || []).map((ans, idx) => {
-              const displayVal = Array.isArray(ans.value) ? ans.value.join(", ") : (ans.value || "—");
+            {(() => {
+              const formFields = (submission.form?.fields && submission.form.fields.length > 0) 
+                ? submission.form.fields 
+                : initialForms[0].fields || [];
+              
+              const renderedFieldIds = new Set<string>();
 
               return (
-                <div key={ans.id || idx} className="border-b border-sand/40 pb-4 space-y-1.5 last:border-0">
-                  <span className="text-xs uppercase tracking-wider text-charcoal/60 font-medium block">
-                    {idx + 1}. {ans.field_label}
-                  </span>
-                  <div className="text-sm sm:text-base text-charcoal font-light whitespace-pre-wrap leading-relaxed">
-                    {displayVal}
-                  </div>
-                </div>
+                <>
+                  {formFields.map((field, idx) => {
+                    renderedFieldIds.add(field.id);
+
+                    // If it's a section divider / info
+                    if (field.field_type === "info") {
+                      return (
+                        <div key={field.id || idx} className="pt-6 pb-2 border-b border-forest-green/20 first:pt-0">
+                          <h3 className="text-base font-medium text-charcoal flex items-center space-x-2">
+                            <span className="w-2 h-2 bg-forest-green rounded-full inline-block"></span>
+                            <span>{field.label}</span>
+                          </h3>
+                          {field.description && (
+                            <p className="text-xs text-charcoal/60 mt-0.5">{field.description}</p>
+                          )}
+                        </div>
+                      );
+                    }
+
+                    // Find matching answer
+                    const match = (submission.answers || []).find(
+                      (a: any) => 
+                        a.field_id === field.id || 
+                        a.field_label === field.label ||
+                        a.field_label?.replace(/^\d+\.\s*/, "") === field.label?.replace(/^\d+\.\s*/, "")
+                    );
+
+                    const val = match ? match.value : undefined;
+                    const hasValue = val !== undefined && val !== null && val !== "" && (!Array.isArray(val) || val.length > 0);
+
+                    return (
+                      <div key={field.id || idx} className="bg-warm-white/40 border border-sand/60 p-4 sm:p-5 rounded-sm space-y-2">
+                        <span className="text-xs uppercase tracking-wider text-charcoal/60 font-medium block">
+                          {field.label}
+                        </span>
+                        
+                        {Array.isArray(val) ? (
+                          <div className="flex flex-wrap gap-1.5 pt-1">
+                            {val.map((item, i) => (
+                              <span key={i} className="inline-flex items-center px-2.5 py-1 bg-white border border-sand rounded-xs text-xs font-medium text-charcoal">
+                                {item}
+                              </span>
+                            ))}
+                          </div>
+                        ) : hasValue ? (
+                          <div className="text-sm sm:text-base text-charcoal font-light whitespace-pre-wrap leading-relaxed">
+                            {val}
+                          </div>
+                        ) : (
+                          <div className="text-xs text-charcoal/40 font-mono italic">
+                            — Ikke besvart / Ikke oppgitt
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+
+                  {/* Any extra answers not in master fields */}
+                  {(submission.answers || [])
+                    .filter((a: any) => a.field_id && !renderedFieldIds.has(a.field_id))
+                    .map((extra: any, i: number) => (
+                      <div key={"extra-" + i} className="bg-warm-white/40 border border-sand/60 p-4 sm:p-5 rounded-sm space-y-2">
+                        <span className="text-xs uppercase tracking-wider text-charcoal/60 font-medium block">
+                          {extra.field_label}
+                        </span>
+                        <div className="text-sm sm:text-base text-charcoal font-light whitespace-pre-wrap leading-relaxed">
+                          {Array.isArray(extra.value) ? extra.value.join(", ") : (extra.value || "—")}
+                        </div>
+                      </div>
+                    ))}
+                </>
               );
-            })}
+            })()}
           </div>
         </div>
 
