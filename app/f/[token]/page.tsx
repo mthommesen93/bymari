@@ -102,7 +102,9 @@ export default function CustomerFormRunnerPage() {
   }
 
   // Token Validation Checks
-  if (!distribution || !form) {
+  const activeForm = form || initialForms[0];
+
+  if (!distribution) {
     return (
       <div className="min-h-screen bg-warm-white flex items-center justify-center p-6">
         <div className="max-w-md w-full bg-white border border-sand p-8 text-center rounded-sm shadow-sm space-y-4">
@@ -165,7 +167,7 @@ export default function CustomerFormRunnerPage() {
     );
   }
 
-  const fields = form.fields || [];
+  const fields = activeForm.fields || initialForms[0].fields || [];
 
   // Conditional Logic Helper
   const isFieldVisible = (field: FormField) => {
@@ -278,7 +280,7 @@ export default function CustomerFormRunnerPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           token,
-          form_id: form.id,
+          form_id: activeForm.id,
           client_id: distribution.client_id,
           distribution_id: distribution.id,
           answers: answersPayload,
@@ -300,7 +302,6 @@ export default function CustomerFormRunnerPage() {
     }
   };
 
-
   return (
     <div className="min-h-screen bg-warm-white py-12 md:py-20 px-6 sm:px-8">
       <div className="max-w-2xl mx-auto space-y-10">
@@ -309,11 +310,11 @@ export default function CustomerFormRunnerPage() {
           <Logo size="lg" showLink={false} />
           <div className="pt-2">
             <h1 className="text-3xl sm:text-4xl font-light text-charcoal tracking-tight">
-              {form.title}
+              {activeForm.title}
             </h1>
-            {form.introduction && (
+            {activeForm.introduction && (
               <div className="mt-4 text-base text-charcoal/80 font-light leading-relaxed max-w-xl mx-auto whitespace-pre-line">
-                {renderCleanText(form.introduction)}
+                {renderCleanText(activeForm.introduction)}
               </div>
             )}
           </div>
