@@ -83,10 +83,12 @@ export default function KundeDetailPage() {
     ]);
 
     try {
-      const [dRes, sRes, qRes] = await Promise.all([
+      const clientEmail = c?.email ? encodeURIComponent(c.email) : "";
+      const [dRes, sRes, qRes, nRes] = await Promise.all([
         fetch(`/api/forms/distribute?clientId=${id}`),
         fetch(`/api/forms/submissions?clientId=${id}`),
-        fetch(`/api/quotes/send?clientId=${id}`)
+        fetch(`/api/quotes/send?clientId=${id}${clientEmail ? `&email=${clientEmail}` : ""}`),
+        fetch(`/api/clients/${id}/notes`)
       ]);
       if (dRes.ok) {
         const dJson = await dRes.json();
@@ -99,6 +101,10 @@ export default function KundeDetailPage() {
       if (qRes.ok) {
         const qJson = await qRes.json();
         if (qJson.quotes && qJson.quotes.length > 0) q = qJson.quotes;
+      }
+      if (nRes.ok) {
+        const nJson = await nRes.json();
+        if (nJson.notes && nJson.notes.length > 0) n = nJson.notes;
       }
     } catch {}
 
@@ -125,8 +131,23 @@ export default function KundeDetailPage() {
     e.preventDefault();
     if (!noteContent.trim() || !client) return;
     setIsSubmittingNote(true);
-    const newNote = await dataStore.addClientNote(client.id, noteContent.trim(), "Mari");
-    setNotes([newNote, ...notes]);
+    try {
+      const res = await fetch(`/api/clients/${client.id}/notes`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: noteContent.trim(), authorName: "Mari" })
+      });
+      const data = await res.json();
+      if (res.ok && data.note) {
+        setNotes((prev) => [data.note, ...prev]);
+      } else {
+        const newNote = await dataStore.addClientNote(client.id, noteContent.trim(), "Mari");
+        setNotes((prev) => [newNote, ...prev]);
+      }
+    } catch {
+      const newNote = await dataStore.addClientNote(client.id, noteContent.trim(), "Mari");
+      setNotes((prev) => [newNote, ...prev]);
+    }
     setNoteContent("");
     setIsSubmittingNote(false);
   };
@@ -845,6 +866,7 @@ export default function KundeDetailPage() {
           client={client} 
           onSaved={() => {
             loadClientData();
+            setActiveTab("tilbud");
           }} 
         />
       </Modal>

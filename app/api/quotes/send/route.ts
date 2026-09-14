@@ -7,6 +7,7 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const clientId = searchParams.get("clientId") || undefined;
+    const email = searchParams.get("email") || undefined;
     const status = (searchParams.get("status") as any) || undefined;
 
     let allQuotes: any[] = [];
@@ -33,9 +34,14 @@ export async function GET(req: NextRequest) {
       allQuotes = memQuotes;
     }
 
-    if (clientId) {
-      allQuotes = allQuotes.filter((q) => q.client_id === clientId || q.client?.id === clientId);
+    if (clientId || email) {
+      allQuotes = allQuotes.filter((q) => {
+        if (clientId && (q.client_id === clientId || q.client?.id === clientId)) return true;
+        if (email && q.client?.email && q.client.email.toLowerCase() === email.toLowerCase().trim()) return true;
+        return false;
+      });
     }
+
     if (status) {
       allQuotes = allQuotes.filter((q) => q.status === status);
     }
@@ -78,8 +84,8 @@ export async function POST(req: NextRequest) {
       client = await dataStore.getClientById(clientId);
     }
 
-    const recipientName = client?.name || clientName;
-    const recipientEmail = client?.email || clientEmail;
+    const recipientName = (client?.name || clientName || "").trim();
+    const recipientEmail = (client?.email || clientEmail || "").trim();
 
     if (!recipientEmail || !recipientName) {
       return NextResponse.json(
@@ -88,9 +94,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (!client && recipientEmail) {
+      const allClients = await dataStore.getClients();
+      client = allClients.find(
+        (c) => c.email.toLowerCase() === recipientEmail.toLowerCase()
+      ) || null;
+    }
+
     // 1. Create quote in dataStore
     const quote = await dataStore.createQuote({
-      client_id: client ? client.id : null,
+      client_id: client ? client.id : (clientId || null),
       package_name: packageName || "Skreddersydd prosjekt",
       base_price: Number(basePrice) || 0,
       addons: addons || [],
@@ -109,15 +122,34 @@ export async function POST(req: NextRequest) {
     // Attach client details
     const fullQuoteRecord = {
       ...quote,
+      client_id: client?.id || quote.client_id || null,
       client: {
-        id: client?.id || null,
+        id: client?.id || quote.client_id || null,
         name: recipientName,
         email: recipientEmail,
         company: client?.company || ""
       }
     };
 
-    // 2. Persist to Supabase site_content under quotes_all
+    // 2. Persist internal note on client in CRM
+    if (client) {
+      const quoteUrl = `${process.env.NEXT_PUBLIC_APP_URL || "https://bymari.no"}/tilbud/${quote.token}`;
+      try {
+        await dataStore.addClientNote(
+          client.id,
+          `📄 Pristilbud sendt (${quote.package_name})\nTotalsum: kr ${quote.total_price.toLocaleString("no-NO")},-\nLeveringstid: ${quote.delivery_time}\nGyldig til: ${new Date(quote.expires_at).toLocaleDateString("no-NO")}\nLenke: ${quoteUrl}`,
+          "Mari"
+        );
+        await dataStore.updateClient(client.id, {
+          status: "Tilbud sendt",
+          next_activity_date: quote.expires_at
+        });
+      } catch (noteErr) {
+        console.warn("Failed saving quote note to client:", noteErr);
+      }
+    }
+
+    // 3. Persist to Supabase site_content under quotes_all
     try {
       const supabase = createAdminClient();
       const { data: existingContent } = await supabase

@@ -303,9 +303,9 @@ export function PriceCalculator({ client, onSaved }: PriceCalculatorProps) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          clientId: selectedRecipientId || null,
-          clientName: recipientName.trim(),
-          clientEmail: recipientEmail.trim(),
+          clientId: client?.id || selectedRecipientId || null,
+          clientName: (recipientName || client?.name || "").trim(),
+          clientEmail: (recipientEmail || client?.email || "").trim(),
           packageName: packages[basePackage].name,
           basePrice,
           addons: selectedAddons,
@@ -352,7 +352,18 @@ export function PriceCalculator({ client, onSaved }: PriceCalculatorProps) {
   const handleSaveToClient = async () => {
     if (!client) return;
     
-    // Add internal note with quote
+    // Add internal note with quote via API & store
+    try {
+      await fetch(`/api/clients/${client.id}/notes`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content: `Pristilbud opprettet:\n${quoteText}`,
+          authorName: "Mari"
+        })
+      });
+    } catch {}
+
     await dataStore.addClientNote(
       client.id,
       `Pristilbud opprettet:\n${quoteText}`,
