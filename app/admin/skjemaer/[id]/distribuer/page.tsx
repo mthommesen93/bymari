@@ -77,30 +77,36 @@ export default function DistribuerSkjemaPage() {
 
     const client = clients.find(c => c.id === selectedClientId);
 
-    // 1. Create distribution in store
-    const newDist = await dataStore.createDistribution({
-      form_id: form.id,
-      client_id: client ? client.id : null,
-      email_subject: emailSubject,
-      email_intro: emailIntro,
-      expires_at: expiresAt ? new Date(expiresAt).toISOString() : null
-    });
-
-    // 2. Send email via Resend if checked
-    if (sendEmailDirectly && client) {
-      await sendFormDistributionEmail({
-        recipientEmail: client.email,
-        recipientName: client.name,
-        formTitle: form.title,
-        emailSubject: emailSubject || `Skjema: ${form.title}`,
-        emailIntro: emailIntro,
-        token: newDist.token
+    try {
+      const res = await fetch("/api/forms/distribute", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          formId: form.id,
+          clientId: selectedClientId || null,
+          emailSubject,
+          emailIntro,
+          expiresAt: expiresAt || null,
+          sendEmailDirectly
+        })
       });
-    }
 
-    setIsDistributing(false);
-    setSuccessMessage(`Sikker lenke opprettet!${sendEmailDirectly && client ? " E-postvarsel er sendt til " + client.email : ""}`);
-    loadData();
+      const data = await res.json();
+
+      if (data.success) {
+        setSuccessMessage(
+          `Sikker lenke opprettet!${sendEmailDirectly && client ? " E-post er nå sendt fra hei@bymari.no til " + client.email : ""}`
+        );
+      } else {
+        alert("Kunne ikke distribuere skjema: " + (data.error || "Ukjent feil"));
+      }
+    } catch (err: any) {
+      console.error("Distribution error:", err);
+      alert("Feil ved utsendelse: " + err.message);
+    } finally {
+      setIsDistributing(false);
+      loadData();
+    }
   };
 
   const handleCopyLink = (token: string) => {
