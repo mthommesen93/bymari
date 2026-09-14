@@ -33,13 +33,34 @@ export default function SvarDetailPage() {
   useEffect(() => {
     async function load() {
       setLoading(true);
-      const sub = await dataStore.getSubmissionById(id);
+      let sub: any = null;
+      try {
+        const res = await fetch("/api/forms/submissions");
+        if (res.ok) {
+          const json = await res.json();
+          if (json.submissions) {
+            sub = json.submissions.find((s: any) => s.id === id);
+          }
+        }
+      } catch {}
+
+      if (!sub) {
+        sub = await dataStore.getSubmissionById(id);
+      }
+
       if (sub) {
         setSubmission(sub);
         setInternalNotes(sub.internal_notes || "");
         setStatus(sub.status);
         // Mark as read if it was new
         if (sub.status === "new") {
+          try {
+            await fetch("/api/forms/submissions", {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ id, status: "read" })
+            });
+          } catch {}
           await dataStore.updateSubmission(id, { status: "read" });
           setStatus("read");
         }
@@ -51,10 +72,24 @@ export default function SvarDetailPage() {
 
   const handleStatusChange = async (newStatus: ResponseStatus) => {
     setStatus(newStatus);
+    try {
+      await fetch("/api/forms/submissions", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status: newStatus })
+      });
+    } catch {}
     await dataStore.updateSubmission(id, { status: newStatus });
   };
 
   const handleSaveNotes = async () => {
+    try {
+      await fetch("/api/forms/submissions", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, internal_notes: internalNotes })
+      });
+    } catch {}
     await dataStore.updateSubmission(id, { internal_notes: internalNotes });
     setSavedNotification(true);
     setTimeout(() => setSavedNotification(false), 2000);

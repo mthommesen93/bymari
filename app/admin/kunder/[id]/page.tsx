@@ -71,11 +71,26 @@ export default function KundeDetailPage() {
       return;
     }
 
-    const [n, d, s] = await Promise.all([
+    let [n, d, s] = await Promise.all([
       dataStore.getClientNotes(id),
       dataStore.getDistributions({ clientId: id }),
       dataStore.getSubmissions({ clientId: id })
     ]);
+
+    try {
+      const [dRes, sRes] = await Promise.all([
+        fetch(`/api/forms/distribute?clientId=${id}`),
+        fetch(`/api/forms/submissions?clientId=${id}`)
+      ]);
+      if (dRes.ok) {
+        const dJson = await dRes.json();
+        if (dJson.distributions && dJson.distributions.length > 0) d = dJson.distributions;
+      }
+      if (sRes.ok) {
+        const sJson = await sRes.json();
+        if (sJson.submissions && sJson.submissions.length > 0) s = sJson.submissions;
+      }
+    } catch {}
 
     setClient(c);
     setEditForm(c);

@@ -28,17 +28,59 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     async function loadData() {
-      const [m, c, s, a] = await Promise.all([
-        dataStore.getMetrics(),
-        dataStore.getClients(),
-        dataStore.getSubmissions(),
-        dataStore.getActivities(6)
-      ]);
-      setMetrics(m);
-      setRecentClients(c.slice(0, 4));
-      setRecentSubmissions(s.slice(0, 3));
-      setActivities(a);
-      setLoading(false);
+      setLoading(true);
+      try {
+        let clientsList: Client[] = [];
+        let submissionsList: Submission[] = [];
+        let distributionsList: any[] = [];
+
+        try {
+          const [cRes, sRes, dRes] = await Promise.all([
+            fetch("/api/clients"),
+            fetch("/api/forms/submissions"),
+            fetch("/api/forms/distribute")
+          ]);
+          if (cRes.ok) {
+            const cJson = await cRes.json();
+            if (cJson.clients) clientsList = cJson.clients;
+          }
+          if (sRes.ok) {
+            const sJson = await sRes.json();
+            if (sJson.submissions) submissionsList = sJson.submissions;
+          }
+          if (dRes.ok) {
+            const dJson = await dRes.json();
+            if (dJson.distributions) distributionsList = dJson.distributions;
+          }
+        } catch {}
+
+        if (clientsList.length === 0) clientsList = await dataStore.getClients();
+        if (submissionsList.length === 0) submissionsList = await dataStore.getSubmissions();
+        if (distributionsList.length === 0) distributionsList = await dataStore.getDistributions();
+
+        const act = await dataStore.getActivities(6);
+
+        const activeClientsCount = clientsList.filter(c => !c.is_archived && c.status === "Aktiv kunde").length;
+        const newLeadsCount = clientsList.filter(c => !c.is_archived && c.status === "Ny").length;
+        const awaitingFormsCount = distributionsList.filter(d => d.status === "sent" || d.status === "opened").length;
+        const newResponsesCount = submissionsList.filter(s => s.status === "new").length;
+        const upcomingFollowupsCount = clientsList.filter(c => c.next_activity_date && new Date(c.next_activity_date) >= new Date()).length;
+
+        setMetrics({
+          activeClientsCount,
+          newLeadsCount,
+          awaitingFormsCount,
+          newResponsesCount,
+          upcomingFollowupsCount
+        });
+        setRecentClients(clientsList.slice(0, 4));
+        setRecentSubmissions(submissionsList.slice(0, 3));
+        setActivities(act);
+      } catch (err) {
+        console.error("Dashboard data error:", err);
+      } finally {
+        setLoading(false);
+      }
     }
     loadData();
   }, []);
