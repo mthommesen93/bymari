@@ -131,6 +131,43 @@ export interface Submission {
   files?: UploadedFile[];
 }
 
+export interface QuoteItem {
+  name: string;
+  price: number;
+  quantity?: number;
+}
+
+export type QuoteStatus = "sent" | "opened" | "accepted" | "declined" | "expired";
+
+export interface Quote {
+  id: string;
+  client_id: string | null;
+  token: string;
+  package_name: string;
+  base_price: number;
+  addons: QuoteItem[];
+  custom_lines: QuoteItem[];
+  discount: number;
+  subtotal: number;
+  vat_amount: number;
+  total_price: number;
+  monthly_price?: number;
+  delivery_time: string;
+  validity_days: number;
+  expires_at: string;
+  email_subject: string;
+  email_intro?: string;
+  status: QuoteStatus;
+  accepted_at?: string | null;
+  declined_at?: string | null;
+  signed_name?: string | null;
+  client_note?: string | null;
+  created_at: string;
+  updated_at: string;
+  // Joins
+  client?: Client | null;
+}
+
 export interface ClientNote {
   id: string;
   client_id: string;
@@ -150,6 +187,9 @@ export interface Activity {
     | "form_sent" 
     | "form_opened" 
     | "form_submitted" 
+    | "quote_sent"
+    | "quote_accepted"
+    | "quote_declined"
     | "response_status_changed" 
     | "note_added"
     | "contact_inquiry";
@@ -171,3 +211,4 @@ export interface DashboardMetrics {
   newResponsesCount: number;
   upcomingFollowupsCount: number;
 }
+

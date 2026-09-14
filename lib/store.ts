@@ -10,7 +10,9 @@ import {
   ClientNote, 
   Activity, 
   DashboardMetrics,
-  UploadedFile
+  UploadedFile,
+  Quote,
+  QuoteStatus
 } from "./types";
 import { 
   initialClients, 
@@ -30,6 +32,7 @@ let distributions: FormDistribution[] = [...initialDistributions];
 let submissions: Submission[] = [...initialSubmissions];
 let notes: ClientNote[] = [...initialNotes];
 let activities: Activity[] = [...initialActivities];
+let quotes: Quote[] = [];
 
 function getSupabase() {
   try {
@@ -46,6 +49,7 @@ function getSupabase() {
 const CLIENTS_STORAGE_KEY = "bymari_clients_cache";
 const FORMS_STORAGE_KEY = "bymari_forms_cache";
 const ACTIVITIES_STORAGE_KEY = "bymari_activities_cache";
+const QUOTES_STORAGE_KEY = "bymari_quotes_cache";
 
 function getStored<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
@@ -600,6 +604,125 @@ export const dataStore = {
     const initialLen = notes.length;
     notes = notes.filter(n => n.id !== noteId);
     return notes.length < initialLen;
+  },
+
+  // --------------------------------------------------------------------------
+  // QUOTES (Pristilbud)
+  // --------------------------------------------------------------------------
+  async getQuotes(filters?: { clientId?: string; status?: QuoteStatus }): Promise<Quote[]> {
+    let result = [...quotes];
+    if (filters?.clientId) {
+      result = result.filter(q => q.client_id === filters.clientId);
+    }
+    if (filters?.status) {
+      result = result.filter(q => q.status === filters.status);
+    }
+    return result.map(q => ({
+      ...q,
+      client: clients.find(c => c.id === q.client_id) || null
+    })).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  },
+
+  async getQuoteByToken(token: string): Promise<Quote | null> {
+    const q = quotes.find(item => item.token === token);
+    if (!q) return null;
+    return {
+      ...q,
+      client: clients.find(c => c.id === q.client_id) || null
+    };
+  },
+
+  async getQuoteById(id: string): Promise<Quote | null> {
+    const q = quotes.find(item => item.id === id);
+    if (!q) return null;
+    return {
+      ...q,
+      client: clients.find(c => c.id === q.client_id) || null
+    };
+  },
+
+  async createQuote(data: {
+    client_id: string | null;
+    package_name: string;
+    base_price: number;
+    addons: { name: string; price: number; quantity?: number }[];
+    custom_lines: { name: string; price: number }[];
+    discount: number;
+    subtotal: number;
+    vat_amount: number;
+    total_price: number;
+    monthly_price?: number;
+    delivery_time: string;
+    validity_days: number;
+    email_subject: string;
+    email_intro?: string;
+  }): Promise<Quote> {
+    const token = "tk-quote-" + Date.now().toString(36) + "-" + Math.random().toString(36).substring(2, 7);
+    const expiresAt = new Date(Date.now() + (data.validity_days || 14) * 24 * 60 * 60 * 1000).toISOString();
+
+    const newQuote: Quote = {
+      id: "quote-" + Date.now().toString(36),
+      client_id: data.client_id,
+      token,
+      package_name: data.package_name,
+      base_price: data.base_price,
+      addons: data.addons || [],
+      custom_lines: data.custom_lines || [],
+      discount: data.discount || 0,
+      subtotal: data.subtotal,
+      vat_amount: data.vat_amount || 0,
+      total_price: data.total_price,
+      monthly_price: data.monthly_price || 0,
+      delivery_time: data.delivery_time || "2–3 uker",
+      validity_days: data.validity_days || 14,
+      expires_at: expiresAt,
+      email_subject: data.email_subject,
+      email_intro: data.email_intro || "",
+      status: "sent",
+      accepted_at: null,
+      declined_at: null,
+      signed_name: null,
+      client_note: null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+
+    quotes.unshift(newQuote);
+    setStored(QUOTES_STORAGE_KEY, quotes);
+
+    const client = data.client_id ? clients.find(c => c.id === data.client_id) : null;
+    if (client) {
+      await this.updateClient(client.id, { status: "Tilbud sendt" });
+    }
+
+    await this.logActivity({
+      event_type: "quote_sent",
+      description: `Pristilbud (${data.package_name} - kr ${data.total_price.toLocaleString("no-NO")},-) sendt til ${client?.name || "Kunde"}`,
+      client_id: client?.id,
+      client_name: client?.name,
+      metadata: { quote_id: newQuote.id, token: newQuote.token, total_price: data.total_price }
+    });
+
+    return {
+      ...newQuote,
+      client
+    };
+  },
+
+  async updateQuote(tokenOrId: string, updates: Partial<Quote>): Promise<Quote | null> {
+    const index = quotes.findIndex(q => q.token === tokenOrId || q.id === tokenOrId);
+    if (index === -1) return null;
+
+    const prev = quotes[index];
+    const updated: Quote = {
+      ...prev,
+      ...updates,
+      updated_at: new Date().toISOString()
+    };
+    quotes[index] = updated;
+    setStored(QUOTES_STORAGE_KEY, quotes);
+
+    return updated;
   },
 
   // --------------------------------------------------------------------------

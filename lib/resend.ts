@@ -212,3 +212,256 @@ export async function sendFormSubmissionNotificationEmail(data: {
     return { success: false, error };
   }
 }
+
+/**
+ * Send interactive Quote email to client with Accept / Decline action buttons
+ */
+export async function sendQuoteEmail(data: {
+  recipientEmail: string;
+  recipientName: string;
+  token: string;
+  emailSubject: string;
+  emailIntro?: string;
+  packageName: string;
+  basePrice: number;
+  addons: { name: string; price: number; quantity?: number }[];
+  customLines: { name: string; price: number }[];
+  discount: number;
+  subtotal: number;
+  vatAmount: number;
+  totalPrice: number;
+  monthlyPrice?: number;
+  deliveryTime: string;
+  validityDays: number;
+}) {
+  const quoteUrl = `${APP_URL}/tilbud/${data.token}`;
+  const acceptUrl = `${APP_URL}/tilbud/${data.token}?action=accept`;
+  const declineUrl = `${APP_URL}/tilbud/${data.token}?action=decline`;
+
+  if (process.env.NODE_ENV === "test" || !process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === "demo_key") {
+    console.log(`[Resend Simulator] Quote email to ${data.recipientEmail} (${quoteUrl})`);
+    return { success: true, simulated: true, url: quoteUrl };
+  }
+
+  // Build items HTML table
+  const addonsRows = data.addons
+    .map(
+      (a) => `
+      <tr>
+        <td style="padding: 8px 0; border-bottom: 1px solid #ECE7DF; color: #4A4B48; font-size: 14px;">
+          • ${a.name} ${a.quantity ? `(${a.quantity} stk)` : ""}
+        </td>
+        <td style="padding: 8px 0; border-bottom: 1px solid #ECE7DF; color: #20211F; font-size: 14px; text-align: right; font-family: monospace;">
+          kr ${(a.price * (a.quantity || 1)).toLocaleString("no-NO")},-
+        </td>
+      </tr>`
+    )
+    .join("");
+
+  const customRows = data.customLines
+    .map(
+      (c) => `
+      <tr>
+        <td style="padding: 8px 0; border-bottom: 1px solid #ECE7DF; color: #4A4B48; font-size: 14px;">
+          • ${c.name}
+        </td>
+        <td style="padding: 8px 0; border-bottom: 1px solid #ECE7DF; color: #20211F; font-size: 14px; text-align: right; font-family: monospace;">
+          kr ${c.price.toLocaleString("no-NO")},-
+        </td>
+      </tr>`
+    )
+    .join("");
+
+  const contentHtml = `
+    <div style="background-color: #F7F5F0; border: 1px solid #DED7CB; border-radius: 4px; padding: 24px; margin-bottom: 24px;">
+      <h3 style="margin: 0 0 16px 0; font-size: 15px; font-weight: 600; color: #20211F; text-transform: uppercase; letter-spacing: 0.05em;">
+        Spesifikasjon av leveransen
+      </h3>
+
+      <table width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-bottom: 16px;">
+        <tr>
+          <td style="padding: 8px 0; border-bottom: 1px solid #ECE7DF; color: #20211F; font-size: 14px; font-weight: 500;">
+            ${data.packageName}
+          </td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #ECE7DF; color: #20211F; font-size: 14px; text-align: right; font-family: monospace;">
+            kr ${data.basePrice.toLocaleString("no-NO")},-
+          </td>
+        </tr>
+        ${addonsRows}
+        ${customRows}
+        ${data.discount > 0 ? `
+        <tr>
+          <td style="padding: 8px 0; border-bottom: 1px solid #ECE7DF; color: #2E5C38; font-size: 14px; font-weight: 500;">
+            • Rabatt
+          </td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #ECE7DF; color: #2E5C38; font-size: 14px; text-align: right; font-family: monospace;">
+            - kr ${data.discount.toLocaleString("no-NO")},-
+          </td>
+        </tr>` : ""}
+      </table>
+
+      <div style="border-top: 2px solid #34463B; padding-top: 14px; margin-top: 8px;">
+        <table width="100%" cellspacing="0" cellpadding="0" border="0">
+          <tr>
+            <td style="font-size: 16px; font-weight: 600; color: #20211F;">
+              TOTALPRIS:
+            </td>
+            <td style="font-size: 20px; font-weight: 600; color: #34463B; text-align: right; font-family: monospace;">
+              kr ${data.totalPrice.toLocaleString("no-NO")},-
+            </td>
+          </tr>
+          ${data.monthlyPrice && data.monthlyPrice > 0 ? `
+          <tr>
+            <td style="font-size: 13px; color: #877B6C; padding-top: 4px;">
+              Valgfri månedlig drift:
+            </td>
+            <td style="font-size: 13px; color: #34463B; text-align: right; font-family: monospace; padding-top: 4px;">
+              kr ${data.monthlyPrice.toLocaleString("no-NO")},- / mnd
+            </td>
+          </tr>` : ""}
+        </table>
+      </div>
+    </div>
+
+    <div style="margin-bottom: 28px; padding: 16px; background-color: #FFFFFF; border: 1px solid #ECE7DF; border-radius: 4px; font-size: 13px; color: #4A4B48;">
+      <p style="margin: 0 0 6px 0;"><strong>Estimert leveringstid:</strong> ${data.deliveryTime}</p>
+      <p style="margin: 0 0 6px 0;"><strong>Betalingsbetingelser:</strong> 50% ved oppstart, 50% ved ferdigstillelse og overlevering.</p>
+      <p style="margin: 0;"><strong>Gyldighet:</strong> Tilbudet er gyldig i ${data.validityDays} dager fra i dag.</p>
+    </div>
+
+    <!-- ACTION BUTTONS: ACCEPT / DECLINE -->
+    <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #ECE7DF; text-align: center;">
+      <p style="margin: 0 0 20px 0; font-size: 15px; font-weight: 500; color: #20211F;">
+        Hva tenker du om tilbudet?
+      </p>
+
+      <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="margin: 0 auto;">
+        <tr>
+          <!-- ACCEPT BUTTON -->
+          <td align="center" style="padding-right: 12px;">
+            <a href="${acceptUrl}" style="display: inline-block; background-color: #34463B; color: #FFFFFF; font-size: 15px; font-weight: 600; text-decoration: none; padding: 14px 28px; border-radius: 3px; letter-spacing: 0.02em;">
+              ✓ Aksepter tilbud
+            </a>
+          </td>
+          <!-- DECLINE BUTTON -->
+          <td align="center" style="padding-left: 12px;">
+            <a href="${declineUrl}" style="display: inline-block; background-color: #FFFFFF; color: #737470; border: 1px solid #DED7CB; font-size: 14px; font-weight: 500; text-decoration: none; padding: 13px 22px; border-radius: 3px;">
+              ✕ Avvis tilbud
+            </a>
+          </td>
+        </tr>
+      </table>
+
+      <p style="margin: 20px 0 0 0; font-size: 12px; color: #877B6C;">
+        Du kan også <a href="${quoteUrl}" style="color: #34463B; text-decoration: underline;">se hele tilbudet i nettleseren</a>.
+      </p>
+    </div>
+  `;
+
+  try {
+    const res = await resend.emails.send({
+      from: DEFAULT_FROM_EMAIL,
+      to: data.recipientEmail,
+      subject: data.emailSubject,
+      html: renderByMariEmailHtml({
+        title: `Pristilbud til ${data.recipientName}`,
+        intro: data.emailIntro || `Hei ${data.recipientName}, her er det skreddersydde pristilbudet for prosjektet ditt.`,
+        contentHtml,
+        footerNote: "by mari — Digitale løsninger, laget med omhu."
+      })
+    });
+    return { success: true, data: res, url: quoteUrl };
+  } catch (error) {
+    console.error("Resend quote email error:", error);
+    return { success: false, error };
+  }
+}
+
+/**
+ * Notify Mari when client accepts quote
+ */
+export async function sendQuoteAcceptedNotificationEmail(data: {
+  quoteId: string;
+  clientName: string;
+  clientEmail: string;
+  totalPrice: number;
+  signedName?: string;
+  note?: string;
+}) {
+  if (process.env.NODE_ENV === "test" || !process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === "demo_key") {
+    console.log(`[Resend Simulator] Quote accepted by ${data.clientName}`);
+    return { success: true, simulated: true };
+  }
+
+  const contentHtml = `
+    <div style="background-color: #EBF3ED; border: 1px solid #C4DEC9; border-radius: 4px; padding: 24px; margin-bottom: 20px;">
+      <h3 style="margin: 0 0 12px 0; color: #2E5C38; font-size: 16px;">🎉 Gratulerer, tilbudet er akseptert!</h3>
+      <p style="margin: 0 0 8px 0; font-size: 14px; color: #20211F;"><strong>Kunde:</strong> ${data.clientName} (${data.clientEmail})</p>
+      <p style="margin: 0 0 8px 0; font-size: 14px; color: #20211F;"><strong>Beløp:</strong> kr ${data.totalPrice.toLocaleString("no-NO")},-</p>
+      ${data.signedName ? `<p style="margin: 0 0 8px 0; font-size: 14px; color: #20211F;"><strong>Signert av:</strong> ${data.signedName}</p>` : ""}
+      ${data.note ? `<p style="margin: 0; font-size: 14px; color: #20211F;"><strong>Kommentar fra kunden:</strong> ${data.note}</p>` : ""}
+    </div>
+  `;
+
+  try {
+    const res = await resend.emails.send({
+      from: DEFAULT_FROM_EMAIL,
+      to: ADMIN_NOTIFICATION_EMAIL,
+      subject: `🎉 Tilbud akseptert av ${data.clientName} (kr ${data.totalPrice.toLocaleString("no-NO")},-)`,
+      html: renderByMariEmailHtml({
+        title: "Pristilbud akseptert!",
+        intro: `Kunden har takket ja til tilbudet. Status i CRM er oppdatert til «Aktiv kunde».`,
+        contentHtml,
+        ctaText: "Åpne kundekort i admin",
+        ctaUrl: `${APP_URL}/admin/kunder`
+      })
+    });
+    return { success: true, data: res };
+  } catch (error) {
+    console.error("Resend quote accepted notification error:", error);
+    return { success: false, error };
+  }
+}
+
+/**
+ * Notify Mari when client declines quote
+ */
+export async function sendQuoteDeclinedNotificationEmail(data: {
+  quoteId: string;
+  clientName: string;
+  clientEmail: string;
+  totalPrice: number;
+  reason?: string;
+}) {
+  if (process.env.NODE_ENV === "test" || !process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === "demo_key") {
+    console.log(`[Resend Simulator] Quote declined by ${data.clientName}`);
+    return { success: true, simulated: true };
+  }
+
+  const contentHtml = `
+    <div style="background-color: #F7F5F0; border: 1px solid #DED7CB; border-radius: 4px; padding: 20px; margin-bottom: 20px;">
+      <p style="margin: 0 0 8px 0; font-size: 14px; color: #20211F;"><strong>Kunde:</strong> ${data.clientName} (${data.clientEmail})</p>
+      <p style="margin: 0 0 8px 0; font-size: 14px; color: #20211F;"><strong>Tilbudsbeløp:</strong> kr ${data.totalPrice.toLocaleString("no-NO")},-</p>
+      ${data.reason ? `<p style="margin: 0; font-size: 14px; color: #20211F;"><strong>Oppgitt grunn / tilbakemelding:</strong> ${data.reason}</p>` : ""}
+    </div>
+  `;
+
+  try {
+    const res = await resend.emails.send({
+      from: DEFAULT_FROM_EMAIL,
+      to: ADMIN_NOTIFICATION_EMAIL,
+      subject: `Tilbud avvist av ${data.clientName}`,
+      html: renderByMariEmailHtml({
+        title: "Pristilbud avvist",
+        intro: `Kunden har takket nei til tilbudet.`,
+        contentHtml,
+        ctaText: "Se kunde i admin",
+        ctaUrl: `${APP_URL}/admin/kunder`
+      })
+    });
+    return { success: true, data: res };
+  } catch (error) {
+    console.error("Resend quote declined notification error:", error);
+    return { success: false, error };
+  }
+}

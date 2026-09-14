@@ -8,7 +8,7 @@ import { StatusBadge } from "@/components/admin/StatusBadge";
 import { Modal } from "@/components/admin/Modal";
 import { dataStore } from "@/lib/store";
 import { PriceCalculator } from "@/components/admin/PriceCalculator";
-import { Client, ClientStatus, ClientNote, FormDistribution, Submission } from "@/lib/types";
+import { Client, ClientStatus, ClientNote, FormDistribution, Submission, Quote } from "@/lib/types";
 import { 
   ArrowLeft, 
   Mail, 
@@ -26,7 +26,10 @@ import {
   Plus,
   ExternalLink,
   Download,
-  Calculator
+  Calculator,
+  CheckCircle2,
+  XCircle,
+  Clock
 } from "lucide-react";
 
 export default function KundeDetailPage() {
@@ -38,7 +41,8 @@ export default function KundeDetailPage() {
   const [notes, setNotes] = useState<ClientNote[]>([]);
   const [distributions, setDistributions] = useState<FormDistribution[]>([]);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
-  const [activeTab, setActiveTab] = useState<"notater" | "skjemaer" | "svar" | "filer">("notater");
+  const [quotes, setQuotes] = useState<Quote[]>([]);
+  const [activeTab, setActiveTab] = useState<"notater" | "skjemaer" | "svar" | "tilbud" | "filer">("notater");
   const [loading, setLoading] = useState(true);
 
   // Note form state
@@ -71,16 +75,18 @@ export default function KundeDetailPage() {
       return;
     }
 
-    let [n, d, s] = await Promise.all([
+    let [n, d, s, q] = await Promise.all([
       dataStore.getClientNotes(id),
       dataStore.getDistributions({ clientId: id }),
-      dataStore.getSubmissions({ clientId: id })
+      dataStore.getSubmissions({ clientId: id }),
+      dataStore.getQuotes({ clientId: id })
     ]);
 
     try {
-      const [dRes, sRes] = await Promise.all([
+      const [dRes, sRes, qRes] = await Promise.all([
         fetch(`/api/forms/distribute?clientId=${id}`),
-        fetch(`/api/forms/submissions?clientId=${id}`)
+        fetch(`/api/forms/submissions?clientId=${id}`),
+        fetch(`/api/quotes/send?clientId=${id}`)
       ]);
       if (dRes.ok) {
         const dJson = await dRes.json();
@@ -90,6 +96,10 @@ export default function KundeDetailPage() {
         const sJson = await sRes.json();
         if (sJson.submissions && sJson.submissions.length > 0) s = sJson.submissions;
       }
+      if (qRes.ok) {
+        const qJson = await qRes.json();
+        if (qJson.quotes && qJson.quotes.length > 0) q = qJson.quotes;
+      }
     } catch {}
 
     setClient(c);
@@ -97,6 +107,7 @@ export default function KundeDetailPage() {
     setNotes(n);
     setDistributions(d);
     setSubmissions(s);
+    setQuotes(q);
     setLoading(false);
   };
 
@@ -331,6 +342,21 @@ export default function KundeDetailPage() {
 
         <button
           type="button"
+          onClick={() => setActiveTab("tilbud")}
+          className={`pb-3 text-sm font-medium transition-colors border-b-2 ${
+            activeTab === "tilbud"
+              ? "border-forest-green text-charcoal"
+              : "border-transparent text-charcoal/60 hover:text-charcoal"
+          }`}
+        >
+          <span className="flex items-center space-x-2">
+            <Calculator className="w-4 h-4" />
+            <span>Pristilbud ({quotes.length})</span>
+          </span>
+        </button>
+
+        <button
+          type="button"
           onClick={() => setActiveTab("filer")}
           className={`pb-3 text-sm font-medium transition-colors border-b-2 ${
             activeTab === "filer"
@@ -530,7 +556,118 @@ export default function KundeDetailPage() {
         </div>
       )}
 
-      {/* Tab 4: Opplastede Filer */}
+      {/* Tab 4: Pristilbud */}
+      {activeTab === "tilbud" && (
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            <p className="text-sm text-charcoal/70">
+              Pristilbud og avtaler sendt til {client.name}.
+            </p>
+            <button
+              type="button"
+              onClick={() => setIsQuoteModalOpen(true)}
+              className="inline-flex items-center space-x-1.5 px-3.5 py-2 text-xs font-medium bg-forest-green text-warm-white rounded-sm hover:bg-forest-green-hover transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Opprett / send nytt tilbud</span>
+            </button>
+          </div>
+
+          <div className="bg-white border border-sand rounded-sm overflow-hidden">
+            {quotes.length === 0 ? (
+              <div className="py-12 text-center space-y-3">
+                <p className="text-sm text-charcoal/60">
+                  Ingen pristilbud er sendt til denne kunden ennå.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setIsQuoteModalOpen(true)}
+                  className="px-4 py-2 bg-forest-green text-warm-white text-xs font-medium rounded-sm hover:bg-forest-green-hover transition-colors"
+                >
+                  Lag et pristilbud nå
+                </button>
+              </div>
+            ) : (
+              <table className="w-full text-left text-sm">
+                <thead className="bg-[#FAF8F5] border-b border-sand text-xs uppercase tracking-wider text-charcoal/60 font-mono">
+                  <tr>
+                    <th className="py-3 px-4">Pakke / Leveranse</th>
+                    <th className="py-3 px-4">Beløp</th>
+                    <th className="py-3 px-4">Status</th>
+                    <th className="py-3 px-4">Sendt dato</th>
+                    <th className="py-3 px-4">Gyldig til</th>
+                    <th className="py-3 px-4 text-right">Handling</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-sand/60">
+                  {quotes.map((q) => (
+                    <tr key={q.id || q.token} className="hover:bg-sand/10 transition-colors">
+                      <td className="py-3.5 px-4 font-medium text-charcoal">
+                        {q.package_name}
+                      </td>
+                      <td className="py-3.5 px-4 font-mono font-medium text-forest-green">
+                        kr {q.total_price.toLocaleString("no-NO")},-
+                      </td>
+                      <td className="py-3.5 px-4">
+                        {q.status === "accepted" && (
+                          <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium bg-emerald-100 text-emerald-800 rounded-sm">
+                            <CheckCircle2 className="w-3 h-3 mr-1" />
+                            Akseptert {q.signed_name ? `(${q.signed_name})` : ""}
+                          </span>
+                        )}
+                        {q.status === "declined" && (
+                          <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium bg-gray-200 text-gray-700 rounded-sm">
+                            <XCircle className="w-3 h-3 mr-1" />
+                            Avvist
+                          </span>
+                        )}
+                        {q.status === "opened" && (
+                          <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 rounded-sm">
+                            <Clock className="w-3 h-3 mr-1" />
+                            Åpnet av kunde
+                          </span>
+                        )}
+                        {q.status === "sent" && (
+                          <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium bg-amber-100 text-amber-800 rounded-sm">
+                            <Send className="w-3 h-3 mr-1" />
+                            Sendt
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-3.5 px-4 text-xs text-charcoal/70 font-mono">
+                        {new Date(q.created_at).toLocaleDateString("no-NO", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric"
+                        })}
+                      </td>
+                      <td className="py-3.5 px-4 text-xs text-charcoal/70 font-mono">
+                        {new Date(q.expires_at).toLocaleDateString("no-NO", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric"
+                        })}
+                      </td>
+                      <td className="py-3.5 px-4 text-right space-x-2">
+                        <Link
+                          href={`/tilbud/${q.token}`}
+                          target="_blank"
+                          className="text-xs text-forest-green hover:underline inline-flex items-center space-x-1"
+                        >
+                          <span>Vis tilbud</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Tab 5: Opplastede Filer */}
       {activeTab === "filer" && (
         <div className="space-y-6">
           <div className="bg-white border border-sand rounded-sm p-6">

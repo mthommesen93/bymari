@@ -229,6 +229,120 @@ export function PriceCalculator({ client, onSaved }: PriceCalculatorProps) {
     return lines.join("\n");
   }, [basePackage, basePrice, addons, customLines, discount, subtotal, vatAmount, totalOneTime, monthlyMaintenance, deliveryTime, validityDays, includeVat, client]);
 
+  // Send Quote Email Modal State
+  const [isSendModalOpen, setIsSendModalOpen] = useState(false);
+  const [allClients, setAllClients] = useState<Client[]>([]);
+  const [selectedRecipientId, setSelectedRecipientId] = useState<string>(client?.id || "");
+  const [recipientName, setRecipientName] = useState<string>(client?.name || "");
+  const [recipientEmail, setRecipientEmail] = useState<string>(client?.email || "");
+  const [emailSubject, setEmailSubject] = useState<string>("");
+  const [emailIntro, setEmailIntro] = useState<string>("");
+  const [isSending, setIsSending] = useState(false);
+  const [sendSuccessResult, setSendSuccessResult] = useState<{ quote: any; url: string } | null>(null);
+
+  // Sync recipient when client prop changes
+  React.useEffect(() => {
+    if (client) {
+      setSelectedRecipientId(client.id);
+      setRecipientName(client.name);
+      setRecipientEmail(client.email);
+    }
+  }, [client]);
+
+  // Load clients list if needed for picker
+  React.useEffect(() => {
+    async function loadAllClients() {
+      try {
+        const c = await dataStore.getClients();
+        setAllClients(c);
+      } catch (err) {
+        console.warn("Failed loading clients in calculator:", err);
+      }
+    }
+    loadAllClients();
+  }, []);
+
+  const openSendModal = () => {
+    const pkgName = packages[basePackage]?.name || "Skreddersydd prosjekt";
+    const name = client?.name || recipientName || "kunde";
+    setEmailSubject(`Pristilbud fra by mari: ${pkgName}`);
+    setEmailIntro(`Hei ${name},\n\nTakk for en hyggelig samtale om prosjektet ditt! Her er det skreddersydde pristilbudet med spesifikasjon av leveransen og betingelser.`);
+    setSendSuccessResult(null);
+    setIsSendModalOpen(true);
+  };
+
+  const handleRecipientSelect = (clientId: string) => {
+    setSelectedRecipientId(clientId);
+    const matched = allClients.find(c => c.id === clientId);
+    if (matched) {
+      setRecipientName(matched.name);
+      setRecipientEmail(matched.email);
+      const pkgName = packages[basePackage]?.name || "Skreddersydd prosjekt";
+      setEmailIntro(`Hei ${matched.name},\n\nTakk for en hyggelig samtale om prosjektet ditt! Her er det skreddersydde pristilbudet med spesifikasjon av leveransen og betingelser.`);
+    }
+  };
+
+  const handleSendQuoteEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!recipientEmail.trim() || !recipientName.trim()) {
+      alert("Vennligst oppgi navn og e-postadresse til mottaker.");
+      return;
+    }
+
+    setIsSending(true);
+    try {
+      const selectedAddons = addons
+        .filter(a => a.selected && a.id !== "maintenance")
+        .map(a => ({
+          name: a.name,
+          price: a.price,
+          quantity: a.hasQuantity ? (a.quantity || 1) : 1
+        }));
+
+      const res = await fetch("/api/quotes/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          clientId: selectedRecipientId || null,
+          clientName: recipientName.trim(),
+          clientEmail: recipientEmail.trim(),
+          packageName: packages[basePackage].name,
+          basePrice,
+          addons: selectedAddons,
+          customLines,
+          discount,
+          subtotal,
+          vatAmount,
+          totalPrice: totalOneTime,
+          monthlyPrice: monthlyMaintenance,
+          deliveryTime,
+          validityDays,
+          emailSubject,
+          emailIntro,
+          sendEmailDirectly: true
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Kunne ikke sende pristilbudet.");
+      }
+
+      setSendSuccessResult({
+        quote: data.quote,
+        url: `${window.location.origin}/tilbud/${data.quote.token}`
+      });
+
+      setSavedMessage(`Pristilbudet er sendt til ${recipientEmail}!`);
+      setTimeout(() => setSavedMessage(""), 5000);
+      if (onSaved) onSaved();
+    } catch (err: any) {
+      alert(err.message || "Det oppstod en feil under sending av tilbud.");
+    } finally {
+      setIsSending(false);
+    }
+  };
+
   const handleCopyQuote = () => {
     navigator.clipboard.writeText(quoteText);
     setCopied(true);
@@ -518,6 +632,15 @@ export function PriceCalculator({ client, onSaved }: PriceCalculatorProps) {
           <div className="space-y-3 pt-2">
             <button
               type="button"
+              onClick={openSendModal}
+              className="w-full py-3 bg-[#34463B] hover:bg-[#28372E] text-white text-xs font-semibold rounded-sm transition-colors flex items-center justify-center space-x-2 shadow-sm"
+            >
+              <Send className="w-4 h-4" />
+              <span>Send pristilbud til kunde per e-post</span>
+            </button>
+
+            <button
+              type="button"
               onClick={handleCopyQuote}
               className="w-full py-2.5 bg-white border border-sand hover:bg-sand/30 text-charcoal text-xs font-medium rounded-sm transition-colors flex items-center justify-center space-x-2"
             >
@@ -538,10 +661,10 @@ export function PriceCalculator({ client, onSaved }: PriceCalculatorProps) {
               <button
                 type="button"
                 onClick={handleSaveToClient}
-                className="w-full py-2.5 bg-forest-green hover:bg-forest-green-hover text-warm-white text-xs font-medium rounded-sm transition-colors flex items-center justify-center space-x-2 shadow-sm"
+                className="w-full py-2.5 bg-sand/30 hover:bg-sand/50 text-charcoal text-xs font-medium border border-sand rounded-sm transition-colors flex items-center justify-center space-x-2"
               >
                 <FileText className="w-3.5 h-3.5" />
-                <span>Lagre tilbud på kunden i CRM</span>
+                <span>Lagre kun som internt notat i CRM</span>
               </button>
             )}
           </div>
@@ -563,6 +686,204 @@ export function PriceCalculator({ client, onSaved }: PriceCalculatorProps) {
           </div>
         </div>
       </div>
+
+      {/* SEND QUOTE MODAL */}
+      {isSendModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4 backdrop-blur-xs">
+          <div className="bg-white border border-[#DED7CB] rounded-sm shadow-xl max-w-lg w-full p-6 sm:p-8 space-y-5 animate-in fade-in zoom-in-95 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-start justify-between">
+              <div>
+                <span className="text-[11px] font-mono uppercase tracking-widest text-[#34463B] font-semibold">
+                  E-postutsending
+                </span>
+                <h2 className="text-xl font-medium text-[#20211F] mt-1">
+                  Send pristilbud til kunde
+                </h2>
+              </div>
+              <button
+                onClick={() => setIsSendModalOpen(false)}
+                className="text-gray-400 hover:text-gray-600 p-1"
+              >
+                ✕
+              </button>
+            </div>
+
+            {sendSuccessResult ? (
+              <div className="space-y-4 py-2">
+                <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-sm space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                    <p className="text-sm font-semibold">Pristilbudet er sendt!</p>
+                  </div>
+                  <p className="text-xs text-emerald-800 leading-relaxed">
+                    E-post med interaktive aksept-/avvisningsknapper er sendt til <strong>{recipientEmail}</strong>.
+                  </p>
+                </div>
+
+                <div className="p-3.5 bg-[#F7F5F0] border border-[#DED7CB] rounded-sm space-y-2">
+                  <label className="block text-[11px] uppercase font-mono tracking-wider text-[#877B6C] font-semibold">
+                    Direkte lenke til kundens tilbudsside:
+                  </label>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="text"
+                      readOnly
+                      value={sendSuccessResult.url}
+                      className="flex-1 px-3 py-1.5 bg-white border border-[#DED7CB] rounded-sm text-xs font-mono select-all focus:outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(sendSuccessResult.url);
+                        alert("Lenke kopiert til utklippstavlen!");
+                      }}
+                      className="px-3 py-1.5 bg-[#34463B] text-white text-xs font-medium rounded-sm hover:bg-[#28372E] shrink-0"
+                    >
+                      Kopier lenke
+                    </button>
+                  </div>
+                </div>
+
+                <div className="pt-2 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsSendModalOpen(false);
+                      setSendSuccessResult(null);
+                    }}
+                    className="px-5 py-2 bg-[#34463B] text-white text-xs font-medium rounded-sm hover:bg-[#28372E]"
+                  >
+                    Lukk vindu
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <form onSubmit={handleSendQuoteEmail} className="space-y-4">
+                {/* Summary Pill */}
+                <div className="p-3.5 bg-[#F7F5F0] border border-[#DED7CB] rounded-sm flex items-center justify-between text-xs">
+                  <div>
+                    <span className="font-medium text-[#20211F]">{packages[basePackage].name}</span>
+                    <p className="text-[#877B6C] text-[11px]">Leveringstid: {deliveryTime} • Gyldighet: {validityDays} dager</p>
+                  </div>
+                  <span className="text-base font-mono font-semibold text-[#34463B]">
+                    kr {totalOneTime.toLocaleString("no-NO")},-
+                  </span>
+                </div>
+
+                {/* Recipient select or manual */}
+                {allClients.length > 0 && !client && (
+                  <div>
+                    <label className="block text-xs font-medium text-[#20211F] mb-1">
+                      Velg eksisterende kunde fra CRM (valgfritt)
+                    </label>
+                    <select
+                      value={selectedRecipientId}
+                      onChange={(e) => handleRecipientSelect(e.target.value)}
+                      className="w-full px-3 py-2 bg-warm-white border border-[#DED7CB] rounded-sm text-xs font-medium text-[#20211F] focus:outline-none focus:border-[#34463B]"
+                    >
+                      <option value="">-- Velg kunde eller skriv inn manuelt nedenfor --</option>
+                      {allClients.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name} {c.company ? `(${c.company})` : ""} - {c.email}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium text-[#20211F] mb-1">
+                      Kundenavn *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={recipientName}
+                      onChange={(e) => setRecipientName(e.target.value)}
+                      placeholder="Ola Nordmann"
+                      className="w-full px-3 py-2 bg-warm-white border border-[#DED7CB] rounded-sm text-xs focus:outline-none focus:border-[#34463B]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-[#20211F] mb-1">
+                      Mottakers e-postadresse *
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      value={recipientEmail}
+                      onChange={(e) => setRecipientEmail(e.target.value)}
+                      placeholder="kunde@bedrift.no"
+                      className="w-full px-3 py-2 bg-warm-white border border-[#DED7CB] rounded-sm text-xs focus:outline-none focus:border-[#34463B]"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-[#20211F] mb-1">
+                    E-postemne *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={emailSubject}
+                    onChange={(e) => setEmailSubject(e.target.value)}
+                    className="w-full px-3 py-2 bg-warm-white border border-[#DED7CB] rounded-sm text-xs focus:outline-none focus:border-[#34463B]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-[#20211F] mb-1">
+                    Personlig hilsen / introduksjon i e-posten
+                  </label>
+                  <textarea
+                    rows={4}
+                    value={emailIntro}
+                    onChange={(e) => setEmailIntro(e.target.value)}
+                    placeholder="Skriv en personlig innledning..."
+                    className="w-full p-3 bg-warm-white border border-[#DED7CB] rounded-sm text-xs focus:outline-none focus:border-[#34463B] leading-relaxed"
+                  />
+                </div>
+
+                <div className="p-3 bg-warm-white border border-[#DED7CB] rounded-sm text-[11px] text-[#4A4B48] leading-relaxed space-y-1">
+                  <p className="font-semibold text-[#20211F]">✨ Interaktiv e-post med svarknapper:</p>
+                  <p>
+                    E-posten sendes fra <strong>hei@bymari.no</strong> med profesjonell spesifikasjonstabell og to direkte svarknapper: <strong>«Aksepter tilbud»</strong> og <strong>«Avvis tilbud»</strong>.
+                  </p>
+                  <p>
+                    Når kunden aksepterer, oppdateres status i CRM automatisk til <strong>«Aktiv kunde»</strong>, og du mottar et e-postvarsel umiddelbart.
+                  </p>
+                </div>
+
+                <div className="pt-3 border-t border-[#DED7CB] flex items-center justify-end space-x-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setIsSendModalOpen(false)}
+                    className="px-4 py-2 border border-[#DED7CB] text-xs font-medium text-[#737470] hover:text-[#20211F] rounded-sm"
+                  >
+                    Avbryt
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSending || !recipientName.trim() || !recipientEmail.trim()}
+                    className="px-6 py-2 bg-[#34463B] hover:bg-[#28372E] text-white text-xs font-semibold rounded-sm transition-colors disabled:opacity-60 flex items-center space-x-1.5 shadow-sm"
+                  >
+                    {isSending ? (
+                      <span>Sender tilbud...</span>
+                    ) : (
+                      <>
+                        <Send className="w-3.5 h-3.5" />
+                        <span>Send tilbud nå</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
