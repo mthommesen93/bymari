@@ -1222,6 +1222,22 @@ export const initialForms: Form[] = [
 
 export const initialDistributions: FormDistribution[] = [
   {
+    id: "dist-gro-drage-evjen",
+    form_id: "f-prosjektskjema",
+    client_id: "c-gro-drage-evjen",
+    token: "bm-gro-drage-evjen",
+    email_subject: "Skjema fra by mari: Prosjektskjema",
+    email_intro: "Hei Gro, her er forberedelsesskjemaet for prosjektet.",
+    expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    status: "submitted",
+    opened_at: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+    submitted_at: new Date().toISOString(),
+    created_at: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
+    updated_at: new Date().toISOString(),
+    client: initialClients[0],
+    form: initialForms[0]
+  },
+  {
     id: "dist-prosjektskjema-hoved",
     form_id: "f-prosjektskjema",
     client_id: null,
@@ -1237,18 +1253,107 @@ export const initialDistributions: FormDistribution[] = [
   }
 ];
 
-
-export const initialSubmissions: Submission[] = [];
+export const initialSubmissions: Submission[] = [
+  {
+    id: "sub-gro-drage-evjen",
+    form_id: "f-prosjektskjema",
+    client_id: "c-gro-drage-evjen",
+    distribution_id: "dist-gro-drage-evjen",
+    status: "new",
+    internal_notes: "Innsendt prosjektskjema mottatt via e-postbekreftelse.",
+    submitted_at: new Date().toISOString(),
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    client: initialClients[0],
+    form: initialForms[0],
+    answers: [
+      {
+        id: "ans-1",
+        submission_id: "sub-gro-drage-evjen",
+        field_id: "fld-ps-1",
+        field_label: "1. Hva heter virksomheten?",
+        value: "Gro Drage Evjen",
+        created_at: new Date().toISOString()
+      },
+      {
+        id: "ans-2",
+        submission_id: "sub-gro-drage-evjen",
+        field_id: "fld-ps-2",
+        field_label: "2. Hva heter kontaktpersonen?",
+        value: "Gro Drage Evjen",
+        created_at: new Date().toISOString()
+      },
+      {
+        id: "ans-3",
+        submission_id: "sub-gro-drage-evjen",
+        field_id: "fld-ps-3",
+        field_label: "3. Hva er epostadressen din?",
+        value: "grodrageevjen@gmail.com",
+        created_at: new Date().toISOString()
+      },
+      {
+        id: "ans-4",
+        submission_id: "sub-gro-drage-evjen",
+        field_id: "fld-ps-4",
+        field_label: "4. Hva er telefonnummeret ditt?",
+        value: "—",
+        created_at: new Date().toISOString()
+      },
+      {
+        id: "ans-5",
+        submission_id: "sub-gro-drage-evjen",
+        field_id: "fld-ps-5",
+        field_label: "5. Hva tilbyr virksomheten?",
+        value: "Nye nettsider og digital profil.",
+        created_at: new Date().toISOString()
+      },
+      {
+        id: "ans-6",
+        submission_id: "sub-gro-drage-evjen",
+        field_id: "fld-ps-6",
+        field_label: "6. Hvem er de viktigste kundene deres?",
+        value: "Både private og bedriftskunder.",
+        created_at: new Date().toISOString()
+      },
+      {
+        id: "ans-7",
+        submission_id: "sub-gro-drage-evjen",
+        field_id: "fld-ps-7",
+        field_label: "7. Hva er hovedformålet med nettsiden?",
+        value: "Få et profesjonelt og innbydende uttrykk som gjør det enkelt å ta kontakt.",
+        created_at: new Date().toISOString()
+      },
+      {
+        id: "ans-8",
+        submission_id: "sub-gro-drage-evjen",
+        field_id: "fld-ps-8",
+        field_label: "8. Har dere profilmanual eller logo fra før?",
+        value: "Trenger hjelp med helhetlig oppsett.",
+        created_at: new Date().toISOString()
+      }
+    ],
+    files: []
+  }
+];
 
 export const initialNotes: ClientNote[] = [];
 
 export const initialActivities: Activity[] = [
+  {
+    id: "act-init-2",
+    event_type: "form_submitted",
+    description: "Svar på Prosjektskjema mottatt fra Gro Drage Evjen.",
+    client_id: "c-gro-drage-evjen",
+    client_name: "Gro Drage Evjen",
+    created_at: new Date().toISOString()
+  },
   {
     id: "act-init-1",
     event_type: "contact_inquiry",
     description: "Henvendelse mottatt fra Gro Drage Evjen via nettsiden bymari.no.",
     client_id: "c-gro-drage-evjen",
     client_name: "Gro Drage Evjen",
-    created_at: new Date().toISOString()
+    created_at: new Date(Date.now() - 60 * 60 * 1000).toISOString()
   }
 ];
+

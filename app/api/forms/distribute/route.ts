@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { dataStore } from "@/lib/store";
 import { sendFormDistributionEmail } from "@/lib/resend";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { initialDistributions } from "@/lib/demo-data";
 
 export async function GET(req: NextRequest) {
   try {
@@ -9,8 +10,27 @@ export async function GET(req: NextRequest) {
     const formId = searchParams.get("formId") || undefined;
     const clientId = searchParams.get("clientId") || undefined;
 
-    const supabase = createAdminClient();
+    let allDistributions: any[] = [];
+
+    // 1. Fetch from site_content (key: form_distributions_all)
     try {
+      const supabase = createAdminClient();
+      const { data: scData } = await supabase
+        .from("site_content")
+        .select("content")
+        .eq("key", "form_distributions_all")
+        .single();
+
+      if (scData?.content && Array.isArray(scData.content)) {
+        allDistributions = scData.content;
+      }
+    } catch (scErr) {
+      console.warn("site_content distributions query fallback:", scErr);
+    }
+
+    // 2. Fetch from relational database table
+    try {
+      const supabase = createAdminClient();
       let query = supabase
         .from("form_distributions")
         .select("*, form:forms(*), client:clients(*)")
@@ -21,14 +41,34 @@ export async function GET(req: NextRequest) {
 
       const { data, error } = await query;
       if (!error && data && data.length > 0) {
-        return NextResponse.json({ success: true, distributions: data });
+        const existingIds = new Set(allDistributions.map(d => d.id || d.token));
+        data.forEach(d => {
+          if (!existingIds.has(d.id) && !existingIds.has(d.token)) {
+            allDistributions.push(d);
+          }
+        });
       }
     } catch (dbErr) {
       console.warn("DB distributions fetch fallback:", dbErr);
     }
 
-    const memoryDistributions = await dataStore.getDistributions({ formId, clientId });
-    return NextResponse.json({ success: true, distributions: memoryDistributions });
+    // 3. Fallback to memory / initial distributions
+    if (allDistributions.length === 0) {
+      const memoryDistributions = await dataStore.getDistributions({ formId, clientId });
+      allDistributions = memoryDistributions.length > 0 ? memoryDistributions : initialDistributions;
+    }
+
+    if (formId) {
+      allDistributions = allDistributions.filter(d => d.form_id === formId || d.form?.id === formId);
+    }
+    if (clientId) {
+      allDistributions = allDistributions.filter(d => d.client_id === clientId || d.client?.id === clientId);
+    }
+
+    return NextResponse.json({
+      success: true,
+      distributions: allDistributions.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
@@ -67,19 +107,60 @@ export async function POST(req: NextRequest) {
       expires_at: formattedExpiresAt
     });
 
-    // 2. Persist to Supabase if connected
+    const fullDistRecord = {
+      ...newDist,
+      form: {
+        id: form.id,
+        title: form.title,
+        slug: form.slug
+      },
+      client: client ? {
+        id: client.id,
+        name: client.name,
+        email: client.email,
+        company: client.company
+      } : null
+    };
+
+    // 2. Dual-layer persistence in Supabase
     try {
       const supabase = createAdminClient();
-      await supabase.from("form_distributions").insert([{
-        id: newDist.id,
-        form_id: form.id,
-        client_id: client ? client.id : null,
-        token: newDist.token,
-        email_subject: newDist.email_subject,
-        email_intro: newDist.email_intro,
-        expires_at: newDist.expires_at,
-        status: "sent"
-      }]);
+
+      // Layer A: Save in site_content key "form_distributions_all"
+      try {
+        const { data: existingContent } = await supabase
+          .from("site_content")
+          .select("content")
+          .eq("key", "form_distributions_all")
+          .single();
+
+        const currentList = Array.isArray(existingContent?.content) ? existingContent.content : [...initialDistributions];
+        const updatedList = [fullDistRecord, ...currentList.filter((d: any) => d.id !== fullDistRecord.id && d.token !== fullDistRecord.token)];
+
+        await supabase.from("site_content").upsert({
+          key: "form_distributions_all",
+          content: updatedList,
+          updated_at: new Date().toISOString()
+        });
+      } catch (scErr) {
+        console.warn("site_content distribution upsert error:", scErr);
+      }
+
+      // Layer B: Relational table
+      try {
+        await supabase.from("form_distributions").insert([{
+          id: newDist.id,
+          form_id: form.id,
+          client_id: client ? client.id : null,
+          token: newDist.token,
+          email_subject: newDist.email_subject,
+          email_intro: newDist.email_intro,
+          expires_at: newDist.expires_at,
+          status: "sent"
+        }]);
+      } catch (relErr) {
+        console.warn("Relational distribution insert fallback:", relErr);
+      }
     } catch (dbErr) {
       console.warn("Supabase distribution write fallback:", dbErr);
     }
@@ -99,7 +180,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      distribution: newDist,
+      distribution: fullDistRecord,
       emailSent: Boolean(emailResult?.success),
       emailResult
     });
@@ -111,4 +192,5 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
 

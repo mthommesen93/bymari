@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { dataStore } from "@/lib/store";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { initialSubmissions } from "@/lib/demo-data";
 
 export async function GET(req: NextRequest) {
   try {
@@ -50,10 +51,10 @@ export async function GET(req: NextRequest) {
       console.warn("DB submissions query fallback:", dbErr);
     }
 
-    // 3. Fallback to memory store if empty
+    // 3. Fallback to memory / initial submissions if empty
     if (allSubmissions.length === 0) {
       const memorySubmissions = await dataStore.getSubmissions({ formId, clientId });
-      allSubmissions = memorySubmissions;
+      allSubmissions = memorySubmissions.length > 0 ? memorySubmissions : initialSubmissions;
     }
 
     // Filter if query params provided
