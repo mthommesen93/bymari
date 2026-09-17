@@ -174,7 +174,36 @@ export default function CustomerQuotePage({
     );
   }
 
-  const isExpired = new Date(quote.expires_at).getTime() < Date.now() && quote.status === "sent";
+  // Helper to determine if quote deadline has passed (with end-of-day buffer)
+  const isQuoteExpired = (expiresAt?: string | null, status?: string): boolean => {
+    if (status === "accepted" || status === "declined") return false;
+    if (!expiresAt) return false;
+    const exp = new Date(expiresAt);
+    if (isNaN(exp.getTime()) || exp.getTime() === 0) return false;
+    
+    // If midnight UTC/local (00:00:00), grant until 23:59:59.999 of that day
+    if (exp.getUTCHours() === 0 && exp.getUTCMinutes() === 0 && exp.getUTCSeconds() === 0) {
+      exp.setUTCHours(23, 59, 59, 999);
+    }
+    return exp.getTime() < Date.now();
+  };
+
+  const formatSafeDate = (dateString?: string | null, fallbackDays = 0): string => {
+    if (!dateString) {
+      const d = new Date();
+      d.setDate(d.getDate() + fallbackDays);
+      return d.toLocaleDateString("no-NO");
+    }
+    const d = new Date(dateString);
+    if (isNaN(d.getTime()) || d.getTime() === 0) {
+      const fallback = new Date();
+      fallback.setDate(fallback.getDate() + fallbackDays);
+      return fallback.toLocaleDateString("no-NO");
+    }
+    return d.toLocaleDateString("no-NO");
+  };
+
+  const isExpired = isQuoteExpired(quote.expires_at, quote.status);
   const isAccepted = quote.status === "accepted";
   const isDeclined = quote.status === "declined";
 
@@ -219,7 +248,7 @@ export default function CustomerQuotePage({
             <div className="flex items-center space-x-2.5">
               <CheckCircle2 className="w-5 h-5" />
               <span className="text-sm font-medium">
-                Dette pristilbudet er akseptert {quote.accepted_at ? `den ${new Date(quote.accepted_at).toLocaleDateString("no-NO")}` : ""} {quote.signed_name ? `av ${quote.signed_name}` : ""}.
+                Dette pristilbudet er akseptert {quote.accepted_at ? `den ${formatSafeDate(quote.accepted_at)}` : ""} {quote.signed_name ? `av ${quote.signed_name}` : ""}.
               </span>
             </div>
             <span className="text-xs bg-[#2E5C38] text-white px-2.5 py-1 rounded-sm uppercase tracking-wider font-mono">
@@ -233,7 +262,7 @@ export default function CustomerQuotePage({
             <div className="flex items-center space-x-2.5">
               <XCircle className="w-5 h-5 text-gray-500" />
               <span className="text-sm">
-                Dette pristilbudet ble avvist {quote.declined_at ? `den ${new Date(quote.declined_at).toLocaleDateString("no-NO")}` : ""}.
+                Dette pristilbudet ble avvist {quote.declined_at ? `den ${formatSafeDate(quote.declined_at)}` : ""}.
               </span>
             </div>
             <span className="text-xs bg-gray-600 text-white px-2.5 py-1 rounded-sm uppercase tracking-wider font-mono">
@@ -246,7 +275,7 @@ export default function CustomerQuotePage({
           <div className="p-4 bg-amber-50 border border-amber-200 text-amber-900 rounded-sm flex items-center space-x-2.5">
             <Clock className="w-5 h-5 text-amber-700 shrink-0" />
             <span className="text-sm">
-              Dette tilbudet utløp {new Date(quote.expires_at).toLocaleDateString("no-NO")}. Ta kontakt for et oppdatert tilbud.
+              Dette tilbudet utløp {formatSafeDate(quote.expires_at)}. Ta kontakt for et oppdatert tilbud.
             </span>
           </div>
         )}
@@ -274,8 +303,8 @@ export default function CustomerQuotePage({
             </div>
 
             <div className="text-xs text-[#877B6C] space-y-1 sm:text-right font-mono">
-              <p>Dato: {new Date(quote.created_at).toLocaleDateString("no-NO")}</p>
-              <p>Gyldig til: {new Date(quote.expires_at).toLocaleDateString("no-NO")}</p>
+              <p>Dato: {formatSafeDate(quote.created_at)}</p>
+              <p>Gyldig til: {formatSafeDate(quote.expires_at, 14)}</p>
             </div>
           </div>
 

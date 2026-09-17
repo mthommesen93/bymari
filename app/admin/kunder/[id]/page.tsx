@@ -656,18 +656,22 @@ export default function KundeDetailPage() {
                         )}
                       </td>
                       <td className="py-3.5 px-4 text-xs text-charcoal/70 font-mono">
-                        {new Date(q.created_at).toLocaleDateString("no-NO", {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric"
-                        })}
+                        {q.created_at && !isNaN(new Date(q.created_at).getTime())
+                          ? new Date(q.created_at).toLocaleDateString("no-NO", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric"
+                            })
+                          : "I dag"}
                       </td>
                       <td className="py-3.5 px-4 text-xs text-charcoal/70 font-mono">
-                        {new Date(q.expires_at).toLocaleDateString("no-NO", {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric"
-                        })}
+                        {q.expires_at && !isNaN(new Date(q.expires_at).getTime()) && new Date(q.expires_at).getTime() !== 0
+                          ? new Date(q.expires_at).toLocaleDateString("no-NO", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric"
+                            })
+                          : "14 dager"}
                       </td>
                       <td className="py-3.5 px-4 text-right space-x-2">
                         <Link

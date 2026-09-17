@@ -658,7 +658,10 @@ export const dataStore = {
     email_intro?: string;
   }): Promise<Quote> {
     const token = "tk-quote-" + Date.now().toString(36) + "-" + Math.random().toString(36).substring(2, 7);
-    const expiresAt = new Date(Date.now() + (data.validity_days || 14) * 24 * 60 * 60 * 1000).toISOString();
+    const validityDays = Math.max(1, Number(data.validity_days) || 14);
+    const expiresDate = new Date(Date.now() + validityDays * 24 * 60 * 60 * 1000);
+    expiresDate.setHours(23, 59, 59, 999);
+    const expiresAt = expiresDate.toISOString();
 
     const newQuote: Quote = {
       id: "quote-" + Date.now().toString(36),
