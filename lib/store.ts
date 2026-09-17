@@ -206,26 +206,16 @@ export const dataStore = {
     if (typeof window !== "undefined") {
       const local = getStored<Client[]>(CLIENTS_STORAGE_KEY, []);
       if (local && Array.isArray(local) && local.length > 0) {
-        const existingIds = new Set(clients.map(c => c.id));
-        local.forEach(c => {
-          if (!existingIds.has(c.id)) {
-            clients.push(c);
-          }
-        });
+        clients = local;
       }
     } else {
       const serverData = loadServerFile();
       if (serverData && Array.isArray(serverData.clients) && serverData.clients.length > 0) {
-        const existingIds = new Set(clients.map(c => c.id));
-        serverData.clients.forEach((c: any) => {
-          if (!existingIds.has(c.id)) {
-            clients.push(c);
-          }
-        });
+        clients = serverData.clients;
       }
     }
 
-    // Always ensure initialClients (e.g. Gro Drage Evjen & Mari Thommesen) exist in list
+    // Always ensure initialClients (e.g. Gro Drage Evjen & Mari Thommesen) exist in list if missing
     const currentIds = new Set(clients.map(c => c.id));
     initialClients.forEach(ic => {
       if (!currentIds.has(ic.id)) {
@@ -296,15 +286,14 @@ export const dataStore = {
   async getClientById(id: string): Promise<Client | null> {
     if (typeof window === "undefined") {
       const serverData = loadServerFile();
-      if (serverData && Array.isArray(serverData.clients)) {
+      if (serverData && Array.isArray(serverData.clients) && serverData.clients.length > 0) {
+        clients = serverData.clients;
         const found = serverData.clients.find((c: any) => c.id === id);
         if (found) return found;
       }
     }
     const directMatch = clients.find(c => c.id === id);
     if (directMatch) return directMatch;
-    const initialMatch = initialClients.find(c => c.id === id);
-    if (initialMatch) return initialMatch;
     const all = await this.getClients({ is_archived: false });
     const match = all.find(c => c.id === id);
     if (match) return match;
@@ -313,6 +302,12 @@ export const dataStore = {
   },
 
   async createClient(data: Omit<Client, "id" | "created_at" | "updated_at">): Promise<Client> {
+    if (typeof window === "undefined") {
+      const serverData = loadServerFile();
+      if (serverData && Array.isArray(serverData.clients) && serverData.clients.length > 0) {
+        clients = serverData.clients;
+      }
+    }
     const newClient: Client = {
       ...data,
       id: "c-" + Date.now().toString(36) + Math.random().toString(36).substr(2, 4),
@@ -374,6 +369,13 @@ export const dataStore = {
   },
 
   async updateClient(id: string, updates: Partial<Client>): Promise<Client | null> {
+    if (typeof window === "undefined") {
+      const serverData = loadServerFile();
+      if (serverData && Array.isArray(serverData.clients) && serverData.clients.length > 0) {
+        clients = serverData.clients;
+      }
+    }
+
     const existing = clients.find(c => c.id === id) || initialClients.find(c => c.id === id);
     const updated = {
       ...(existing || {}),

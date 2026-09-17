@@ -230,6 +230,7 @@ export default function KundeDetailPage() {
       setEditForm(updated);
     }
     setIsEditModalOpen(false);
+    await loadClientData();
   };
 
   const handleArchiveToggle = async () => {
