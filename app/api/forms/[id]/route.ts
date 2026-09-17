@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { dataStore } from "@/lib/store";
-import { initialForms } from "@/lib/demo-data";
+import { initialForms, initialClients } from "@/lib/demo-data";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Form } from "@/lib/types";
 

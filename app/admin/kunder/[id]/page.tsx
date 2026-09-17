@@ -8,7 +8,7 @@ import { StatusBadge } from "@/components/admin/StatusBadge";
 import { Modal } from "@/components/admin/Modal";
 import { dataStore } from "@/lib/store";
 import { PriceCalculator } from "@/components/admin/PriceCalculator";
-import { Client, ClientStatus, ClientNote, FormDistribution, Submission, Quote } from "@/lib/types";
+import { Client, ClientStatus, ClientNote, FormDistribution, Submission, Quote, Form } from "@/lib/types";
 import { 
   ArrowLeft, 
   Mail, 
@@ -29,7 +29,8 @@ import {
   Calculator,
   CheckCircle2,
   XCircle,
-  Clock
+  Clock,
+  RefreshCw
 } from "lucide-react";
 
 export default function KundeDetailPage() {

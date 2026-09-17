@@ -1080,12 +1080,7 @@ export const dataStore = {
       client_note: null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-      client: client ? {
-        id: client.id,
-        name: client.name,
-        email: client.email,
-        company: client.company || ""
-      } : null
+      client: client || null
     };
 
     quotes.unshift(newQuote);

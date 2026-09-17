@@ -6,7 +6,6 @@ import Link from "next/link";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { dataStore } from "@/lib/store";
-import { sendFormDistributionEmail } from "@/lib/resend";
 import { Form, Client, FormDistribution } from "@/lib/types";
 import { 
   ArrowLeft, 

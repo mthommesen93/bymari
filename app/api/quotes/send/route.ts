@@ -130,7 +130,8 @@ export async function POST(req: NextRequest) {
       client = await dataStore.createClient({
         name: recipientName,
         email: recipientEmail,
-        status: "Tilbud sendt"
+        status: "Tilbud sendt",
+        is_archived: false
       });
     }
 
