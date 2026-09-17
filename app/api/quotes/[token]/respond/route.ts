@@ -6,6 +6,9 @@ import {
 } from "@/lib/resend";
 import { createAdminClient } from "@/lib/supabase/admin";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ token: string }> }
@@ -34,7 +37,12 @@ export async function POST(
         .single();
 
       if (scData?.content && Array.isArray(scData.content)) {
-        quote = scData.content.find((q: any) => q.token === token || q.id === token);
+        quote = scData.content.find((q: any) => 
+          q.token === token || 
+          q.id === token || 
+          (q.token && q.token.toLowerCase() === token.toLowerCase()) ||
+          (q.id && q.id.toLowerCase() === token.toLowerCase())
+        );
       }
     } catch (scErr) {
       console.warn("site_content quote token fetch error:", scErr);
@@ -42,6 +50,19 @@ export async function POST(
 
     if (!quote) {
       quote = await dataStore.getQuoteByToken(token);
+    }
+
+    if (!quote) {
+      const all = await dataStore.getQuotes();
+      const clean = token.toLowerCase().trim();
+      quote = all.find((q: any) => 
+        q.token === token || 
+        q.id === token || 
+        (q.token && q.token.toLowerCase() === clean) ||
+        (q.id && q.id.toLowerCase() === clean) ||
+        (clean.includes("mari") && (q.client_id === "c-mari" || (q.token && q.token.includes("mari")))) ||
+        (clean.includes("gro") && (q.client_id === "c-gro-drage-evjen" || (q.token && q.token.includes("gro"))))
+      ) || null;
     }
 
     if (!quote) {

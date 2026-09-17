@@ -1,4 +1,4 @@
-import { Client, Form, FormDistribution, Submission, ClientNote, Activity } from "./types";
+import { Client, Form, FormDistribution, Submission, ClientNote, Activity, Quote } from "./types";
 
 export const initialClients: Client[] = [
   {
@@ -1786,6 +1786,71 @@ export const initialActivities: Activity[] = [
     client_id: "c-gro-drage-evjen",
     client_name: "Gro Drage Evjen",
     created_at: new Date(Date.now() - 60 * 60 * 1000).toISOString()
+  }
+];
+
+export const initialQuotes: Quote[] = [
+  {
+    id: "quote-mari-web",
+    client_id: "c-mari",
+    token: "mari-tilbud",
+    package_name: "Komplett bedriftsnettside (Fler-siders)",
+    base_price: 7500,
+    addons: [
+      { name: "Ekstra undersider (2 stk)", price: 1500, quantity: 2 },
+      { name: "In-screen tekstredigering", price: 1200, quantity: 1 },
+      { name: "Domene- & DNS-oppsett", price: 650, quantity: 1 }
+    ],
+    custom_lines: [
+      { name: "Skreddersydd visuell identitet & fargepalett", price: 2500 }
+    ],
+    discount: 0,
+    subtotal: 13350,
+    vat_amount: 0,
+    total_price: 13350,
+    monthly_price: 590,
+    delivery_time: "2–3 uker",
+    validity_days: 14,
+    expires_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+    email_subject: "Pristilbud fra by mari: Komplett bedriftsnettside",
+    email_intro: "Hei Mari, her er det skreddersydde pristilbudet for prosjektet ditt.",
+    status: "sent",
+    accepted_at: null,
+    declined_at: null,
+    signed_name: null,
+    client_note: null,
+    created_at: "2026-09-17T10:00:00.000Z",
+    updated_at: "2026-09-17T10:00:00.000Z",
+    client: initialClients[1]
+  },
+  {
+    id: "quote-gro-web",
+    client_id: "c-gro-drage-evjen",
+    token: "gro-tilbud",
+    package_name: "Enkel nettside (One-page / Lanseringsside)",
+    base_price: 3500,
+    addons: [
+      { name: "Domene- & DNS-oppsett", price: 650, quantity: 1 }
+    ],
+    custom_lines: [],
+    discount: 0,
+    subtotal: 4150,
+    vat_amount: 0,
+    total_price: 4150,
+    monthly_price: 0,
+    delivery_time: "3–7 virkedager",
+    validity_days: 14,
+    expires_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+    email_subject: "Pristilbud fra by mari: Enkel nettside",
+    email_intro: "Hei Gro, her er pristilbudet for prosjektet ditt.",
+    status: "sent",
+    accepted_at: null,
+    declined_at: null,
+    signed_name: null,
+    client_note: null,
+    created_at: "2026-09-17T10:00:00.000Z",
+    updated_at: "2026-09-17T10:00:00.000Z",
+    client: initialClients[0]
   }
 ];
 

@@ -282,10 +282,12 @@ export async function sendQuoteEmail(data: {
   monthlyPrice?: number;
   deliveryTime: string;
   validityDays: number;
+  appUrl?: string;
 }) {
-  const quoteUrl = `${APP_URL}/tilbud/${data.token}`;
-  const acceptUrl = `${APP_URL}/tilbud/${data.token}?action=accept`;
-  const declineUrl = `${APP_URL}/tilbud/${data.token}?action=decline`;
+  const baseAppUrl = data.appUrl || APP_URL;
+  const quoteUrl = `${baseAppUrl}/tilbud/${data.token}`;
+  const acceptUrl = `${baseAppUrl}/tilbud/${data.token}?action=accept`;
+  const declineUrl = `${baseAppUrl}/tilbud/${data.token}?action=decline`;
 
   // Build items HTML table
   const addonsRows = data.addons
@@ -373,32 +375,46 @@ export async function sendQuoteEmail(data: {
       <p style="margin: 0;"><strong>Gyldighet:</strong> Tilbudet er gyldig i ${data.validityDays} dager fra i dag.</p>
     </div>
 
-    <!-- ACTION BUTTONS: ACCEPT / DECLINE -->
+    <!-- ACTION BUTTONS: ACCEPT / VIEW QUOTE -->
     <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #ECE7DF; text-align: center;">
-      <p style="margin: 0 0 20px 0; font-size: 15px; font-weight: 500; color: #20211F;">
+      <p style="margin: 0 0 20px 0; font-size: 16px; font-weight: 600; color: #20211F;">
         Hva tenker du om tilbudet?
       </p>
 
-      <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="margin: 0 auto;">
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 0 auto; text-align: center;">
         <tr>
-          <!-- ACCEPT BUTTON -->
-          <td align="center" style="padding-right: 12px;">
-            <a href="${acceptUrl}" style="display: inline-block; background-color: #34463B; color: #FFFFFF; font-size: 15px; font-weight: 600; text-decoration: none; padding: 14px 28px; border-radius: 3px; letter-spacing: 0.02em;">
-              ✓ Aksepter tilbud
-            </a>
-          </td>
-          <!-- DECLINE BUTTON -->
-          <td align="center" style="padding-left: 12px;">
-            <a href="${declineUrl}" style="display: inline-block; background-color: #FFFFFF; color: #737470; border: 1px solid #DED7CB; font-size: 14px; font-weight: 500; text-decoration: none; padding: 13px 22px; border-radius: 3px;">
-              ✕ Avvis tilbud
-            </a>
+          <td align="center" style="padding: 6px;">
+            <!-- Primary Accept Button -->
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="display: inline-table; margin: 0 6px 12px 6px;">
+              <tr>
+                <td align="center" style="border-radius: 4px; background-color: #34463B;">
+                  <a href="${acceptUrl}" target="_blank" rel="noopener noreferrer" style="display: block; background-color: #34463B; color: #FFFFFF; font-size: 15px; font-weight: 600; text-decoration: none; padding: 15px 30px; border-radius: 4px; letter-spacing: 0.02em; border: 1px solid #34463B;">
+                    ✓ Aksepter tilbud
+                  </a>
+                </td>
+              </tr>
+            </table>
+
+            <!-- Secondary View Full Quote Button -->
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="display: inline-table; margin: 0 6px 12px 6px;">
+              <tr>
+                <td align="center" style="border-radius: 4px; background-color: #FFFFFF;">
+                  <a href="${quoteUrl}" target="_blank" rel="noopener noreferrer" style="display: block; background-color: #FFFFFF; color: #20211F; font-size: 14px; font-weight: 500; text-decoration: none; padding: 14px 24px; border-radius: 4px; border: 1px solid #DED7CB;">
+                    Se hele tilbudet
+                  </a>
+                </td>
+              </tr>
+            </table>
           </td>
         </tr>
       </table>
 
-      <p style="margin: 20px 0 0 0; font-size: 12px; color: #877B6C;">
-        Du kan også <a href="${quoteUrl}" style="color: #34463B; text-decoration: underline;">se hele tilbudet i nettleseren</a>.
-      </p>
+      <!-- Mobile fallback direct text link -->
+      <div style="margin-top: 20px; padding: 14px 16px; background-color: #F7F5F0; border-radius: 4px; text-align: left; font-size: 12px; color: #877B6C; line-height: 1.5; word-break: break-all;">
+        <span style="font-weight: 600; color: #20211F; display: block; margin-bottom: 4px;">Direkte lenke:</span>
+        Dersom knappene over ikke fungerer på mobilen din, kan du åpne tilbudet direkte her:<br/>
+        <a href="${quoteUrl}" target="_blank" rel="noopener noreferrer" style="color: #34463B; text-decoration: underline; font-weight: 500;">${quoteUrl}</a>
+      </div>
     </div>
   `;
 

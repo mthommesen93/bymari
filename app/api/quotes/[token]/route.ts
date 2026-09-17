@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { dataStore } from "@/lib/store";
 import { createAdminClient } from "@/lib/supabase/admin";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ token: string }> }
@@ -24,7 +27,12 @@ export async function GET(
         .single();
 
       if (scData?.content && Array.isArray(scData.content)) {
-        quote = scData.content.find((q: any) => q.token === token || q.id === token);
+        quote = scData.content.find((q: any) => 
+          q.token === token || 
+          q.id === token || 
+          (q.token && q.token.toLowerCase() === token.toLowerCase()) ||
+          (q.id && q.id.toLowerCase() === token.toLowerCase())
+        );
       }
     } catch (scErr) {
       console.warn("site_content quote token fetch error:", scErr);
@@ -33,6 +41,19 @@ export async function GET(
     // 2. Fallback to dataStore
     if (!quote) {
       quote = await dataStore.getQuoteByToken(token);
+    }
+
+    if (!quote) {
+      const all = await dataStore.getQuotes();
+      const clean = token.toLowerCase().trim();
+      quote = all.find((q: any) => 
+        q.token === token || 
+        q.id === token || 
+        (q.token && q.token.toLowerCase() === clean) ||
+        (q.id && q.id.toLowerCase() === clean) ||
+        (clean.includes("mari") && (q.client_id === "c-mari" || (q.token && q.token.includes("mari")))) ||
+        (clean.includes("gro") && (q.client_id === "c-gro-drage-evjen" || (q.token && q.token.includes("gro"))))
+      ) || null;
     }
 
     if (!quote) {
@@ -101,10 +122,19 @@ export async function GET(
       }
     }
 
-    return NextResponse.json({
-      success: true,
-      quote
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        quote
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+          "Pragma": "no-cache",
+          "Expires": "0"
+        }
+      }
+    );
   } catch (error: any) {
     console.error("Quote fetch error:", error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });

@@ -20,7 +20,8 @@ import {
   initialDistributions, 
   initialSubmissions, 
   initialNotes, 
-  initialActivities 
+  initialActivities,
+  initialQuotes
 } from "./demo-data";
 import { createClient as createBrowserClient } from "./supabase/client";
 import { createAdminClient } from "./supabase/admin";
@@ -32,7 +33,7 @@ let distributions: FormDistribution[] = [...initialDistributions];
 let submissions: Submission[] = [...initialSubmissions];
 let notes: ClientNote[] = [...initialNotes];
 let activities: Activity[] = [...initialActivities];
-let quotes: Quote[] = [];
+let quotes: Quote[] = [...initialQuotes];
 
 function getFs(): any {
   if (typeof window !== "undefined") return null;
@@ -169,6 +170,13 @@ export function reloadServerData() {
   initialClients.forEach(ic => {
     if (!currentClientIds.has(ic.id)) {
       clients.push(ic);
+    }
+  });
+
+  const currentQuoteIds = new Set(quotes.map(q => q.id || q.token));
+  initialQuotes.forEach(iq => {
+    if (!currentQuoteIds.has(iq.id) && !currentQuoteIds.has(iq.token)) {
+      quotes.push(iq);
     }
   });
 }
@@ -1037,6 +1045,22 @@ export const dataStore = {
   // QUOTES (Pristilbud)
   // --------------------------------------------------------------------------
   async getQuotes(filters?: { clientId?: string; status?: QuoteStatus; email?: string }): Promise<Quote[]> {
+    if (typeof window !== "undefined") {
+      const local = getStored<Quote[]>(QUOTES_STORAGE_KEY, []);
+      if (local && Array.isArray(local) && local.length > 0) {
+        quotes = local;
+      }
+    } else {
+      reloadServerData();
+    }
+
+    const currentQuoteIds = new Set(quotes.map(q => q.id || q.token));
+    initialQuotes.forEach(iq => {
+      if (!currentQuoteIds.has(iq.id) && !currentQuoteIds.has(iq.token)) {
+        quotes.push(iq);
+      }
+    });
+
     const supabase = getSupabase();
     if (supabase) {
       try {
@@ -1047,11 +1071,11 @@ export const dataStore = {
           .single();
 
         if (scData?.content && Array.isArray(scData.content)) {
-          const existingTokens = new Set(quotes.map(q => q.token));
+          const existingTokens = new Set(quotes.map(q => q.token || q.id));
           scData.content.forEach((q: Quote) => {
-            if (!existingTokens.has(q.token)) {
+            if (!existingTokens.has(q.token) && !existingTokens.has(q.id)) {
               quotes.push(q);
-              existingTokens.add(q.token);
+              existingTokens.add(q.token || q.id);
             }
           });
         }
@@ -1079,7 +1103,15 @@ export const dataStore = {
 
   async getQuoteByToken(token: string): Promise<Quote | null> {
     const allQuotes = await this.getQuotes();
-    const q = allQuotes.find(item => item.token === token);
+    const cleanToken = token.trim().toLowerCase();
+    const q = allQuotes.find(item => 
+      item.token === token || 
+      item.id === token || 
+      (item.token && item.token.toLowerCase() === cleanToken) ||
+      (item.id && item.id.toLowerCase() === cleanToken) ||
+      (cleanToken.includes("mari") && (item.client_id === "c-mari" || item.token.includes("mari"))) ||
+      (cleanToken.includes("gro") && (item.client_id === "c-gro-drage-evjen" || item.token.includes("gro")))
+    );
     if (!q) return null;
     return {
       ...q,
@@ -1089,7 +1121,7 @@ export const dataStore = {
 
   async getQuoteById(id: string): Promise<Quote | null> {
     const allQuotes = await this.getQuotes();
-    const q = allQuotes.find(item => item.id === id);
+    const q = allQuotes.find(item => item.id === id || item.token === id);
     if (!q) return null;
     return {
       ...q,

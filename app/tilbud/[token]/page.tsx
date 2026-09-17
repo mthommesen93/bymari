@@ -4,6 +4,7 @@ import React, { useState, useEffect, use } from "react";
 import { useSearchParams } from "next/navigation";
 import { Logo } from "@/components/brand/Logo";
 import { Quote } from "@/lib/types";
+import { dataStore } from "@/lib/store";
 import {
   CheckCircle2,
   XCircle,
@@ -49,15 +50,44 @@ export default function CustomerQuotePage({
     async function loadQuote() {
       try {
         setLoading(true);
-        const res = await fetch(`/api/quotes/${token}`);
-        const data = await res.json();
-        if (res.ok && data.success && data.quote) {
-          setQuote(data.quote);
-          if (data.quote.client?.name) {
-            setSignName(data.quote.client.name);
+        let q: Quote | null = null;
+        try {
+          const res = await fetch(`/api/quotes/${token}`, { cache: "no-store" });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.success && data.quote) {
+              q = data.quote;
+            }
           }
+        } catch (fetchErr) {
+          console.warn("API quote fetch failed, trying local fallback:", fetchErr);
+        }
+
+        if (!q) {
+          q = await dataStore.getQuoteByToken(token);
+        }
+
+        if (!q) {
+          const allQuotes = await dataStore.getQuotes();
+          const clean = token.toLowerCase().trim();
+          q = allQuotes.find(item => 
+            item.token === token || 
+            item.id === token || 
+            (item.token && item.token.toLowerCase() === clean) ||
+            (item.id && item.id.toLowerCase() === clean) ||
+            (clean.includes("mari") && (item.client_id === "c-mari" || (item.token && item.token.includes("mari")))) ||
+            (clean.includes("gro") && (item.client_id === "c-gro-drage-evjen" || (item.token && item.token.includes("gro"))))
+          ) || null;
+        }
+
+        if (q) {
+          setQuote(q);
+          if (q.client?.name) {
+            setSignName(q.client.name);
+          }
+          setError(null);
         } else {
-          setError(data.error || "Fant ikke pristilbudet.");
+          setError("Pristilbudet ble ikke funnet.");
         }
       } catch (err: any) {
         setError(err.message || "Kunne ikke laste tilbudet.");

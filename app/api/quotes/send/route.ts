@@ -210,6 +210,11 @@ export async function POST(req: NextRequest) {
     // 3. Send interactive email via Resend
     let emailResult = null;
     if (sendEmailDirectly) {
+      const host = req.headers.get("x-forwarded-host") || req.headers.get("host");
+      const proto = req.headers.get("x-forwarded-proto") || (host?.includes("localhost") ? "http" : "https");
+      const origin = req.headers.get("origin") || (host ? `${proto}://${host}` : undefined);
+      const appUrl = origin || process.env.NEXT_PUBLIC_APP_URL || "https://bymari.no";
+
       emailResult = await sendQuoteEmail({
         recipientEmail,
         recipientName,
@@ -226,7 +231,8 @@ export async function POST(req: NextRequest) {
         totalPrice: quote.total_price,
         monthlyPrice: quote.monthly_price,
         deliveryTime: quote.delivery_time,
-        validityDays: quote.validity_days
+        validityDays: quote.validity_days,
+        appUrl
       });
     }
 
