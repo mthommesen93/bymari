@@ -74,6 +74,17 @@ export default function KundeDetailPage() {
     } catch {}
 
     if (!c) {
+      try {
+        const listRes = await fetch("/api/clients", { cache: "no-store" });
+        if (listRes.ok) {
+          const listJson = await listRes.json();
+          const all = listJson.clients || [];
+          c = all.find((item: any) => item.id === id || item.email?.toLowerCase() === id.toLowerCase()) || null;
+        }
+      } catch {}
+    }
+
+    if (!c) {
       c = await dataStore.getClientById(id);
     }
 
@@ -83,7 +94,8 @@ export default function KundeDetailPage() {
     }
 
     if (!c) {
-      router.push("/admin/kunder");
+      setClient(null);
+      setLoading(false);
       return;
     }
 
@@ -290,10 +302,26 @@ export default function KundeDetailPage() {
     }
   };
 
-  if (loading || !client) {
+  if (loading) {
     return (
       <div className="py-20 text-center text-xs text-charcoal/60 font-mono">
         Laster kundedetaljer...
+      </div>
+    );
+  }
+
+  if (!client) {
+    return (
+      <div className="max-w-md mx-auto py-20 text-center space-y-4">
+        <h2 className="text-lg font-medium text-charcoal">Kunde ikke funnet</h2>
+        <p className="text-xs text-charcoal/60">Kunden finnes ikke eller kan ha blitt slettet.</p>
+        <Link
+          href="/admin/kunder"
+          className="inline-flex items-center space-x-1.5 px-4 py-2 bg-forest-green text-warm-white text-xs font-medium rounded-sm hover:bg-forest-green-dark transition-colors"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Tilbake til kundeoversikt</span>
+        </Link>
       </div>
     );
   }

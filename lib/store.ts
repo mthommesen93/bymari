@@ -147,6 +147,8 @@ if (typeof window === "undefined") {
 
 function getSupabase() {
   try {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    if (!url || url.includes("your-project.supabase.co")) return null;
     if (typeof window !== "undefined") {
       return createBrowserClient();
     }
@@ -203,15 +205,33 @@ export const dataStore = {
   async getClients(filters?: { query?: string; status?: ClientStatus; is_archived?: boolean }): Promise<Client[]> {
     if (typeof window !== "undefined") {
       const local = getStored<Client[]>(CLIENTS_STORAGE_KEY, []);
-      if (local && local.length > 0) {
-        clients = local;
+      if (local && Array.isArray(local) && local.length > 0) {
+        const existingIds = new Set(clients.map(c => c.id));
+        local.forEach(c => {
+          if (!existingIds.has(c.id)) {
+            clients.push(c);
+          }
+        });
       }
     } else {
       const serverData = loadServerFile();
       if (serverData && Array.isArray(serverData.clients) && serverData.clients.length > 0) {
-        clients = serverData.clients;
+        const existingIds = new Set(clients.map(c => c.id));
+        serverData.clients.forEach((c: any) => {
+          if (!existingIds.has(c.id)) {
+            clients.push(c);
+          }
+        });
       }
     }
+
+    // Always ensure initialClients (e.g. Gro Drage Evjen & Mari Thommesen) exist in list
+    const currentIds = new Set(clients.map(c => c.id));
+    initialClients.forEach(ic => {
+      if (!currentIds.has(ic.id)) {
+        clients.push(ic);
+      }
+    });
 
     const supabase = getSupabase();
     if (supabase) {
@@ -274,8 +294,17 @@ export const dataStore = {
   },
 
   async getClientById(id: string): Promise<Client | null> {
+    if (typeof window === "undefined") {
+      const serverData = loadServerFile();
+      if (serverData && Array.isArray(serverData.clients)) {
+        const found = serverData.clients.find((c: any) => c.id === id);
+        if (found) return found;
+      }
+    }
     const directMatch = clients.find(c => c.id === id);
     if (directMatch) return directMatch;
+    const initialMatch = initialClients.find(c => c.id === id);
+    if (initialMatch) return initialMatch;
     const all = await this.getClients({ is_archived: false });
     const match = all.find(c => c.id === id);
     if (match) return match;
@@ -698,7 +727,12 @@ export const dataStore = {
         const matchId = filters.clientId && (s.client_id === filters.clientId || (s as any).client?.id === filters.clientId);
         const matchEmail = filterEmail && (
           ((s as any).client?.email && (s as any).client.email.toLowerCase().trim() === filterEmail) ||
-          (s.client_id && clients.find(c => c.id === s.client_id)?.email?.toLowerCase().trim() === filterEmail)
+          (s.client_id && clients.find(c => c.id === s.client_id)?.email?.toLowerCase().trim() === filterEmail) ||
+          ((s as any).client_email && (s as any).client_email.toLowerCase().trim() === filterEmail) ||
+          (s.answers && Array.isArray(s.answers) && s.answers.some((a: any) => 
+            a.field_label && (a.field_label.toLowerCase().includes("epost") || a.field_label.toLowerCase().includes("e-post")) && 
+            typeof a.value === "string" && a.value.toLowerCase().trim() === filterEmail
+          ))
         );
         return matchId || matchEmail;
       });
@@ -712,7 +746,7 @@ export const dataStore = {
       form: forms.find(f => f.id === s.form_id) || (s as any).form,
       client: clients.find(c => c.id === s.client_id) || (s as any).client,
       distribution: distributions.find(d => d.id === s.distribution_id)
-    })).sort((a, b) => new Date(b.submitted_at).getTime() - new Date(a.submitted_at).getTime());
+    })).sort((a, b) => new Date(b.submitted_at || (b as any).created_at).getTime() - new Date(a.submitted_at || (a as any).created_at).getTime());
   },
 
   async getSubmissionById(id: string): Promise<Submission | null> {
@@ -798,12 +832,12 @@ export const dataStore = {
     };
   },
 
-  async updateSubmission(id: string, updates: { status?: ResponseStatus; internal_notes?: string }): Promise<Submission | null> {
+  async updateSubmission(id: string, updates: Partial<Submission>): Promise<Submission | null> {
     const index = submissions.findIndex(s => s.id === id);
     if (index === -1) return null;
 
     const prev = submissions[index];
-    const updated = {
+    const updated: Submission = {
       ...prev,
       ...updates,
       updated_at: new Date().toISOString()

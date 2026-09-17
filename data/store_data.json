@@ -16,7 +16,7 @@
     },
     {
       "id": "c-mari",
-      "name": "Mari",
+      "name": "Mari Thommesen",
       "company": "By Mari",
       "email": "hei@bymari.no",
       "phone": "",
@@ -2653,9 +2653,141 @@
       "submitted_at": null,
       "created_at": "2026-09-17T08:43:44.821Z",
       "updated_at": "2026-09-17T08:43:44.821Z"
+    },
+    {
+      "id": "dist-mari-kort-skjema",
+      "form_id": "f-kort-prosjektskjema",
+      "client_id": "c-mari",
+      "recipient_email": "hei@bymari.no",
+      "token": "mari-kort-skjema",
+      "email_subject": "Kort prosjektskjema: Stil, Farger & Visuell profil fra By Mari",
+      "email_intro": "Hei Mari! Her er skjemaet for visuell profil og nettside.",
+      "expires_at": null,
+      "status": "submitted",
+      "opened_at": "2026-09-17T09:20:00.000Z",
+      "submitted_at": "2026-09-17T09:30:00.000Z",
+      "created_at": "2026-09-17T09:15:00.000Z",
+      "updated_at": "2026-09-17T09:30:00.000Z"
     }
   ],
   "submissions": [
+    {
+      "id": "sub-mari-thommesen",
+      "form_id": "f-kort-prosjektskjema",
+      "client_id": "c-mari",
+      "distribution_id": "dist-mari-kort-skjema",
+      "status": "new",
+      "internal_notes": "Besvart kort prosjektskjema med ønsker om visuell profil, stil og farger.",
+      "submitted_at": "2026-09-17T09:30:00.000Z",
+      "created_at": "2026-09-17T09:30:00.000Z",
+      "updated_at": "2026-09-17T09:30:00.000Z",
+      "client": {
+        "id": "c-mari",
+        "name": "Mari Thommesen",
+        "company": "By Mari",
+        "email": "hei@bymari.no",
+        "phone": "",
+        "status": "Aktiv kunde",
+        "requested_service": "Nettsider & Visuell profil",
+        "internal_notes": "Administrator og kunde i bymari CRM.",
+        "next_activity_date": "2026-09-19T10:00:00.000Z",
+        "is_archived": false,
+        "created_at": "2026-09-15T10:00:00.000Z",
+        "updated_at": "2026-09-17T10:00:00.000Z"
+      },
+      "form": {
+        "id": "f-kort-prosjektskjema",
+        "title": "Kort prosjektskjema: Stil, Farger & Visuell profil",
+        "slug": "kort-skjema"
+      },
+      "answers": [
+        {
+          "id": "ans-ks-1",
+          "field_id": "fld-ks-1",
+          "field_label": "1. Hva heter virksomheten eller prosjektet ditt?",
+          "value": "By Mari"
+        },
+        {
+          "id": "ans-ks-2",
+          "field_id": "fld-ks-2",
+          "field_label": "2. Hva heter kontaktpersonen?",
+          "value": "Mari Thommesen"
+        },
+        {
+          "id": "ans-ks-3",
+          "field_id": "fld-ks-3",
+          "field_label": "3. Hva er e-postadressen din?",
+          "value": "hei@bymari.no"
+        },
+        {
+          "id": "ans-ks-4",
+          "field_id": "fld-ks-4",
+          "field_label": "4. Hva er telefonnummeret ditt?",
+          "value": ""
+        },
+        {
+          "id": "ans-ks-5",
+          "field_id": "fld-ks-5",
+          "field_label": "5. Hva tilbyr du, kort fortalt?",
+          "value": "Design, nettsider og visuell identitet for bedrifter som ønsker en helhetlig og sober tilstedeværelse på nett."
+        },
+        {
+          "id": "ans-ks-6",
+          "field_id": "fld-ks-6",
+          "field_label": "6. Hvilke fargepaletter liker du best?",
+          "value": [
+            "jordtoner",
+            "gronntoner"
+          ]
+        },
+        {
+          "id": "ans-ks-7",
+          "field_id": "fld-ks-7",
+          "field_label": "7. Hvilken stemning og visuell stil liker du?",
+          "value": [
+            "klassisk_elegant",
+            "moderne_minimalistisk"
+          ]
+        },
+        {
+          "id": "ans-ks-8",
+          "field_id": "fld-ks-8",
+          "field_label": "8. Har du logo i dag?",
+          "value": "ja"
+        },
+        {
+          "id": "ans-ks-10",
+          "field_id": "fld-ks-10",
+          "field_label": "9. Er det bestemte farger, stiler eller løsninger du IKKE liker?",
+          "value": "Unngå for sterke neonfarger eller rotete oppsett. Ønsker et sobert og rent uttrykk."
+        },
+        {
+          "id": "ans-ks-11",
+          "field_id": "fld-ks-11",
+          "field_label": "10. Hvilke hovedsider eller seksjoner trenger du?",
+          "value": [
+            "forside",
+            "om_oss",
+            "tjenester",
+            "kontakt",
+            "galleri"
+          ]
+        },
+        {
+          "id": "ans-ks-12",
+          "field_id": "fld-ks-12",
+          "field_label": "11. Last gjerne opp logo, bilder eller inspirasjonsfiler",
+          "value": ""
+        },
+        {
+          "id": "ans-ks-13",
+          "field_id": "fld-ks-13",
+          "field_label": "12. Er det noe annet du ønsker å formidle om prosjektet?",
+          "value": "Skandinavisk minimalistisk stil med god kontrast og luft."
+        }
+      ],
+      "files": []
+    },
     {
       "id": "sub-gro-drage-evjen",
       "form_id": "f-prosjektskjema",

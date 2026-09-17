@@ -36,10 +36,10 @@ export default function SvarDetailPage() {
       setLoading(true);
       let sub: any = null;
       try {
-        const res = await fetch("/api/forms/submissions");
+        const res = await fetch("/api/forms/submissions", { cache: "no-store" });
         if (res.ok) {
           const json = await res.json();
-          if (json.submissions) {
+          if (json.submissions && Array.isArray(json.submissions)) {
             sub = json.submissions.find((s: any) => s.id === id);
           }
         }

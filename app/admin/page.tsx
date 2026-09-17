@@ -36,9 +36,9 @@ export default function AdminDashboardPage() {
 
         try {
           const [cRes, sRes, dRes] = await Promise.all([
-            fetch("/api/clients"),
-            fetch("/api/forms/submissions"),
-            fetch("/api/forms/distribute")
+            fetch("/api/clients", { cache: "no-store" }),
+            fetch("/api/forms/submissions", { cache: "no-store" }),
+            fetch("/api/forms/distribute", { cache: "no-store" })
           ]);
           if (cRes.ok) {
             const cJson = await cRes.json();

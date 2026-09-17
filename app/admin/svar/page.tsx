@@ -24,10 +24,12 @@ export default function SvarPage() {
 
       let data: Submission[] = [];
       try {
-        const res = await fetch("/api/forms/submissions");
+        const res = await fetch("/api/forms/submissions", { cache: "no-store" });
         if (res.ok) {
           const json = await res.json();
-          if (json.submissions) data = json.submissions;
+          if (json.submissions && Array.isArray(json.submissions)) {
+            data = json.submissions;
+          }
         }
       } catch {}
 

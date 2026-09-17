@@ -3,15 +3,21 @@ import { dataStore } from "@/lib/store";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { initialSubmissions } from "@/lib/demo-data";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const formId = searchParams.get("formId") || undefined;
     const clientId = searchParams.get("clientId") || undefined;
+    const email = searchParams.get("email")?.toLowerCase().trim() || undefined;
 
-    let allSubmissions: any[] = [];
+    // 1. Fetch from dataStore (reads from data/store_data.json and memory)
+    const storeSubmissions = await dataStore.getSubmissions({ formId, clientId, email });
+    let allSubmissions: any[] = [...storeSubmissions];
 
-    // 1. Fetch from site_content table (key: form_submissions_all)
+    // 2. Fetch from site_content table (key: form_submissions_all) if available
     try {
       const supabase = createAdminClient();
       const { data: scData } = await supabase
@@ -21,13 +27,18 @@ export async function GET(req: NextRequest) {
         .single();
 
       if (scData?.content && Array.isArray(scData.content)) {
-        allSubmissions = scData.content;
+        const existingIds = new Set(allSubmissions.map(s => s.id));
+        scData.content.forEach((s: any) => {
+          if (!existingIds.has(s.id)) {
+            allSubmissions.push(s);
+          }
+        });
       }
     } catch (scErr) {
       console.warn("site_content submissions query fallback:", scErr);
     }
 
-    // 2. Fetch from relational submissions table
+    // 3. Fetch from relational submissions table if available
     try {
       const supabase = createAdminClient();
       let query = supabase
@@ -51,23 +62,39 @@ export async function GET(req: NextRequest) {
       console.warn("DB submissions query fallback:", dbErr);
     }
 
-    // 3. Fallback to memory / initial submissions if empty
+    // 4. Fallback to demo submissions if completely empty
     if (allSubmissions.length === 0) {
-      const memorySubmissions = await dataStore.getSubmissions({ formId, clientId });
-      allSubmissions = memorySubmissions.length > 0 ? memorySubmissions : initialSubmissions;
+      allSubmissions = [...initialSubmissions];
     }
 
-    // Filter if query params provided
+    // 5. Apply filters for formId, clientId and email
     if (formId) {
       allSubmissions = allSubmissions.filter(s => s.form_id === formId || s.form?.id === formId);
     }
-    if (clientId) {
-      allSubmissions = allSubmissions.filter(s => s.client_id === clientId || s.client?.id === clientId);
+    if (clientId || email) {
+      allSubmissions = allSubmissions.filter(s => {
+        const matchId = clientId && (s.client_id === clientId || s.client?.id === clientId);
+        const matchEmail = email && (
+          (s.client?.email && s.client.email.toLowerCase().trim() === email) ||
+          (s.client_email && s.client_email.toLowerCase().trim() === email) ||
+          (s.answers && Array.isArray(s.answers) && s.answers.some((a: any) => 
+            a.field_label && (a.field_label.toLowerCase().includes("epost") || a.field_label.toLowerCase().includes("e-post")) && 
+            typeof a.value === "string" && a.value.toLowerCase().trim() === email
+          ))
+        );
+        return matchId || matchEmail;
+      });
     }
 
     return NextResponse.json({
       success: true,
       submissions: allSubmissions.sort((a, b) => new Date(b.submitted_at || b.created_at).getTime() - new Date(a.submitted_at || a.created_at).getTime())
+    }, {
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+        "Pragma": "no-cache",
+        "Expires": "0"
+      }
     });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
@@ -130,4 +157,5 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
+
 
