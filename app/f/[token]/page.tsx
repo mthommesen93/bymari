@@ -156,6 +156,8 @@ export default function CustomerFormRunnerPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
+  const [allowResubmit, setAllowResubmit] = useState(false);
+
   // Helper to determine if the deadline has passed (with end-of-day grace period)
   const isFormExpired = (expiresAt?: string | null) => {
     if (!expiresAt) return false;
@@ -172,7 +174,7 @@ export default function CustomerFormRunnerPage() {
     async function loadForm() {
       setLoading(true);
       try {
-        const res = await fetch(`/api/forms/${token}`);
+        const res = await fetch(`/api/forms/${token}`, { cache: "no-store" });
         if (res.ok) {
           const data = await res.json();
           if (data.success && data.distribution && data.form) {
@@ -251,7 +253,7 @@ export default function CustomerFormRunnerPage() {
     );
   }
 
-  if (distribution.status === "submitted") {
+  if (distribution.status === "submitted" && !allowResubmit) {
     return (
       <div className="min-h-screen bg-warm-white flex items-center justify-center p-6">
         <div className="max-w-md w-full bg-white border border-sand p-8 text-center rounded-sm shadow-sm space-y-4">
@@ -261,8 +263,17 @@ export default function CustomerFormRunnerPage() {
           </div>
           <h1 className="text-xl font-medium text-charcoal">Skjemaet er allerede besvart</h1>
           <p className="text-sm text-charcoal/70 font-light leading-relaxed">
-            Vi har allerede registrert svarene dine for dette skjemaet. Tusen takk!
+            Vi har allerede registrert svarene dine for dette skjemaet.
           </p>
+          <div className="pt-3">
+            <button
+              type="button"
+              onClick={() => setAllowResubmit(true)}
+              className="inline-flex items-center space-x-1.5 px-4 py-2 bg-forest-green text-warm-white text-xs font-medium rounded-sm hover:bg-forest-green-dark transition-colors"
+            >
+              <span>Fyll ut eller oppdater svar</span>
+            </button>
+          </div>
         </div>
       </div>
     );

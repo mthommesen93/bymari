@@ -119,10 +119,20 @@ export function renderByMariEmailHtml(options: {
           </tr>
           ${options.ctaUrl && options.ctaText ? `
           <tr>
-            <td style="padding-top: 16px; padding-bottom: 32px;" align="left">
-              <a href="${options.ctaUrl}" style="display: inline-block; background-color: #34463B; color: #FFFFFF; font-size: 15px; font-weight: 500; text-decoration: none; padding: 14px 28px; border-radius: 3px; letter-spacing: 0.02em;">
-                ${options.ctaText}
-              </a>
+            <td style="padding-top: 16px; padding-bottom: 24px;" align="left">
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                  <td align="center" style="border-radius: 4px; background-color: #34463B;">
+                    <a href="${options.ctaUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; background-color: #34463B; color: #FFFFFF; font-size: 15px; font-weight: 500; text-decoration: none; padding: 14px 28px; border-radius: 4px; letter-spacing: 0.02em; border: 1px solid #34463B;">
+                      ${options.ctaText}
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              <p style="margin: 16px 0 0 0; font-size: 12px; color: #877B6C; line-height: 1.5; word-break: break-all;">
+                Dersom knappen over ikke fungerer, kan du åpne lenken direkte i nettleseren:<br/>
+                <a href="${options.ctaUrl}" target="_blank" rel="noopener noreferrer" style="color: #34463B; text-decoration: underline;">${options.ctaUrl}</a>
+              </p>
             </td>
           </tr>
           ` : ""}
@@ -180,8 +190,10 @@ export async function sendFormDistributionEmail(data: {
   emailSubject: string;
   emailIntro?: string;
   token: string;
+  appUrl?: string;
 }) {
-  const formUrl = `${APP_URL}/f/${data.token}`;
+  const baseAppUrl = data.appUrl || APP_URL;
+  const formUrl = `${baseAppUrl}/f/${data.token}`;
 
   const contentHtml = `
     <p style="margin: 0 0 16px 0; font-size: 15px; color: #4A4B48;">

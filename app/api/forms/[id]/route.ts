@@ -4,6 +4,9 @@ import { initialForms, initialClients } from "@/lib/demo-data";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Form } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;

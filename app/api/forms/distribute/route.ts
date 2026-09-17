@@ -197,13 +197,19 @@ export async function POST(req: NextRequest) {
     // 3. Send email via Resend on the server to the client
     let emailResult = null;
     if (sendEmailDirectly && client && client.email) {
+      const origin = req.headers.get("origin");
+      const host = req.headers.get("x-forwarded-host") || req.headers.get("host");
+      const proto = req.headers.get("x-forwarded-proto") || (host?.includes("localhost") ? "http" : "https");
+      const currentBaseUrl = origin || (host ? `${proto}://${host}` : undefined);
+
       emailResult = await sendFormDistributionEmail({
         recipientEmail: client.email,
         recipientName: client.name,
         formTitle: form.title,
         emailSubject: emailSubject || `Skjema fra by mari: ${form.title}`,
         emailIntro: emailIntro,
-        token: newDist.token
+        token: newDist.token,
+        appUrl: currentBaseUrl
       });
     }
 
