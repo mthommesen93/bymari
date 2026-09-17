@@ -112,7 +112,10 @@ export async function POST(req: NextRequest) {
       form: {
         id: form.id,
         title: form.title,
-        slug: form.slug
+        slug: form.slug,
+        introduction: form.introduction,
+        confirmation_message: form.confirmation_message,
+        fields: form.fields || []
       },
       client: client ? {
         id: client.id,

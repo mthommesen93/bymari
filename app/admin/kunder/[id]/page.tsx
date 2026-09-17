@@ -53,6 +53,12 @@ export default function KundeDetailPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
+  const [isSendFormModalOpen, setIsSendFormModalOpen] = useState(false);
+  const [availableForms, setAvailableForms] = useState<Form[]>([]);
+  const [selectedFormToSend, setSelectedFormToSend] = useState("f-kort-prosjektskjema");
+  const [formEmailSubject, setFormEmailSubject] = useState("");
+  const [formEmailIntro, setFormEmailIntro] = useState("");
+  const [isSendingForm, setIsSendingForm] = useState(false);
   const [editForm, setEditForm] = useState<Partial<Client>>({});
 
   const loadClientData = async () => {
@@ -75,21 +81,23 @@ export default function KundeDetailPage() {
       return;
     }
 
-    let [n, d, s, q] = await Promise.all([
+    let [n, d, s, q, fList] = await Promise.all([
       dataStore.getClientNotes(id),
       dataStore.getDistributions({ clientId: id }),
       dataStore.getSubmissions({ clientId: id }),
-      dataStore.getQuotes({ clientId: id })
+      dataStore.getQuotes({ clientId: id }),
+      dataStore.getForms()
     ]);
 
     try {
       const clientEmail = c?.email ? encodeURIComponent(c.email) : "";
       const clientName = c?.name ? encodeURIComponent(c.name) : "";
-      const [dRes, sRes, qRes, nRes] = await Promise.all([
+      const [dRes, sRes, qRes, nRes, fRes] = await Promise.all([
         fetch(`/api/forms/distribute?clientId=${id}${clientEmail ? `&email=${clientEmail}` : ""}`),
         fetch(`/api/forms/submissions?clientId=${id}${clientEmail ? `&email=${clientEmail}` : ""}`),
         fetch(`/api/quotes/send?clientId=${id}${clientEmail ? `&email=${clientEmail}` : ""}${clientName ? `&name=${clientName}` : ""}`),
-        fetch(`/api/clients/${id}/notes`)
+        fetch(`/api/clients/${id}/notes`),
+        fetch(`/api/forms`)
       ]);
       if (dRes.ok) {
         const dJson = await dRes.json();
@@ -107,9 +115,20 @@ export default function KundeDetailPage() {
         const nJson = await nRes.json();
         if (nJson.notes && Array.isArray(nJson.notes)) n = nJson.notes;
       }
+      if (fRes.ok) {
+        const fJson = await fRes.json();
+        if (fJson.forms && Array.isArray(fJson.forms)) fList = fJson.forms;
+      }
     } catch (err) {
       console.warn("Client data sub-resource fetch warning:", err);
     }
+
+    // Sort short form first
+    fList.sort((a, b) => {
+      if (a.id === "f-kort-prosjektskjema" || a.slug === "kort-skjema") return -1;
+      if (b.id === "f-kort-prosjektskjema" || b.slug === "kort-skjema") return 1;
+      return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+    });
 
     setClient(c);
     setEditForm(c);
@@ -117,6 +136,7 @@ export default function KundeDetailPage() {
     setDistributions(d);
     setSubmissions(s);
     setQuotes(q);
+    setAvailableForms(fList);
     setLoading(false);
   };
 
@@ -219,6 +239,37 @@ export default function KundeDetailPage() {
     }
     await dataStore.deleteClient(client.id);
     router.push("/admin/kunder");
+  };
+
+  const handleSendFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!client || !selectedFormToSend) return;
+    setIsSendingForm(true);
+    try {
+      const res = await fetch("/api/forms/distribute", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          formId: selectedFormToSend,
+          clientId: client.id,
+          emailSubject: formEmailSubject,
+          emailIntro: formEmailIntro,
+          sendEmailDirectly: true
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setIsSendFormModalOpen(false);
+        await loadClientData();
+        setActiveTab("skjemaer");
+      } else {
+        alert("Kunne ikke sende skjema: " + (data.error || "Ukjent feil"));
+      }
+    } catch (err: any) {
+      alert("Feil ved utsendelse: " + err.message);
+    } finally {
+      setIsSendingForm(false);
+    }
   };
 
   if (loading || !client) {
@@ -510,13 +561,21 @@ export default function KundeDetailPage() {
             <p className="text-sm text-charcoal/70">
               Skjemaer og spørreundersøkelser sendt til denne kunden.
             </p>
-            <Link
-              href="/admin/skjemaer"
-              className="inline-flex items-center space-x-1.5 px-3.5 py-2 text-xs font-medium bg-forest-green text-warm-white rounded-sm hover:bg-forest-green-hover transition-colors"
+            <button
+              type="button"
+              onClick={() => {
+                const shortForm = availableForms.find(f => f.id === "f-kort-prosjektskjema" || f.slug === "kort-skjema") || availableForms[0];
+                const formToUse = shortForm || { id: "f-kort-prosjektskjema", title: "Kort prosjektskjema" };
+                setSelectedFormToSend(formToUse.id);
+                setFormEmailSubject(`Kort prosjektskjema fra by mari: Stil & Farger`);
+                setFormEmailIntro(`Hei ${client.name.split(" ")[0]}, her er et kort skjema (3–5 min) for å samle inn dine ønsker om visuell stil, farger og nettsidestruktur.`);
+                setIsSendFormModalOpen(true);
+              }}
+              className="inline-flex items-center space-x-1.5 px-3.5 py-2 text-xs font-medium bg-forest-green text-warm-white rounded-sm hover:bg-forest-green-hover transition-colors shadow-sm"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>Send nytt skjema</span>
-            </Link>
+              <span>Send skjema til {client.name.split(" ")[0]}</span>
+            </button>
           </div>
 
           <div className="bg-white border border-sand rounded-sm overflow-hidden">
@@ -925,6 +984,110 @@ export default function KundeDetailPage() {
             setActiveTab("tilbud");
           }} 
         />
+      </Modal>
+
+      {/* Send Form Modal */}
+      <Modal
+        isOpen={isSendFormModalOpen}
+        onClose={() => setIsSendFormModalOpen(false)}
+        title={`Send skjema til ${client.name}`}
+      >
+        <form onSubmit={handleSendFormSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs uppercase tracking-wider text-charcoal/80 font-medium mb-1">
+              Velg skjema som skal sendes
+            </label>
+            <select
+              value={selectedFormToSend}
+              onChange={(e) => {
+                const fId = e.target.value;
+                setSelectedFormToSend(fId);
+                const found = availableForms.find(f => f.id === fId);
+                if (fId === "f-kort-prosjektskjema" || (found && (found.id === "f-kort-prosjektskjema" || found.slug === "kort-skjema"))) {
+                  setFormEmailSubject(`Kort prosjektskjema fra by mari: Stil & Farger`);
+                  setFormEmailIntro(`Hei ${client.name.split(" ")[0]}, her er et kort skjema (3–5 min) for å samle inn dine ønsker om visuell stil, farger og nettsidestruktur.`);
+                } else if (found) {
+                  setFormEmailSubject(`Prosjektskjema fra by mari: ${found.title}`);
+                  setFormEmailIntro(`Hei ${client.name.split(" ")[0]}, vennligst fyll ut dette skjemaet slik at vi har alt nødvendig underlag.`);
+                }
+              }}
+              className="w-full px-3 py-2 bg-warm-white border border-sand rounded-sm text-sm focus:outline-none focus:border-forest-green font-medium"
+            >
+              {availableForms.map((f) => (
+                <option key={f.id} value={f.id}>
+                  {f.id === "f-kort-prosjektskjema" || f.slug === "kort-skjema" ? "★ " : ""}{f.title} ({f.fields?.length || 0} spørsmål){f.id === "f-kort-prosjektskjema" || f.slug === "kort-skjema" ? " — ANBEFALT (3–5 min)" : ""}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-charcoal/50 mt-1">
+              Det korte skjemaet har fargepaletter, stilvalg og forenklet logospørsmål.
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-xs uppercase tracking-wider text-charcoal/80 font-medium mb-1">
+              Mottaker e-post
+            </label>
+            <input
+              type="email"
+              disabled
+              value={client.email}
+              className="w-full px-3 py-2 bg-sand/20 border border-sand rounded-sm text-sm text-charcoal/70 cursor-not-allowed"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs uppercase tracking-wider text-charcoal/80 font-medium mb-1">
+              E-post emnefelt
+            </label>
+            <input
+              type="text"
+              required
+              value={formEmailSubject}
+              onChange={(e) => setFormEmailSubject(e.target.value)}
+              className="w-full px-3 py-2 bg-warm-white border border-sand rounded-sm text-sm focus:outline-none focus:border-forest-green"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs uppercase tracking-wider text-charcoal/80 font-medium mb-1">
+              Personlig introduksjonstekst
+            </label>
+            <textarea
+              rows={3}
+              value={formEmailIntro}
+              onChange={(e) => setFormEmailIntro(e.target.value)}
+              className="w-full px-3 py-2 bg-warm-white border border-sand rounded-sm text-sm focus:outline-none focus:border-forest-green resize-y"
+            />
+          </div>
+
+          <div className="pt-4 border-t border-sand flex justify-end space-x-3">
+            <button
+              type="button"
+              onClick={() => setIsSendFormModalOpen(false)}
+              className="px-4 py-2 text-xs font-medium text-charcoal/70 hover:bg-sand/30 rounded-sm"
+            >
+              Avbryt
+            </button>
+            <button
+              type="submit"
+              disabled={isSendingForm}
+              className="inline-flex items-center space-x-2 px-5 py-2 text-xs font-medium bg-forest-green hover:bg-forest-green-hover text-warm-white rounded-sm transition-colors disabled:opacity-50"
+            >
+              {isSendingForm ? (
+                <>
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  <span>Sender e-post...</span>
+                </>
+              ) : (
+                <>
+                  <Send className="w-3.5 h-3.5" />
+                  <span>Send skjema til kunden</span>
+                </>
+              )}
+            </button>
+          </div>
+        </form>
       </Modal>
 
       {/* Delete Confirmation Modal */}

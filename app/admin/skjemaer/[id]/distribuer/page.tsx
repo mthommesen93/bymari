@@ -29,6 +29,8 @@ export default function DistribuerSkjemaPage() {
   const formId = params.id as string;
 
   const [form, setForm] = useState<Form | null>(null);
+  const [allForms, setAllForms] = useState<Form[]>([]);
+  const [selectedFormId, setSelectedFormId] = useState(formId);
   const [clients, setClients] = useState<Client[]>([]);
   const [distributions, setDistributions] = useState<FormDistribution[]>([]);
   const [loading, setLoading] = useState(true);
@@ -44,14 +46,28 @@ export default function DistribuerSkjemaPage() {
   const [copiedToken, setCopiedToken] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState("");
 
-  const loadData = async () => {
+  const loadData = async (activeId = selectedFormId) => {
     setLoading(true);
     try {
-      // 1. Fetch form
-      const f = await dataStore.getFormById(formId);
+      // 1. Fetch all forms
+      let loadedForms: Form[] = [];
+      try {
+        const fRes = await fetch("/api/forms");
+        if (fRes.ok) {
+          const fJson = await fRes.json();
+          if (fJson.forms) loadedForms = fJson.forms;
+        }
+      } catch {}
+      if (loadedForms.length === 0) {
+        loadedForms = await dataStore.getForms();
+      }
+      setAllForms(loadedForms);
+
+      // 2. Fetch specific form
+      const f = loadedForms.find(item => item.id === activeId || item.slug === activeId) || (await dataStore.getFormById(activeId));
       setForm(f);
 
-      // 2. Fetch clients
+      // 3. Fetch clients
       let loadedClients: Client[] = [];
       try {
         const clientRes = await fetch("/api/clients");
@@ -65,17 +81,17 @@ export default function DistribuerSkjemaPage() {
       }
       setClients(loadedClients);
 
-      // 3. Fetch distributions
+      // 4. Fetch distributions
       let loadedDists: FormDistribution[] = [];
       try {
-        const distRes = await fetch(`/api/forms/distribute?formId=${formId}`);
+        const distRes = await fetch(`/api/forms/distribute?formId=${activeId}`);
         if (distRes.ok) {
           const distData = await distRes.json();
           if (distData.distributions) loadedDists = distData.distributions;
         }
       } catch {}
       if (loadedDists.length === 0) {
-        loadedDists = await dataStore.getDistributions({ formId });
+        loadedDists = await dataStore.getDistributions({ formId: activeId });
       }
       setDistributions(loadedDists);
 
@@ -91,8 +107,12 @@ export default function DistribuerSkjemaPage() {
   };
 
   useEffect(() => {
-    loadData();
-  }, [formId]);
+    loadData(selectedFormId);
+  }, [selectedFormId]);
+
+  const handleFormChange = (newId: string) => {
+    setSelectedFormId(newId);
+  };
 
   const handleDistribute = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -131,7 +151,7 @@ export default function DistribuerSkjemaPage() {
       alert("Feil ved utsendelse: " + err.message);
     } finally {
       setIsDistributing(false);
-      loadData();
+      loadData(selectedFormId);
     }
   };
 
@@ -145,7 +165,7 @@ export default function DistribuerSkjemaPage() {
   const handleRevoke = async (distId: string) => {
     if (confirm("Er du sikker på at du vil tilbakekalle denne lenken? Kunden vil ikke lenger kunne åpne eller sende inn skjemaet.")) {
       await dataStore.revokeDistribution(distId);
-      loadData();
+      loadData(selectedFormId);
     }
   };
 
@@ -193,6 +213,23 @@ export default function DistribuerSkjemaPage() {
           )}
 
           <form onSubmit={handleDistribute} className="space-y-5">
+            <div>
+              <label className="block text-xs uppercase tracking-wider text-charcoal/80 font-medium mb-1">
+                Velg skjema som skal sendes
+              </label>
+              <select
+                value={selectedFormId}
+                onChange={(e) => handleFormChange(e.target.value)}
+                className="w-full px-3.5 py-2.5 bg-warm-white border border-sand rounded-sm text-sm font-medium text-charcoal focus:outline-none focus:border-forest-green"
+              >
+                {allForms.map((f) => (
+                  <option key={f.id} value={f.id}>
+                    {f.id === "f-kort-prosjektskjema" ? "⭐ " : ""}{f.title} ({f.fields?.length || 0} spørsmål){f.id === "f-kort-prosjektskjema" ? " — ANBEFALT (3–5 min)" : ""}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <div>
               <label className="block text-xs uppercase tracking-wider text-charcoal/80 font-medium mb-1">
                 Velg kunde fra CRM

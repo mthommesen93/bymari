@@ -16,8 +16,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     // 1. Check if token matches ANY master form slug or ID
     const allForms = await dataStore.getForms();
     const matchedMasterForm = allForms.find(f => f.slug === token || f.id === token) || 
-      (token === "prosjektskjema" || token === "f-prosjektskjema" ? initialForms[0] : null) ||
-      (token === "kort-skjema" || token === "f-kort-prosjektskjema" ? initialForms.find(f => f.id === "f-kort-prosjektskjema") : null);
+      (token === "kort-skjema" || token === "f-kort-prosjektskjema" ? initialForms.find(f => f.id === "f-kort-prosjektskjema") : null) ||
+      (token === "prosjektskjema" || token === "f-prosjektskjema" ? initialForms.find(f => f.id === "f-prosjektskjema") : null) ||
+      initialForms.find(f => f.id === token || f.slug === token);
 
     // 2. Query Supabase site_content for form directly
     let directForm: any = matchedMasterForm || null;
@@ -60,7 +61,12 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       }
     }
 
-    const templateForm = directForm || (await dataStore.getFormById("f-prosjektskjema")) || initialForms[0];
+    // 4. Default template form (Kort prosjektskjema preferred)
+    const defaultShortForm = (await dataStore.getFormById("f-kort-prosjektskjema")) || 
+                             initialForms.find(f => f.id === "f-kort-prosjektskjema") || 
+                             initialForms[0];
+
+    const templateForm = directForm || defaultShortForm;
 
     // If it's a distribution token or master slug
     if (dist || matchedMasterForm || token.startsWith("bm-") || token.includes("skjema")) {
@@ -93,8 +99,23 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         };
       }
 
+      // Resolve the actual target form ID
       let targetFormId = dist.form_id || dist.form?.id || templateForm.id;
-      let form = directForm || dist.form || (await dataStore.getFormById(targetFormId)) || allForms.find(f => f.id === targetFormId) || templateForm;
+      
+      // Always look up the complete form with fields
+      let form = (await dataStore.getFormById(targetFormId)) || 
+                 initialForms.find(f => f.id === targetFormId || f.slug === targetFormId) || 
+                 allForms.find(f => f.id === targetFormId || f.slug === targetFormId) ||
+                 directForm || 
+                 templateForm;
+
+      // Fallback: If form still has empty fields, get from initialForms
+      if (!form || !form.fields || form.fields.length === 0) {
+        const fallback = initialForms.find(f => f.id === targetFormId || f.slug === targetFormId) || 
+                         initialForms.find(f => f.id === "f-kort-prosjektskjema") || 
+                         initialForms[0];
+        form = { ...form, ...fallback };
+      }
 
       let client = dist.client;
       if (!client && dist.client_id) {
@@ -114,6 +135,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     }
 
     if (directForm) {
+      // Ensure directForm has complete fields
+      if (!directForm.fields || directForm.fields.length === 0) {
+        const fallback = initialForms.find(f => f.id === directForm.id || f.slug === directForm.slug);
+        if (fallback) directForm = { ...directForm, fields: fallback.fields };
+      }
       return NextResponse.json({
         success: true,
         form: directForm,

@@ -33,6 +33,14 @@ export default function SkjemaerPage() {
       } else if (selectedStatus !== "Alle") {
         data = data.filter(f => f.status === selectedStatus);
       }
+      
+      // Sort f-kort-prosjektskjema to the very top
+      data.sort((a, b) => {
+        if (a.id === "f-kort-prosjektskjema" || a.slug === "kort-skjema") return -1;
+        if (b.id === "f-kort-prosjektskjema" || b.slug === "kort-skjema") return 1;
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      });
+
       setForms(data);
     } catch (err) {
       console.warn("Forms load error, using store fallback:", err);
@@ -41,6 +49,11 @@ export default function SkjemaerPage() {
         filterOptions.status = selectedStatus as FormStatus;
       }
       const data = await dataStore.getForms(filterOptions);
+      data.sort((a, b) => {
+        if (a.id === "f-kort-prosjektskjema" || a.slug === "kort-skjema") return -1;
+        if (b.id === "f-kort-prosjektskjema" || b.slug === "kort-skjema") return 1;
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      });
       setForms(data);
     } finally {
       setLoading(false);
@@ -124,20 +137,31 @@ export default function SkjemaerPage() {
             </Link>
           </div>
         ) : (
-          forms.map((form) => (
+          forms.map((form) => {
+            const isShortForm = form.id === "f-kort-prosjektskjema" || form.slug === "kort-skjema";
+            return (
             <div
               key={form.id}
-              className="bg-white border border-sand p-6 rounded-sm shadow-sm flex flex-col justify-between hover:border-forest-green/40 transition-colors group"
+              className={`bg-white border p-6 rounded-sm shadow-sm flex flex-col justify-between transition-all group ${
+                isShortForm 
+                  ? "border-forest-green/70 ring-1 ring-forest-green/20 bg-linear-to-b from-warm-white/40 to-white" 
+                  : "border-sand hover:border-forest-green/40"
+              }`}
             >
               <div className="space-y-3">
-                <div className="flex items-start justify-between">
+                <div className="flex items-start justify-between flex-wrap gap-1.5">
                   <StatusBadge status={form.status} />
-                  {form.is_template && (
+                  {isShortForm ? (
+                    <span className="inline-flex items-center space-x-1 text-[11px] font-medium text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-sm">
+                      <Sparkles className="w-3 h-3 text-emerald-600" />
+                      <span>Anbefalt (3–5 min)</span>
+                    </span>
+                  ) : form.is_template ? (
                     <span className="inline-flex items-center space-x-1 text-[11px] font-medium text-sage-dark bg-sage-light px-2 py-0.5 rounded-sm">
                       <Sparkles className="w-3 h-3" />
                       <span>Mal</span>
                     </span>
-                  )}
+                  ) : null}
                 </div>
 
                 <div>
@@ -196,9 +220,10 @@ export default function SkjemaerPage() {
                 </div>
               </div>
             </div>
-          ))
-        )}
-      </div>
+          );
+        })
+      )}
+    </div>
     </div>
   );
 }

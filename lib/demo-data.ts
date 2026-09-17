@@ -48,6 +48,195 @@ export const initialClients: Client[] = [
 
 export const initialForms: Form[] = [
   {
+    id: "f-kort-prosjektskjema",
+    title: "Kort prosjektskjema: Stil, Farger & Visuell profil",
+    slug: "kort-skjema",
+    introduction: "Takk for at du vurderer By Mari.\n\nDette korte skjemaet er tilpasset deg som ønsker en rask og ukomplisert oppstart. Her samler vi inn det viktigste om virksomheten din, samt dine ønsker for visuell stil, farger, stemning og nettsidestruktur.\n\nDet tar kun 3–5 minutter å fylle ut.",
+    confirmation_message: "Tusen takk for dine svar!\n\nJeg går gjennom dine preferanser for stil og farger, og bruker dette som utgangspunkt for det første designutkastet. Jeg tar kontakt så snart utkastet er klart.\n\nHilsen By Mari",
+    status: "published",
+    is_template: true,
+    created_at: "2026-09-17T10:00:00Z",
+    updated_at: "2026-09-17T10:00:00Z",
+    fields: [
+      {
+        id: "fld-ks-sec-1",
+        form_id: "f-kort-prosjektskjema",
+        field_type: "info",
+        label: "1. Kontaktinformasjon",
+        description: "Grunnleggende informasjon om virksomheten og kontaktperson.",
+        is_required: false,
+        position: 0
+      },
+      {
+        id: "fld-ks-1",
+        form_id: "f-kort-prosjektskjema",
+        field_type: "text",
+        label: "1. Hva heter virksomheten eller prosjektet ditt?",
+        description: "",
+        is_required: true,
+        position: 1
+      },
+      {
+        id: "fld-ks-2",
+        form_id: "f-kort-prosjektskjema",
+        field_type: "text",
+        label: "2. Hva heter kontaktpersonen?",
+        description: "",
+        is_required: true,
+        position: 2
+      },
+      {
+        id: "fld-ks-3",
+        form_id: "f-kort-prosjektskjema",
+        field_type: "email",
+        label: "3. Hva er e-postadressen din?",
+        description: "",
+        is_required: true,
+        position: 3
+      },
+      {
+        id: "fld-ks-4",
+        form_id: "f-kort-prosjektskjema",
+        field_type: "phone",
+        label: "4. Hva er telefonnummeret ditt?",
+        description: "",
+        is_required: false,
+        position: 4
+      },
+      {
+        id: "fld-ks-sec-2",
+        form_id: "f-kort-prosjektskjema",
+        field_type: "info",
+        label: "2. Om virksomheten",
+        description: "Kort om hva du tilbyr og hva du ønsker å oppnå.",
+        is_required: false,
+        position: 5
+      },
+      {
+        id: "fld-ks-5",
+        form_id: "f-kort-prosjektskjema",
+        field_type: "textarea",
+        label: "5. Hva tilbyr du, kort fortalt?",
+        description: "Beskriv i 1–3 setninger hvilke produkter, tjenester eller hva virksomheten din driver med.",
+        is_required: true,
+        position: 6
+      },
+      {
+        id: "fld-ks-sec-3",
+        form_id: "f-kort-prosjektskjema",
+        field_type: "info",
+        label: "3. Stil, Farger & Visuelt uttrykk",
+        description: "Velg fargepaletter og visuell stil som du liker best.",
+        is_required: false,
+        position: 7
+      },
+      {
+        id: "fld-ks-6",
+        form_id: "f-kort-prosjektskjema",
+        field_type: "checkbox",
+        label: "6. Hvilke fargepaletter liker du best?",
+        description: "Velg én eller flere fargekombinasjoner du tiltrekkes av.",
+        is_required: true,
+        options: [
+          { id: "ks-c1", label: "Jordtoner & Varm Sand (rolig, naturlig, beige og varmt)", value: "jordtoner" },
+          { id: "ks-c2", label: "Dyp Skoggrønn & Salvie (organisk, harmonisk og naturpreget)", value: "gronntoner" },
+          { id: "ks-c3", label: "Minimalistisk Sort, Hvit & Grå (tidløst, rent, stramt og moderne)", value: "monokrom" },
+          { id: "ks-c4", label: "Duse Pasteller & Varm Pudder (mykt, lyst, innbydende og feminint)", value: "pastell" },
+          { id: "ks-c5", label: "Midnattsblå, Antrasitt & Gull (eksklusivt, luksuriøst og sobert)", value: "morke_toner" },
+          { id: "ks-c6", label: "Friske & Spreke Kontraster (energisk, moderne og iøynefallende)", value: "friske_farger" },
+          { id: "ks-c7", label: "Jeg har egne faste profilfarger", value: "egne_farger" },
+          { id: "ks-c8", label: "Åpen for forslag fra Mari", value: "apen_for_forslag" }
+        ],
+        position: 8
+      },
+      {
+        id: "fld-ks-7",
+        form_id: "f-kort-prosjektskjema",
+        field_type: "checkbox",
+        label: "7. Hvilken stemning og visuell stil liker du?",
+        description: "Velg én eller flere stiler som passer best for ønsket uttrykk.",
+        is_required: true,
+        options: [
+          { id: "ks-s1", label: "Klassisk, stilren & elegant", value: "klassisk_elegant" },
+          { id: "ks-s2", label: "Varm, personlig & innbydende", value: "varm_personlig" },
+          { id: "ks-s3", label: "Moderne, minimalistisk & ryddig", value: "moderne_minimalistisk" },
+          { id: "ks-s4", label: "Kreativ, leken & nyskapende", value: "kreativ_leken" },
+          { id: "ks-s5", label: "Eksklusiv, sober & profesjonell", value: "eksklusiv_sober" },
+          { id: "ks-s6", label: "Rå, industriell & maskulin", value: "ra_industriell" }
+        ],
+        position: 9
+      },
+      {
+        id: "fld-ks-8",
+        form_id: "f-kort-prosjektskjema",
+        field_type: "radio",
+        label: "8. Har du logo i dag?",
+        description: "",
+        is_required: true,
+        options: [
+          { id: "ks-l1", label: "Ja", value: "ja" },
+          { id: "ks-l2", label: "Nei", value: "nei" }
+        ],
+        position: 10
+      },
+      {
+        id: "fld-ks-10",
+        form_id: "f-kort-prosjektskjema",
+        field_type: "textarea",
+        label: "9. Er det bestemte farger, stiler eller løsninger du IKKE liker?",
+        description: "F.eks. unngå for sterke farger, ikke for mye tekst, ingen mørk bakgrunn osv.",
+        is_required: false,
+        position: 11
+      },
+      {
+        id: "fld-ks-sec-4",
+        form_id: "f-kort-prosjektskjema",
+        field_type: "info",
+        label: "4. Sider, Innhold & Materiell",
+        description: "Hvilket innhold og sider skal inn på nettsiden?",
+        is_required: false,
+        position: 12
+      },
+      {
+        id: "fld-ks-11",
+        form_id: "f-kort-prosjektskjema",
+        field_type: "checkbox",
+        label: "10. Hvilke hovedsider eller seksjoner trenger du?",
+        description: "Kryss av for det du ser for deg på nettsiden.",
+        is_required: true,
+        options: [
+          { id: "ks-p1", label: "Forside (oversikt og introduksjon)", value: "forside" },
+          { id: "ks-p2", label: "Om meg / Virksomheten", value: "om_oss" },
+          { id: "ks-p3", label: "Tjenester / Produkter og priser", value: "tjenester" },
+          { id: "ks-p4", label: "Kontaktskjema & kontaktinfo", value: "kontakt" },
+          { id: "ks-p5", label: "Referanser / Bildegalleri / Tidligere arbeid", value: "galleri" },
+          { id: "ks-p6", label: "Ofte stilte spørsmål (FAQ)", value: "faq" },
+          { id: "ks-p7", label: "Enkel landingsside (alt samlet på én side)", value: "landingsside" },
+          { id: "ks-p8", label: "Annet", value: "annet" }
+        ],
+        position: 13
+      },
+      {
+        id: "fld-ks-12",
+        form_id: "f-kort-prosjektskjema",
+        field_type: "file",
+        label: "11. Last gjerne opp logo, bilder eller inspirasjonsfiler",
+        description: "Støtter bilder (PNG, JPG), PDF og dokumenter opptil 10 MB.",
+        is_required: false,
+        position: 14
+      },
+      {
+        id: "fld-ks-13",
+        form_id: "f-kort-prosjektskjema",
+        field_type: "textarea",
+        label: "12. Er det noe annet du ønsker å formidle om prosjektet?",
+        description: "Tidsramme, spesielle ønsker eller andre tanker.",
+        is_required: false,
+        position: 15
+      }
+    ]
+  },
+  {
   "id": "f-prosjektskjema",
   "title": "Prosjektskjema",
   "slug": "prosjektskjema",
