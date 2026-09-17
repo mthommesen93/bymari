@@ -1054,6 +1054,205 @@ export const initialForms: Form[] = [
     }
   ]
 },
+  {
+    id: "f-kort-prosjektskjema",
+    title: "Kort prosjektskjema: Stil, Farger & Visuell profil",
+    slug: "kort-skjema",
+    introduction: "Takk for at du vurderer By Mari.\n\nDette korte skjemaet er tilpasset deg som ønsker en rask og ukomplisert oppstart. Her samler vi inn det viktigste om virksomheten din, samt dine ønsker for visuell stil, farger, stemning og nettsidestruktur.\n\nDet tar kun 3–5 minutter å fylle ut.",
+    confirmation_message: "Tusen takk for dine svar!\n\nJeg går gjennom dine preferanser for stil og farger, og bruker dette som utgangspunkt for det første designutkastet. Jeg tar kontakt så snart utkastet er klart.\n\nHilsen By Mari",
+    status: "published",
+    is_template: true,
+    created_at: "2026-09-17T10:00:00Z",
+    updated_at: "2026-09-17T10:00:00Z",
+    fields: [
+      {
+        id: "fld-ks-sec-1",
+        form_id: "f-kort-prosjektskjema",
+        field_type: "info",
+        label: "1. Kontaktinformasjon",
+        description: "Grunnleggende informasjon om virksomheten og kontaktperson.",
+        is_required: false,
+        position: 0
+      },
+      {
+        id: "fld-ks-1",
+        form_id: "f-kort-prosjektskjema",
+        field_type: "text",
+        label: "1. Hva heter virksomheten eller prosjektet ditt?",
+        description: "",
+        is_required: true,
+        position: 1
+      },
+      {
+        id: "fld-ks-2",
+        form_id: "f-kort-prosjektskjema",
+        field_type: "text",
+        label: "2. Hva heter kontaktpersonen?",
+        description: "",
+        is_required: true,
+        position: 2
+      },
+      {
+        id: "fld-ks-3",
+        form_id: "f-kort-prosjektskjema",
+        field_type: "email",
+        label: "3. Hva er e-postadressen din?",
+        description: "",
+        is_required: true,
+        position: 3
+      },
+      {
+        id: "fld-ks-4",
+        form_id: "f-kort-prosjektskjema",
+        field_type: "phone",
+        label: "4. Hva er telefonnummeret ditt?",
+        description: "",
+        is_required: false,
+        position: 4
+      },
+      {
+        id: "fld-ks-sec-2",
+        form_id: "f-kort-prosjektskjema",
+        field_type: "info",
+        label: "2. Om virksomheten",
+        description: "Kort om hva du tilbyr og hva du ønsker å oppnå.",
+        is_required: false,
+        position: 5
+      },
+      {
+        id: "fld-ks-5",
+        form_id: "f-kort-prosjektskjema",
+        field_type: "textarea",
+        label: "5. Hva tilbyr du, kort fortalt?",
+        description: "Beskriv i 1–3 setninger hvilke produkter, tjenester eller hva virksomheten din driver med.",
+        is_required: true,
+        position: 6
+      },
+      {
+        id: "fld-ks-sec-3",
+        form_id: "f-kort-prosjektskjema",
+        field_type: "info",
+        label: "3. Stil, Farger & Visuelt uttrykk",
+        description: "Fortell om hvilken stemning, fargepalett og visuell profil du ser for deg.",
+        is_required: false,
+        position: 7
+      },
+      {
+        id: "fld-ks-6",
+        form_id: "f-kort-prosjektskjema",
+        field_type: "checkbox",
+        label: "6. Hvilke farger og fargetoner ser du for deg?",
+        description: "Velg én eller flere paletter du liker, eller oppgi egne farger.",
+        is_required: true,
+        options: [
+          { id: "ks-c1", label: "Jordtoner, beige og varm sand (rolig, naturlig, harmonisk)", value: "jordtoner" },
+          { id: "ks-c2", label: "Dyp skoggrønn, salvie og naturtoner (organisk, rolig, eksklusivt)", value: "gronntoner" },
+          { id: "ks-c3", label: "Minimalistisk sort, hvit og gråtoner (tidløst, stilrent, moderne)", value: "monokrom" },
+          { id: "ks-c4", label: "Duse pasteller og varme pudderfarger (mykt, feminint, innbydende)", value: "pastell" },
+          { id: "ks-c5", label: "Mørke, dype farger som midnattsblå / antrasitt (luksuriøst, sobert)", value: "morke_toner" },
+          { id: "ks-c6", label: "Friske, spreke og energiske farger (lekent, moderne)", value: "friske_farger" },
+          { id: "ks-c7", label: "Jeg har egne fargekoder / faste profilfarger", value: "egne_farger" },
+          { id: "ks-c8", label: "Åpen for forslag fra Mari", value: "apen_for_forslag" }
+        ],
+        position: 8
+      },
+      {
+        id: "fld-ks-7",
+        form_id: "f-kort-prosjektskjema",
+        field_type: "radio",
+        label: "7. Hvilken stemning og visuell stil ønsker du at nettsiden skal ha?",
+        description: "Velg den stilen som best beskriver din visjon.",
+        is_required: true,
+        options: [
+          { id: "ks-s1", label: "Klassisk, stilren & elegant", value: "klassisk_elegant" },
+          { id: "ks-s2", label: "Varm, personlig & innbydende", value: "varm_personlig" },
+          { id: "ks-s3", label: "Moderne, minimalistisk & ryddig", value: "moderne_minimalistisk" },
+          { id: "ks-s4", label: "Kreativ, leken & nyskapende", value: "kreativ_leken" },
+          { id: "ks-s5", label: "Eksklusiv, sober & profesjonell", value: "eksklusiv_sober" },
+          { id: "ks-s6", label: "Rå, industriell & maskulin", value: "ra_industriell" }
+        ],
+        position: 9
+      },
+      {
+        id: "fld-ks-8",
+        form_id: "f-kort-prosjektskjema",
+        field_type: "radio",
+        label: "8. Har du eksisterende logo og materiell klart?",
+        description: "",
+        is_required: true,
+        options: [
+          { id: "ks-l1", label: "Ja, logo og materiell er klart (lastes opp under)", value: "logo_klar" },
+          { id: "ks-l2", label: "Har logo, men ønsker hjelp med oppfrisking / grafikk", value: "hjelp_oppfrisking" },
+          { id: "ks-l3", label: "Nei, ønsker at By Mari designer logo og visuell profil", value: "trenger_logo" }
+        ],
+        position: 10
+      },
+      {
+        id: "fld-ks-9",
+        form_id: "f-kort-prosjektskjema",
+        field_type: "textarea",
+        label: "9. Eksempler på nettsider eller profiler du liker stilen på",
+        description: "Lim gjerne inn 1–3 lenker til nettsider eller Instagram-kontoer du liker designet på, og nevn kort hva du liker.",
+        is_required: false,
+        position: 11
+      },
+      {
+        id: "fld-ks-10",
+        form_id: "f-kort-prosjektskjema",
+        field_type: "textarea",
+        label: "10. Er det bestemte farger, stiler eller løsninger du IKKE liker?",
+        description: "F.eks. unngå for sterke farger, ikke for mye tekst, unngå mørk bakgrunn osv.",
+        is_required: false,
+        position: 12
+      },
+      {
+        id: "fld-ks-sec-4",
+        form_id: "f-kort-prosjektskjema",
+        field_type: "info",
+        label: "4. Sider, Innhold & Materiell",
+        description: "Hvilket innhold skal inn på den nye nettsiden?",
+        is_required: false,
+        position: 13
+      },
+      {
+        id: "fld-ks-11",
+        form_id: "f-kort-prosjektskjema",
+        field_type: "checkbox",
+        label: "11. Hvilke hovedsider eller seksjoner trenger du?",
+        description: "Kryss av for det du ser for deg på nettsiden.",
+        is_required: true,
+        options: [
+          { id: "ks-p1", label: "Forside (oversikt og introduksjon)", value: "forside" },
+          { id: "ks-p2", label: "Om meg / Virksomheten", value: "om_oss" },
+          { id: "ks-p3", label: "Tjenester / Produkter og priser", value: "tjenester" },
+          { id: "ks-p4", label: "Kontaktskjema & kontaktinfo", value: "kontakt" },
+          { id: "ks-p5", label: "Referanser / Bildegalleri / Tidligere arbeid", value: "galleri" },
+          { id: "ks-p6", label: "Ofte stilte spørsmål (FAQ)", value: "faq" },
+          { id: "ks-p7", label: "Enkel landingsside (alt samlet på én side)", value: "landingsside" },
+          { id: "ks-p8", label: "Annet", value: "annet" }
+        ],
+        position: 14
+      },
+      {
+        id: "fld-ks-12",
+        form_id: "f-kort-prosjektskjema",
+        field_type: "file",
+        label: "12. Last gjerne opp logo, bilder eller inspirasjonsfiler",
+        description: "Støtter bilder (PNG, JPG), PDF og dokumenter opptil 10 MB.",
+        is_required: false,
+        position: 15
+      },
+      {
+        id: "fld-ks-13",
+        form_id: "f-kort-prosjektskjema",
+        field_type: "textarea",
+        label: "13. Er det noe annet du ønsker å formidle om prosjektet?",
+        description: "Tidsramme, spesielle ønsker eller andre tanker.",
+        is_required: false,
+        position: 16
+      }
+    ]
+  },
 
   {
     id: "f1-oppstart",
@@ -1244,6 +1443,20 @@ export const initialDistributions: FormDistribution[] = [
     token: "prosjektskjema",
     email_subject: "Prosjektskjema fra By Mari",
     email_intro: "Hei! For at vi skal få et best mulig bilde av virksomheten og prosjektet ditt, ber vi deg vennligst fylle ut dette skjemaet.",
+    expires_at: null,
+    status: "sent",
+    opened_at: null,
+    submitted_at: null,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  },
+  {
+    id: "dist-kort-skjema-hoved",
+    form_id: "f-kort-prosjektskjema",
+    client_id: null,
+    token: "kort-skjema",
+    email_subject: "Kort prosjektskjema fra By Mari",
+    email_intro: "Hei! For at vi raskt skal komme i gang og få innsikt i dine stil- og fargeønsker, ber vi deg vennligst fylle ut dette korte skjemaet.",
     expires_at: null,
     status: "sent",
     opened_at: null,

@@ -11,24 +11,29 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ toke
       return NextResponse.json({ success: false, error: "Mangler token" }, { status: 400 });
     }
 
-    const templateForm = (await dataStore.getFormById("f-prosjektskjema")) || initialForms[0];
+    // 1. Check if token matches ANY master form slug or ID
+    const allForms = await dataStore.getForms();
+    const matchedMasterForm = allForms.find(f => f.slug === token || f.id === token) || 
+      (token === "prosjektskjema" || token === "f-prosjektskjema" ? initialForms[0] : null) ||
+      (token === "kort-skjema" || token === "f-kort-prosjektskjema" ? initialForms.find(f => f.id === "f-kort-prosjektskjema") : null);
 
-    // 1. Check if token is the master template slug "prosjektskjema"
-    if (token === "prosjektskjema" || token === "f-prosjektskjema") {
+    if (matchedMasterForm) {
       return NextResponse.json({
         success: true,
         distribution: {
-          id: "dist-master-prosjektskjema",
-          form_id: templateForm.id,
+          id: `dist-master-${matchedMasterForm.slug || matchedMasterForm.id}`,
+          form_id: matchedMasterForm.id,
           client_id: null,
-          token: "prosjektskjema",
+          token: token,
           status: "sent",
           expires_at: null,
           created_at: new Date().toISOString()
         },
-        form: templateForm
+        form: matchedMasterForm
       });
     }
+
+    const templateForm = (await dataStore.getFormById("f-prosjektskjema")) || initialForms[0];
 
     // 2. Query Supabase / dataStore for distribution by token
     let dist: any = await dataStore.getDistributionByToken(token);
@@ -61,8 +66,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ toke
         client_id: defaultClient?.id || null,
         token: token,
         status: "sent",
-        email_subject: `Prosjektskjema fra By Mari`,
-        email_intro: "Hei! Her er prosjektskjemaet ditt.",
+        email_subject: `Skjema fra By Mari`,
+        email_intro: "Hei! Her er skjemaet ditt.",
         expires_at: null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -88,9 +93,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ toke
     }
 
     // 4. Ensure form is loaded
-    let form = dist.form || (await dataStore.getFormById(dist.form_id)) || templateForm;
+    let targetFormId = dist.form_id || dist.form?.id || "f-prosjektskjema";
+    let form = dist.form || (await dataStore.getFormById(targetFormId)) || allForms.find(f => f.id === targetFormId) || templateForm;
     if (!form.fields || form.fields.length === 0) {
-      form = templateForm;
+      form = (await dataStore.getFormById(targetFormId)) || templateForm;
     }
 
     // 5. Ensure client is loaded if client_id exists
