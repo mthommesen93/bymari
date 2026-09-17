@@ -13,8 +13,18 @@ export default function KalkulatorPage() {
 
   useEffect(() => {
     async function load() {
-      const c = await dataStore.getClients();
-      setClients(c);
+      let loadedClients: Client[] = [];
+      try {
+        const res = await fetch("/api/clients");
+        if (res.ok) {
+          const json = await res.json();
+          if (json.clients && Array.isArray(json.clients)) loadedClients = json.clients;
+        }
+      } catch {}
+      if (loadedClients.length === 0) {
+        loadedClients = await dataStore.getClients();
+      }
+      setClients(loadedClients);
       setLoading(false);
     }
     load();

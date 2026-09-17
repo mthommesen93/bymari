@@ -96,40 +96,66 @@ export const dataStore = {
   // CLIENTS (CRM)
   // --------------------------------------------------------------------------
   async getClients(filters?: { query?: string; status?: ClientStatus; is_archived?: boolean }): Promise<Client[]> {
+    let combinedClients: Client[] = [...clients];
+
     const supabase = getSupabase();
     if (supabase) {
+      // 1. Try SQL table 'clients'
       try {
-        let query = supabase.from("clients").select("*").order("created_at", { ascending: false });
-        if (filters?.is_archived !== undefined) {
-          query = query.eq("is_archived", filters.is_archived);
-        } else {
-          query = query.eq("is_archived", false);
-        }
-        if (filters?.status) {
-          query = query.eq("status", filters.status);
-        }
-        const { data, error } = await query;
+        const { data, error } = await supabase.from("clients").select("*").order("created_at", { ascending: false });
         if (!error && data && data.length > 0) {
-          clients = data as Client[];
-          setStored(CLIENTS_STORAGE_KEY, clients);
+          const ids = new Set(combinedClients.map(c => c.id));
+          data.forEach((c: any) => {
+            if (!ids.has(c.id)) {
+              combinedClients.push(c as Client);
+              ids.add(c.id);
+            }
+          });
         }
       } catch (err) {
         console.warn("Supabase clients query error:", err);
+      }
+
+      // 2. Try site_content key: 'clients_all'
+      try {
+        const { data: scData } = await supabase
+          .from("site_content")
+          .select("content")
+          .eq("key", "clients_all")
+          .single();
+
+        if (scData?.content && Array.isArray(scData.content)) {
+          const ids = new Set(combinedClients.map(c => c.id));
+          scData.content.forEach((c: any) => {
+            if (!ids.has(c.id)) {
+              combinedClients.push(c as Client);
+              ids.add(c.id);
+            }
+          });
+        }
+      } catch (scErr) {
+        console.warn("site_content clients query fallback:", scErr);
       }
     }
 
     if (typeof window !== "undefined") {
       const local = getStored<Client[]>(CLIENTS_STORAGE_KEY, []);
       if (local.length > 0) {
-        // Merge
-        const ids = new Set(clients.map(c => c.id));
+        const ids = new Set(combinedClients.map(c => c.id));
         local.forEach(l => {
-          if (!ids.has(l.id)) clients.push(l);
+          if (!ids.has(l.id)) {
+            combinedClients.push(l);
+            ids.add(l.id);
+          }
         });
       }
     }
 
-    let result = [...clients];
+    // Keep global cache in sync
+    clients = combinedClients;
+    setStored(CLIENTS_STORAGE_KEY, clients);
+
+    let result = [...combinedClients];
     if (filters?.is_archived !== undefined) {
       result = result.filter(c => c.is_archived === filters.is_archived);
     } else {
@@ -154,17 +180,11 @@ export const dataStore = {
   },
 
   async getClientById(id: string): Promise<Client | null> {
-    const supabase = getSupabase();
-    if (supabase) {
-      try {
-        const { data, error } = await supabase.from("clients").select("*").eq("id", id).single();
-        if (!error && data) return data as Client;
-      } catch {}
-    }
     const all = await this.getClients({ is_archived: false });
     const match = all.find(c => c.id === id);
     if (match) return match;
-    return clients.find(c => c.id === id) || null;
+    const allWithArchived = await this.getClients();
+    return allWithArchived.find(c => c.id === id) || clients.find(c => c.id === id) || null;
   },
 
   async createClient(data: Omit<Client, "id" | "created_at" | "updated_at">): Promise<Client> {
@@ -176,10 +196,16 @@ export const dataStore = {
       updated_at: new Date().toISOString()
     };
 
+    // 1. Memory and LocalStorage
+    clients.unshift(newClient);
+    setStored(CLIENTS_STORAGE_KEY, clients);
+
+    // 2. Supabase SQL table
     const supabase = getSupabase();
     if (supabase) {
       try {
         const { data: inserted, error } = await supabase.from("clients").insert([{
+          id: newClient.id,
           name: newClient.name,
           company: newClient.company || null,
           email: newClient.email,
@@ -196,12 +222,29 @@ export const dataStore = {
           newClient.created_at = inserted.created_at;
         }
       } catch (err) {
-        console.warn("Supabase create client error:", err);
+        console.warn("Supabase create client table warning:", err);
+      }
+
+      // 3. Supabase site_content (key: clients_all)
+      try {
+        const { data: scData } = await supabase
+          .from("site_content")
+          .select("content")
+          .eq("key", "clients_all")
+          .single();
+
+        const currentList = Array.isArray(scData?.content) ? scData.content : [];
+        const updatedList = [newClient, ...currentList.filter((c: any) => c.id !== newClient.id && c.email.toLowerCase() !== newClient.email.toLowerCase())];
+
+        await supabase.from("site_content").upsert({
+          key: "clients_all",
+          content: updatedList,
+          updated_at: new Date().toISOString()
+        });
+      } catch (scErr) {
+        console.warn("Supabase site_content clients_all save warning:", scErr);
       }
     }
-
-    clients.unshift(newClient);
-    setStored(CLIENTS_STORAGE_KEY, clients);
 
     await this.logActivity({
       event_type: "client_created",
@@ -239,6 +282,28 @@ export const dataStore = {
       } catch (err) {
         console.warn("Supabase update client error:", err);
       }
+
+      try {
+        const { data: scData } = await supabase
+          .from("site_content")
+          .select("content")
+          .eq("key", "clients_all")
+          .single();
+
+        const currentList = Array.isArray(scData?.content) ? scData.content : [];
+        const updatedList = currentList.map((c: any) => c.id === id ? { ...c, ...updated } : c);
+        if (!updatedList.some((c: any) => c.id === id)) {
+          updatedList.unshift(updated);
+        }
+
+        await supabase.from("site_content").upsert({
+          key: "clients_all",
+          content: updatedList,
+          updated_at: new Date().toISOString()
+        });
+      } catch (scErr) {
+        console.warn("Supabase site_content update client warning:", scErr);
+      }
     }
 
     await this.logActivity({
@@ -263,6 +328,23 @@ export const dataStore = {
     if (supabase) {
       try {
         await supabase.from("clients").delete().eq("id", id);
+      } catch {}
+
+      try {
+        const { data: scData } = await supabase
+          .from("site_content")
+          .select("content")
+          .eq("key", "clients_all")
+          .single();
+
+        if (scData?.content && Array.isArray(scData.content)) {
+          const updatedList = scData.content.filter((c: any) => c.id !== id);
+          await supabase.from("site_content").upsert({
+            key: "clients_all",
+            content: updatedList,
+            updated_at: new Date().toISOString()
+          });
+        }
       } catch {}
     }
     return true;

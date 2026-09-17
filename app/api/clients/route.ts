@@ -5,21 +5,17 @@ import { dataStore } from "@/lib/store";
 
 export async function GET(req: NextRequest) {
   try {
-    const supabase = createAdminClient();
-    const { data, error } = await supabase
-      .from("clients")
-      .select("*")
-      .order("created_at", { ascending: false });
+    const { searchParams } = new URL(req.url);
+    const query = searchParams.get("query") || undefined;
+    const status = (searchParams.get("status") as any) || undefined;
+    const is_archived = searchParams.has("is_archived") ? searchParams.get("is_archived") === "true" : undefined;
 
-    if (!error && data && data.length > 0) {
-      return NextResponse.json({ clients: data });
-    }
-  } catch (err) {
-    console.warn("Clients fetch DB error:", err);
+    const allClients = await dataStore.getClients({ query, status, is_archived });
+    return NextResponse.json({ success: true, clients: allClients });
+  } catch (error: any) {
+    console.error("Clients GET error:", error);
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
-
-  const memoryClients = await dataStore.getClients();
-  return NextResponse.json({ clients: memoryClients.length > 0 ? memoryClients : initialClients });
 }
 
 export async function POST(req: NextRequest) {
