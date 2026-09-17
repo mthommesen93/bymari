@@ -78,6 +78,11 @@ export default function KundeDetailPage() {
     }
 
     if (!c) {
+      const allClients = await dataStore.getClients();
+      c = allClients.find(item => item.id === id) || null;
+    }
+
+    if (!c) {
       router.push("/admin/kunder");
       return;
     }
@@ -261,7 +266,19 @@ export default function KundeDetailPage() {
       const data = await res.json();
       if (data.success) {
         setIsSendFormModalOpen(false);
-        await loadClientData();
+        if (data.distribution) {
+          setDistributions((prev) => [data.distribution, ...prev.filter(d => d.id !== data.distribution.id && d.token !== data.distribution.token)]);
+        }
+        try {
+          const clientEmail = client?.email ? encodeURIComponent(client.email) : "";
+          const dRes = await fetch(`/api/forms/distribute?clientId=${client.id}${clientEmail ? `&email=${clientEmail}` : ""}`, { cache: "no-store" });
+          if (dRes.ok) {
+            const dJson = await dRes.json();
+            if (dJson.distributions && Array.isArray(dJson.distributions)) {
+              setDistributions(dJson.distributions);
+            }
+          }
+        } catch {}
         setActiveTab("skjemaer");
       } else {
         alert("Kunne ikke sende skjema: " + (data.error || "Ukjent feil"));
