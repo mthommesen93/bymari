@@ -7,33 +7,127 @@ import { Form } from "@/lib/types";
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
+    const token = id;
 
-    // 1. Check Supabase site_content (forms_all)
-    try {
-      const supabase = createAdminClient();
-      const { data: scData } = await supabase
-        .from("site_content")
-        .select("content")
-        .eq("key", "forms_all")
-        .single();
+    if (!token) {
+      return NextResponse.json({ success: false, error: "Mangler parameter" }, { status: 400 });
+    }
 
-      if (scData?.content && Array.isArray(scData.content)) {
-        const found = scData.content.find((f: any) => f.id === id || f.slug === id);
-        if (found) {
-          return NextResponse.json({ success: true, form: found });
+    // 1. Check if token matches ANY master form slug or ID
+    const allForms = await dataStore.getForms();
+    const matchedMasterForm = allForms.find(f => f.slug === token || f.id === token) || 
+      (token === "prosjektskjema" || token === "f-prosjektskjema" ? initialForms[0] : null) ||
+      (token === "kort-skjema" || token === "f-kort-prosjektskjema" ? initialForms.find(f => f.id === "f-kort-prosjektskjema") : null);
+
+    // 2. Query Supabase site_content for form directly
+    let directForm: any = matchedMasterForm || null;
+    if (!directForm) {
+      try {
+        const supabase = createAdminClient();
+        const { data: scData } = await supabase
+          .from("site_content")
+          .select("content")
+          .eq("key", "forms_all")
+          .single();
+
+        if (scData?.content && Array.isArray(scData.content)) {
+          directForm = scData.content.find((f: any) => f.id === id || f.slug === id);
         }
+      } catch {}
+    }
+
+    if (!directForm) {
+      directForm = (await dataStore.getFormById(id)) || initialForms.find(f => f.id === id || f.slug === id);
+    }
+
+    // 3. Query Supabase / dataStore for distribution by token
+    let dist: any = await dataStore.getDistributionByToken(token);
+
+    if (!dist) {
+      try {
+        const supabase = createAdminClient();
+        const { data, error } = await supabase
+          .from("form_distributions")
+          .select("*")
+          .eq("token", token)
+          .maybeSingle();
+
+        if (!error && data) {
+          dist = data;
+        }
+      } catch (err) {
+        console.warn("Supabase distribution lookup warning:", err);
       }
-    } catch (scErr) {
-      console.warn("site_content form lookup error:", scErr);
     }
 
-    // 2. Check dataStore / initialForms
-    const form = (await dataStore.getFormById(id)) || initialForms.find(f => f.id === id || f.slug === id);
-    if (!form) {
-      return NextResponse.json({ success: false, error: "Skjema ikke funnet" }, { status: 404 });
+    const templateForm = directForm || (await dataStore.getFormById("f-prosjektskjema")) || initialForms[0];
+
+    // If it's a distribution token or master slug
+    if (dist || matchedMasterForm || token.startsWith("bm-") || token.includes("skjema")) {
+      if (!dist && matchedMasterForm) {
+        dist = {
+          id: `dist-master-${matchedMasterForm.slug || matchedMasterForm.id}`,
+          form_id: matchedMasterForm.id,
+          client_id: null,
+          token: token,
+          status: "sent",
+          expires_at: null,
+          created_at: new Date().toISOString()
+        };
+      } else if (!dist) {
+        const allClients = await dataStore.getClients();
+        const defaultClient = allClients[0] || initialClients[0];
+        dist = {
+          id: "dist-" + token,
+          form_id: templateForm.id,
+          client_id: defaultClient?.id || null,
+          token: token,
+          status: "sent",
+          email_subject: `Skjema fra By Mari`,
+          email_intro: "Hei! Her er skjemaet ditt.",
+          expires_at: null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          form: templateForm,
+          client: defaultClient
+        };
+      }
+
+      let targetFormId = dist.form_id || dist.form?.id || templateForm.id;
+      let form = directForm || dist.form || (await dataStore.getFormById(targetFormId)) || allForms.find(f => f.id === targetFormId) || templateForm;
+
+      let client = dist.client;
+      if (!client && dist.client_id) {
+        client = await dataStore.getClientById(dist.client_id);
+        if (client) dist.client = client;
+      }
+
+      try {
+        await dataStore.markDistributionOpened(token);
+      } catch {}
+
+      return NextResponse.json({
+        success: true,
+        distribution: dist,
+        form
+      });
     }
 
-    return NextResponse.json({ success: true, form });
+    if (directForm) {
+      return NextResponse.json({
+        success: true,
+        form: directForm,
+        distribution: {
+          id: `dist-${directForm.id}`,
+          form_id: directForm.id,
+          token: directForm.slug || directForm.id,
+          status: "sent",
+          created_at: new Date().toISOString()
+        }
+      });
+    }
+
+    return NextResponse.json({ success: false, error: "Skjema ikke funnet" }, { status: 404 });
   } catch (error: any) {
     console.error("Form GET by ID error:", error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
