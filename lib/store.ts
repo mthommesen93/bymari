@@ -573,6 +573,29 @@ export const dataStore = {
   // CLIENT NOTES
   // --------------------------------------------------------------------------
   async getClientNotes(clientId: string): Promise<ClientNote[]> {
+    const supabase = getSupabase();
+    if (supabase) {
+      try {
+        const { data: scData } = await supabase
+          .from("site_content")
+          .select("content")
+          .eq("key", "client_notes_all")
+          .single();
+
+        if (scData?.content && Array.isArray(scData.content)) {
+          const existingIds = new Set(notes.map(n => n.id));
+          scData.content.forEach((n: ClientNote) => {
+            if (!existingIds.has(n.id)) {
+              notes.push(n);
+              existingIds.add(n.id);
+            }
+          });
+        }
+      } catch (err) {
+        console.warn("Supabase fetch notes error:", err);
+      }
+    }
+
     return notes
       .filter(n => n.client_id === clientId)
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
@@ -580,7 +603,7 @@ export const dataStore = {
 
   async addClientNote(clientId: string, content: string, authorName = "Mari"): Promise<ClientNote> {
     const newNote: ClientNote = {
-      id: "note-" + Date.now().toString(36),
+      id: "note-" + Date.now().toString(36) + Math.random().toString(36).substr(2, 4),
       client_id: clientId,
       author_name: authorName,
       content,
@@ -588,6 +611,28 @@ export const dataStore = {
       updated_at: new Date().toISOString()
     };
     notes.unshift(newNote);
+
+    const supabase = getSupabase();
+    if (supabase) {
+      try {
+        const { data: scData } = await supabase
+          .from("site_content")
+          .select("content")
+          .eq("key", "client_notes_all")
+          .single();
+
+        const currentNotes = Array.isArray(scData?.content) ? scData.content : [];
+        const updatedNotes = [newNote, ...currentNotes.filter((n: any) => n.id !== newNote.id)];
+
+        await supabase.from("site_content").upsert({
+          key: "client_notes_all",
+          content: updatedNotes,
+          updated_at: new Date().toISOString()
+        });
+      } catch (err) {
+        console.warn("Supabase save note error:", err);
+      }
+    }
 
     const client = clients.find(c => c.id === clientId);
     await this.logActivity({
@@ -603,41 +648,93 @@ export const dataStore = {
   async deleteClientNote(noteId: string): Promise<boolean> {
     const initialLen = notes.length;
     notes = notes.filter(n => n.id !== noteId);
+
+    const supabase = getSupabase();
+    if (supabase) {
+      try {
+        const { data: scData } = await supabase
+          .from("site_content")
+          .select("content")
+          .eq("key", "client_notes_all")
+          .single();
+
+        if (scData?.content && Array.isArray(scData.content)) {
+          const updatedNotes = scData.content.filter((n: any) => n.id !== noteId);
+          await supabase.from("site_content").upsert({
+            key: "client_notes_all",
+            content: updatedNotes,
+            updated_at: new Date().toISOString()
+          });
+        }
+      } catch (err) {
+        console.warn("Supabase delete note error:", err);
+      }
+    }
+
     return notes.length < initialLen;
   },
 
   // --------------------------------------------------------------------------
   // QUOTES (Pristilbud)
   // --------------------------------------------------------------------------
-  async getQuotes(filters?: { clientId?: string; status?: QuoteStatus }): Promise<Quote[]> {
+  async getQuotes(filters?: { clientId?: string; status?: QuoteStatus; email?: string }): Promise<Quote[]> {
+    const supabase = getSupabase();
+    if (supabase) {
+      try {
+        const { data: scData } = await supabase
+          .from("site_content")
+          .select("content")
+          .eq("key", "quotes_all")
+          .single();
+
+        if (scData?.content && Array.isArray(scData.content)) {
+          const existingTokens = new Set(quotes.map(q => q.token));
+          scData.content.forEach((q: Quote) => {
+            if (!existingTokens.has(q.token)) {
+              quotes.push(q);
+              existingTokens.add(q.token);
+            }
+          });
+        }
+      } catch (err) {
+        console.warn("Supabase fetch quotes error:", err);
+      }
+    }
+
     let result = [...quotes];
     if (filters?.clientId) {
-      result = result.filter(q => q.client_id === filters.clientId);
+      result = result.filter(q => q.client_id === filters.clientId || q.client?.id === filters.clientId);
+    }
+    if (filters?.email) {
+      const emailLower = filters.email.toLowerCase().trim();
+      result = result.filter(q => q.client?.email?.toLowerCase().trim() === emailLower);
     }
     if (filters?.status) {
       result = result.filter(q => q.status === filters.status);
     }
     return result.map(q => ({
       ...q,
-      client: clients.find(c => c.id === q.client_id) || null
+      client: q.client || clients.find(c => c.id === q.client_id) || null
     })).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   },
 
   async getQuoteByToken(token: string): Promise<Quote | null> {
-    const q = quotes.find(item => item.token === token);
+    const allQuotes = await this.getQuotes();
+    const q = allQuotes.find(item => item.token === token);
     if (!q) return null;
     return {
       ...q,
-      client: clients.find(c => c.id === q.client_id) || null
+      client: q.client || clients.find(c => c.id === q.client_id) || null
     };
   },
 
   async getQuoteById(id: string): Promise<Quote | null> {
-    const q = quotes.find(item => item.id === id);
+    const allQuotes = await this.getQuotes();
+    const q = allQuotes.find(item => item.id === id);
     if (!q) return null;
     return {
       ...q,
-      client: clients.find(c => c.id === q.client_id) || null
+      client: q.client || clients.find(c => c.id === q.client_id) || null
     };
   },
 
@@ -663,6 +760,8 @@ export const dataStore = {
     expiresDate.setHours(23, 59, 59, 999);
     const expiresAt = expiresDate.toISOString();
 
+    const client = data.client_id ? (await this.getClientById(data.client_id)) : null;
+
     const newQuote: Quote = {
       id: "quote-" + Date.now().toString(36),
       client_id: data.client_id,
@@ -687,13 +786,40 @@ export const dataStore = {
       signed_name: null,
       client_note: null,
       created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
+      client: client ? {
+        id: client.id,
+        name: client.name,
+        email: client.email,
+        company: client.company || ""
+      } : null
     };
 
     quotes.unshift(newQuote);
     setStored(QUOTES_STORAGE_KEY, quotes);
 
-    const client = data.client_id ? clients.find(c => c.id === data.client_id) : null;
+    const supabase = getSupabase();
+    if (supabase) {
+      try {
+        const { data: scData } = await supabase
+          .from("site_content")
+          .select("content")
+          .eq("key", "quotes_all")
+          .single();
+
+        const currentQuotes = Array.isArray(scData?.content) ? scData.content : [];
+        const updatedQuotes = [newQuote, ...currentQuotes.filter((q: any) => q.token !== newQuote.token && q.id !== newQuote.id)];
+
+        await supabase.from("site_content").upsert({
+          key: "quotes_all",
+          content: updatedQuotes,
+          updated_at: new Date().toISOString()
+        });
+      } catch (err) {
+        console.warn("Supabase create quote error:", err);
+      }
+    }
+
     if (client) {
       await this.updateClient(client.id, { status: "Tilbud sendt" });
     }
@@ -706,24 +832,51 @@ export const dataStore = {
       metadata: { quote_id: newQuote.id, token: newQuote.token, total_price: data.total_price }
     });
 
-    return {
-      ...newQuote,
-      client
-    };
+    return newQuote;
   },
 
   async updateQuote(tokenOrId: string, updates: Partial<Quote>): Promise<Quote | null> {
     const index = quotes.findIndex(q => q.token === tokenOrId || q.id === tokenOrId);
-    if (index === -1) return null;
-
-    const prev = quotes[index];
+    const prev = index !== -1 ? quotes[index] : null;
     const updated: Quote = {
-      ...prev,
+      ...(prev || {}),
       ...updates,
       updated_at: new Date().toISOString()
-    };
-    quotes[index] = updated;
+    } as Quote;
+
+    if (index !== -1) {
+      quotes[index] = updated;
+    } else {
+      quotes.unshift(updated);
+    }
     setStored(QUOTES_STORAGE_KEY, quotes);
+
+    const supabase = getSupabase();
+    if (supabase) {
+      try {
+        const { data: scData } = await supabase
+          .from("site_content")
+          .select("content")
+          .eq("key", "quotes_all")
+          .single();
+
+        const currentQuotes = Array.isArray(scData?.content) ? scData.content : [];
+        const updatedQuotes = currentQuotes.map((q: any) =>
+          q.token === tokenOrId || q.id === tokenOrId ? { ...q, ...updated } : q
+        );
+        if (!updatedQuotes.some((q: any) => q.token === tokenOrId || q.id === tokenOrId)) {
+          updatedQuotes.unshift(updated);
+        }
+
+        await supabase.from("site_content").upsert({
+          key: "quotes_all",
+          content: updatedQuotes,
+          updated_at: new Date().toISOString()
+        });
+      } catch (err) {
+        console.warn("Supabase update quote error:", err);
+      }
+    }
 
     return updated;
   },

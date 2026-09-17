@@ -84,29 +84,32 @@ export default function KundeDetailPage() {
 
     try {
       const clientEmail = c?.email ? encodeURIComponent(c.email) : "";
+      const clientName = c?.name ? encodeURIComponent(c.name) : "";
       const [dRes, sRes, qRes, nRes] = await Promise.all([
-        fetch(`/api/forms/distribute?clientId=${id}`),
-        fetch(`/api/forms/submissions?clientId=${id}`),
-        fetch(`/api/quotes/send?clientId=${id}${clientEmail ? `&email=${clientEmail}` : ""}`),
+        fetch(`/api/forms/distribute?clientId=${id}${clientEmail ? `&email=${clientEmail}` : ""}`),
+        fetch(`/api/forms/submissions?clientId=${id}${clientEmail ? `&email=${clientEmail}` : ""}`),
+        fetch(`/api/quotes/send?clientId=${id}${clientEmail ? `&email=${clientEmail}` : ""}${clientName ? `&name=${clientName}` : ""}`),
         fetch(`/api/clients/${id}/notes`)
       ]);
       if (dRes.ok) {
         const dJson = await dRes.json();
-        if (dJson.distributions && dJson.distributions.length > 0) d = dJson.distributions;
+        if (dJson.distributions && Array.isArray(dJson.distributions)) d = dJson.distributions;
       }
       if (sRes.ok) {
         const sJson = await sRes.json();
-        if (sJson.submissions && sJson.submissions.length > 0) s = sJson.submissions;
+        if (sJson.submissions && Array.isArray(sJson.submissions)) s = sJson.submissions;
       }
       if (qRes.ok) {
         const qJson = await qRes.json();
-        if (qJson.quotes && qJson.quotes.length > 0) q = qJson.quotes;
+        if (qJson.quotes && Array.isArray(qJson.quotes)) q = qJson.quotes;
       }
       if (nRes.ok) {
         const nJson = await nRes.json();
-        if (nJson.notes && nJson.notes.length > 0) n = nJson.notes;
+        if (nJson.notes && Array.isArray(nJson.notes)) n = nJson.notes;
       }
-    } catch {}
+    } catch (err) {
+      console.warn("Client data sub-resource fetch warning:", err);
+    }
 
     setClient(c);
     setEditForm(c);
@@ -139,14 +142,14 @@ export default function KundeDetailPage() {
       });
       const data = await res.json();
       if (res.ok && data.note) {
-        setNotes((prev) => [data.note, ...prev]);
+        setNotes((prev) => [data.note, ...prev.filter(n => n.id !== data.note.id)]);
       } else {
         const newNote = await dataStore.addClientNote(client.id, noteContent.trim(), "Mari");
-        setNotes((prev) => [newNote, ...prev]);
+        setNotes((prev) => [newNote, ...prev.filter(n => n.id !== newNote.id)]);
       }
     } catch {
       const newNote = await dataStore.addClientNote(client.id, noteContent.trim(), "Mari");
-      setNotes((prev) => [newNote, ...prev]);
+      setNotes((prev) => [newNote, ...prev.filter(n => n.id !== newNote.id)]);
     }
     setNoteContent("");
     setIsSubmittingNote(false);

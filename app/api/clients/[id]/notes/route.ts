@@ -10,6 +10,10 @@ export async function GET(
     const { id } = await params;
     let allNotes: any[] = [];
 
+    const client = await dataStore.getClientById(id);
+    const clientEmail = client?.email ? client.email.toLowerCase().trim() : "";
+    const clientName = client?.name ? client.name.toLowerCase().trim() : "";
+
     try {
       const supabase = createAdminClient();
       const { data: scData } = await supabase
@@ -19,12 +23,21 @@ export async function GET(
         .single();
 
       if (scData?.content && Array.isArray(scData.content)) {
-        allNotes = scData.content.filter((n: any) => n.client_id === id);
+        allNotes = scData.content.filter((n: any) => {
+          if (n.client_id === id) return true;
+          if (client && (n.client_id === client.id || n.clientId === client.id)) return true;
+          const noteEmail = (n.client_email || n.email || "").toLowerCase().trim();
+          if (clientEmail && noteEmail && noteEmail === clientEmail) return true;
+          const noteName = (n.client_name || n.name || "").toLowerCase().trim();
+          if (clientName && noteName && noteName === clientName) return true;
+          return false;
+        });
       }
     } catch (e) {}
 
     if (allNotes.length === 0) {
-      allNotes = await dataStore.getClientNotes(id);
+      const memNotes = await dataStore.getClientNotes(id);
+      allNotes = memNotes;
     }
 
     return NextResponse.json({

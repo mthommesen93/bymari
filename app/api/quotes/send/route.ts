@@ -8,6 +8,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const clientId = searchParams.get("clientId") || undefined;
     const email = searchParams.get("email") || undefined;
+    const name = searchParams.get("name") || undefined;
     const status = (searchParams.get("status") as any) || undefined;
 
     let allQuotes: any[] = [];
@@ -30,14 +31,29 @@ export async function GET(req: NextRequest) {
 
     // 2. Fallback / merge with memory store
     if (allQuotes.length === 0) {
-      const memQuotes = await dataStore.getQuotes({ clientId, status });
+      const memQuotes = await dataStore.getQuotes();
       allQuotes = memQuotes;
     }
 
-    if (clientId || email) {
+    if (clientId || email || name) {
+      const normalizedEmail = email ? email.toLowerCase().trim() : "";
+      const normalizedName = name ? name.toLowerCase().trim() : "";
+
       allQuotes = allQuotes.filter((q) => {
-        if (clientId && (q.client_id === clientId || q.client?.id === clientId)) return true;
-        if (email && q.client?.email && q.client.email.toLowerCase() === email.toLowerCase().trim()) return true;
+        // Direct ID match
+        if (clientId && (q.client_id === clientId || q.client?.id === clientId || q.id === clientId)) {
+          return true;
+        }
+        // Email match
+        const qEmail = (q.client?.email || q.recipient_email || q.client_email || q.email || "").toLowerCase().trim();
+        if (normalizedEmail && qEmail && qEmail === normalizedEmail) {
+          return true;
+        }
+        // Name match
+        const qName = (q.client?.name || q.recipient_name || q.client_name || "").toLowerCase().trim();
+        if (normalizedName && qName && (qName === normalizedName || qName.includes(normalizedName) || normalizedName.includes(qName))) {
+          return true;
+        }
         return false;
       });
     }
@@ -97,8 +113,17 @@ export async function POST(req: NextRequest) {
     if (!client && recipientEmail) {
       const allClients = await dataStore.getClients();
       client = allClients.find(
-        (c) => c.email.toLowerCase() === recipientEmail.toLowerCase()
+        (c) => c.email.toLowerCase().trim() === recipientEmail.toLowerCase().trim()
       ) || null;
+    }
+
+    // If client does not exist in CRM, auto-register client
+    if (!client) {
+      client = await dataStore.createClient({
+        name: recipientName,
+        email: recipientEmail,
+        status: "Tilbud sendt"
+      });
     }
 
     // 1. Create quote in dataStore
@@ -119,7 +144,7 @@ export async function POST(req: NextRequest) {
       email_intro: emailIntro || `Hei ${recipientName}, her er det skreddersydde pristilbudet for prosjektet ditt.`
     });
 
-    // Attach client details
+    // Attach full client details
     const fullQuoteRecord = {
       ...quote,
       client_id: client?.id || quote.client_id || null,
