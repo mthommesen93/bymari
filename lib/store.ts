@@ -417,14 +417,20 @@ export const dataStore = {
   },
 
   async updateClient(id: string, updates: Partial<Client>): Promise<Client | null> {
-    const index = clients.findIndex(c => c.id === id);
+    const existing = clients.find(c => c.id === id) || initialClients.find(c => c.id === id);
     const updated = {
-      ...(index !== -1 ? clients[index] : {}),
+      ...(existing || {}),
       ...updates,
       id,
       updated_at: new Date().toISOString()
     } as Client;
 
+    if (updated.email) {
+      deletedClientIds.delete(updated.email.toLowerCase());
+    }
+    deletedClientIds.delete(id);
+
+    const index = clients.findIndex(c => c.id === id);
     if (index !== -1) {
       clients[index] = updated;
     } else {

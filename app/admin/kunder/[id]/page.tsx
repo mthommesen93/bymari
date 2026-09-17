@@ -126,8 +126,20 @@ export default function KundeDetailPage() {
 
   const handleStatusChange = async (newStatus: ClientStatus) => {
     if (!client) return;
+    try {
+      await fetch(`/api/clients/${client.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus })
+      });
+    } catch (err) {
+      console.warn("API update status error:", err);
+    }
     const updated = await dataStore.updateClient(client.id, { status: newStatus });
-    if (updated) setClient(updated);
+    if (updated) {
+      setClient(updated);
+      setEditForm(updated);
+    }
   };
 
   const handleAddNote = async (e: React.FormEvent) => {
@@ -158,14 +170,43 @@ export default function KundeDetailPage() {
   const handleSaveEdit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!client) return;
+    try {
+      const res = await fetch(`/api/clients/${client.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editForm)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.client) {
+          setClient(data.client);
+          setEditForm(data.client);
+        }
+      }
+    } catch (err) {
+      console.warn("API update client error:", err);
+    }
     const updated = await dataStore.updateClient(client.id, editForm);
-    if (updated) setClient(updated);
+    if (updated) {
+      setClient(updated);
+      setEditForm(updated);
+    }
     setIsEditModalOpen(false);
   };
 
   const handleArchiveToggle = async () => {
     if (!client) return;
-    await dataStore.archiveClient(client.id, !client.is_archived);
+    const nextArchived = !client.is_archived;
+    try {
+      await fetch(`/api/clients/${client.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_archived: nextArchived })
+      });
+    } catch (err) {
+      console.warn("API archive client error:", err);
+    }
+    await dataStore.archiveClient(client.id, nextArchived);
     loadClientData();
   };
 
@@ -254,7 +295,10 @@ export default function KundeDetailPage() {
             </button>
             <button
               type="button"
-              onClick={() => setIsEditModalOpen(true)}
+              onClick={() => {
+                setEditForm({ ...client });
+                setIsEditModalOpen(true);
+              }}
               className="px-3 py-1.5 text-xs font-medium bg-warm-white border border-sand hover:bg-sand/30 rounded-sm transition-colors"
             >
               Rediger info

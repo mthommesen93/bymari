@@ -43,11 +43,4049 @@
       "updated_at": "2026-09-17T10:00:00.000Z"
     }
   ],
-  "forms": [],
-  "distributions": [],
-  "submissions": [],
+  "forms": [
+    {
+      "id": "f-prosjektskjema",
+      "title": "Prosjektskjema",
+      "slug": "prosjektskjema",
+      "introduction": "Takk for at du vurderer By Mari.\\n\\nDette skjemaet gir meg et bedre bilde av virksomheten, kundene deres og løsningen dere ønsker. Svarene trenger ikke være detaljerte eller endelige. De brukes som utgangspunkt for den første demoen og vårt neste møte.\\n\\nDet tar omtrent 10 minutter å fylle ut skjemaet.",
+      "confirmation_message": "Takk for svarene!\\n\\nJeg går gjennom informasjonen og bruker den som utgangspunkt for den første demoen og vårt neste møte. Jeg tar kontakt dersom jeg trenger noen avklaringer underveis.\\n\\nHilsen By Mari",
+      "status": "published",
+      "is_template": true,
+      "created_at": "2026-09-14T20:05:55.731Z",
+      "updated_at": "2026-09-14T20:05:55.731Z",
+      "fields": [
+        {
+          "id": "fld-sec-1",
+          "form_id": "f-prosjektskjema",
+          "field_type": "info",
+          "label": "1. Kontaktinformasjon",
+          "description": "Grunnleggende informasjon om virksomheten og kontaktperson.",
+          "is_required": false,
+          "position": 0
+        },
+        {
+          "id": "fld-ps-1",
+          "form_id": "f-prosjektskjema",
+          "field_type": "text",
+          "label": "1. Hva heter virksomheten?",
+          "description": "",
+          "is_required": true,
+          "position": 1
+        },
+        {
+          "id": "fld-ps-2",
+          "form_id": "f-prosjektskjema",
+          "field_type": "text",
+          "label": "2. Hva heter kontaktpersonen?",
+          "description": "",
+          "is_required": true,
+          "position": 2
+        },
+        {
+          "id": "fld-ps-3",
+          "form_id": "f-prosjektskjema",
+          "field_type": "email",
+          "label": "3. Hva er epostadressen din?",
+          "description": "",
+          "is_required": true,
+          "position": 3
+        },
+        {
+          "id": "fld-ps-4",
+          "form_id": "f-prosjektskjema",
+          "field_type": "phone",
+          "label": "4. Hva er telefonnummeret ditt?",
+          "description": "",
+          "is_required": false,
+          "position": 4
+        },
+        {
+          "id": "fld-sec-2",
+          "form_id": "f-prosjektskjema",
+          "field_type": "info",
+          "label": "2. Om virksomheten",
+          "description": "Hjelp oss å forstå hva dere gjør og hvem dere henvender dere til.",
+          "is_required": false,
+          "position": 5
+        },
+        {
+          "id": "fld-ps-5",
+          "form_id": "f-prosjektskjema",
+          "field_type": "textarea",
+          "label": "5. Hva tilbyr virksomheten?",
+          "description": "Beskriv kort de viktigste produktene eller tjenestene.",
+          "is_required": true,
+          "position": 6
+        },
+        {
+          "id": "fld-ps-6",
+          "form_id": "f-prosjektskjema",
+          "field_type": "textarea",
+          "label": "6. Hvem er de viktigste kundene deres?",
+          "description": "Beskriv gjerne alder, behov, bosted, bransje eller andre relevante kjennetegn.",
+          "is_required": true,
+          "position": 7
+        },
+        {
+          "id": "fld-ps-7",
+          "form_id": "f-prosjektskjema",
+          "field_type": "textarea",
+          "label": "7. Hva skiller virksomheten fra konkurrentene?",
+          "description": "",
+          "is_required": false,
+          "position": 8
+        },
+        {
+          "id": "fld-ps-8",
+          "form_id": "f-prosjektskjema",
+          "field_type": "text",
+          "label": "8. Hvor holder virksomheten til, og hvilke områder betjener dere?",
+          "description": "",
+          "is_required": false,
+          "position": 9
+        },
+        {
+          "id": "fld-sec-3",
+          "form_id": "f-prosjektskjema",
+          "field_type": "info",
+          "label": "3. Prosjektet",
+          "description": "Mål, formål og primærhandling for den nye løsningen.",
+          "is_required": false,
+          "position": 10
+        },
+        {
+          "id": "fld-ps-9",
+          "form_id": "f-prosjektskjema",
+          "field_type": "checkbox",
+          "label": "9. Hva ønsker dere hjelp med?",
+          "description": "Velg alle områder som er aktuelle.",
+          "is_required": true,
+          "options": [
+            {
+              "id": "p9-1",
+              "label": "Ny nettside",
+              "value": "ny_nettside"
+            },
+            {
+              "id": "p9-2",
+              "label": "Oppgradering av eksisterende nettside",
+              "value": "oppgradering"
+            },
+            {
+              "id": "p9-3",
+              "label": "Nettbutikk",
+              "value": "nettbutikk"
+            },
+            {
+              "id": "p9-4",
+              "label": "Webapplikasjon",
+              "value": "webapplikasjon"
+            },
+            {
+              "id": "p9-5",
+              "label": "Landingsside",
+              "value": "landingsside"
+            },
+            {
+              "id": "p9-6",
+              "label": "Kundeportal",
+              "value": "kundeportal"
+            },
+            {
+              "id": "p9-7",
+              "label": "Design og prototype",
+              "value": "design_prototype"
+            },
+            {
+              "id": "p9-8",
+              "label": "Annet",
+              "value": "annet"
+            }
+          ],
+          "position": 11
+        },
+        {
+          "id": "fld-ps-10",
+          "form_id": "f-prosjektskjema",
+          "field_type": "textarea",
+          "label": "10. Hvorfor ønsker dere en ny løsning?",
+          "description": "Eksempel: få flere kunder, modernisere virksomheten, forbedre kundeopplevelsen eller effektivisere en arbeidsprosess.",
+          "is_required": false,
+          "position": 12
+        },
+        {
+          "id": "fld-ps-11",
+          "form_id": "f-prosjektskjema",
+          "field_type": "checkbox",
+          "label": "11. Hva er det viktigste løsningen skal oppnå?",
+          "description": "Velg gjerne inntil tre alternativer.",
+          "is_required": true,
+          "options": [
+            {
+              "id": "p11-1",
+              "label": "Skaffe flere henvendelser",
+              "value": "henvendelser"
+            },
+            {
+              "id": "p11-2",
+              "label": "Øke salget",
+              "value": "salg"
+            },
+            {
+              "id": "p11-3",
+              "label": "Presentere produkter eller tjenester",
+              "value": "presentere"
+            },
+            {
+              "id": "p11-4",
+              "label": "Bygge tillit",
+              "value": "tillit"
+            },
+            {
+              "id": "p11-5",
+              "label": "Gjøre informasjon lettere tilgjengelig",
+              "value": "informasjon"
+            },
+            {
+              "id": "p11-6",
+              "label": "Forenkle bestilling eller reservasjon",
+              "value": "bestilling"
+            },
+            {
+              "id": "p11-7",
+              "label": "Automatisere en arbeidsprosess",
+              "value": "automatisering"
+            },
+            {
+              "id": "p11-8",
+              "label": "Tilby selvbetjening",
+              "value": "selvbetjening"
+            },
+            {
+              "id": "p11-9",
+              "label": "Samle inn potensielle kunder",
+              "value": "leads"
+            },
+            {
+              "id": "p11-10",
+              "label": "Annet",
+              "value": "annet"
+            }
+          ],
+          "position": 13
+        },
+        {
+          "id": "fld-ps-12",
+          "form_id": "f-prosjektskjema",
+          "field_type": "radio",
+          "label": "12. Hva ønsker dere at besøkende først og fremst skal gjøre?",
+          "description": "Velg det primære målet for en besøkende.",
+          "is_required": true,
+          "options": [
+            {
+              "id": "p12-1",
+              "label": "Ta kontakt",
+              "value": "ta_kontakt"
+            },
+            {
+              "id": "p12-2",
+              "label": "Be om tilbud",
+              "value": "be_om_tilbud"
+            },
+            {
+              "id": "p12-3",
+              "label": "Bestille time",
+              "value": "bestille_time"
+            },
+            {
+              "id": "p12-4",
+              "label": "Kjøpe et produkt",
+              "value": "kjope_produkt"
+            },
+            {
+              "id": "p12-5",
+              "label": "Registrere en konto",
+              "value": "registrere_konto"
+            },
+            {
+              "id": "p12-6",
+              "label": "Melde seg på",
+              "value": "melde_pa"
+            },
+            {
+              "id": "p12-7",
+              "label": "Besøke et fysisk sted",
+              "value": "besoke_sted"
+            },
+            {
+              "id": "p12-8",
+              "label": "Finne informasjon",
+              "value": "finne_info"
+            },
+            {
+              "id": "p12-9",
+              "label": "Bruke en digital tjeneste",
+              "value": "bruke_tjeneste"
+            },
+            {
+              "id": "p12-10",
+              "label": "Annet",
+              "value": "annet"
+            }
+          ],
+          "position": 14
+        },
+        {
+          "id": "fld-sec-4",
+          "form_id": "f-prosjektskjema",
+          "field_type": "info",
+          "label": "4. Innhold",
+          "description": "Sider, tekster, bilder og materiell.",
+          "is_required": false,
+          "position": 15
+        },
+        {
+          "id": "fld-ps-13",
+          "form_id": "f-prosjektskjema",
+          "field_type": "checkbox",
+          "label": "13. Hvilke sider eller områder ønsker dere?",
+          "description": "Velg de sidene som er aktuelle.",
+          "is_required": true,
+          "options": [
+            {
+              "id": "p13-1",
+              "label": "Forside",
+              "value": "forside"
+            },
+            {
+              "id": "p13-2",
+              "label": "Om virksomheten",
+              "value": "om_oss"
+            },
+            {
+              "id": "p13-3",
+              "label": "Produkter",
+              "value": "produkter"
+            },
+            {
+              "id": "p13-4",
+              "label": "Tjenester",
+              "value": "tjenester"
+            },
+            {
+              "id": "p13-5",
+              "label": "Priser",
+              "value": "priser"
+            },
+            {
+              "id": "p13-6",
+              "label": "Kontakt",
+              "value": "kontakt"
+            },
+            {
+              "id": "p13-7",
+              "label": "Ofte stilte spørsmål",
+              "value": "faq"
+            },
+            {
+              "id": "p13-8",
+              "label": "Referanser eller kundeomtaler",
+              "value": "referanser"
+            },
+            {
+              "id": "p13-9",
+              "label": "Galleri",
+              "value": "galleri"
+            },
+            {
+              "id": "p13-10",
+              "label": "Ansatte",
+              "value": "ansatte"
+            },
+            {
+              "id": "p13-11",
+              "label": "Artikler eller nyheter",
+              "value": "nyheter"
+            },
+            {
+              "id": "p13-12",
+              "label": "Bestilling",
+              "value": "bestilling"
+            },
+            {
+              "id": "p13-13",
+              "label": "Innlogging",
+              "value": "innlogging"
+            },
+            {
+              "id": "p13-14",
+              "label": "Nettbutikk",
+              "value": "nettbutikk"
+            },
+            {
+              "id": "p13-15",
+              "label": "Annet",
+              "value": "annet"
+            }
+          ],
+          "position": 16
+        },
+        {
+          "id": "fld-ps-14",
+          "form_id": "f-prosjektskjema",
+          "field_type": "checkbox",
+          "label": "14. Hvilket innhold har dere allerede?",
+          "description": "Kryss av for hva som er klart.",
+          "is_required": true,
+          "options": [
+            {
+              "id": "p14-1",
+              "label": "Logo",
+              "value": "logo"
+            },
+            {
+              "id": "p14-2",
+              "label": "Tekster",
+              "value": "tekster"
+            },
+            {
+              "id": "p14-3",
+              "label": "Bilder",
+              "value": "bilder"
+            },
+            {
+              "id": "p14-4",
+              "label": "Video",
+              "value": "video"
+            },
+            {
+              "id": "p14-5",
+              "label": "Produktinformasjon",
+              "value": "produktinfo"
+            },
+            {
+              "id": "p14-6",
+              "label": "Prislister",
+              "value": "prislister"
+            },
+            {
+              "id": "p14-7",
+              "label": "Kundeomtaler",
+              "value": "kundeomtaler"
+            },
+            {
+              "id": "p14-8",
+              "label": "Grafisk profil",
+              "value": "grafisk_profil"
+            },
+            {
+              "id": "p14-9",
+              "label": "Vi trenger hjelp med innholdet",
+              "value": "trenger_hjelp"
+            }
+          ],
+          "position": 17
+        },
+        {
+          "id": "fld-ps-15",
+          "form_id": "f-prosjektskjema",
+          "field_type": "radio",
+          "label": "15. Hvem skal skrive tekstene?",
+          "description": "",
+          "is_required": false,
+          "options": [
+            {
+              "id": "p15-1",
+              "label": "Vi leverer ferdige tekster",
+              "value": "ferdige_tekster"
+            },
+            {
+              "id": "p15-2",
+              "label": "Vi leverer et utkast",
+              "value": "utkast"
+            },
+            {
+              "id": "p15-3",
+              "label": "Vi ønsker hjelp med tekstene",
+              "value": "trenger_hjelp"
+            },
+            {
+              "id": "p15-4",
+              "label": "Ikke avklart",
+              "value": "ikke_avklart"
+            }
+          ],
+          "position": 18
+        },
+        {
+          "id": "fld-ps-16",
+          "form_id": "f-prosjektskjema",
+          "field_type": "file",
+          "label": "16. Last gjerne opp logo, bilder eller annet relevant materiale.",
+          "description": "Støtter PDF, PNG, JPG opptil 10 MB.",
+          "is_required": false,
+          "position": 19
+        },
+        {
+          "id": "fld-sec-5",
+          "form_id": "f-prosjektskjema",
+          "field_type": "info",
+          "label": "5. Funksjoner",
+          "description": "Funksjonalitet, integrasjoner og tekniske behov.",
+          "is_required": false,
+          "position": 20
+        },
+        {
+          "id": "fld-ps-17",
+          "form_id": "f-prosjektskjema",
+          "field_type": "checkbox",
+          "label": "17. Hvilke funksjoner ønsker dere?",
+          "description": "Kryss av for ønskede elementer.",
+          "is_required": true,
+          "options": [
+            {
+              "id": "p17-1",
+              "label": "Kontaktskjema",
+              "value": "kontaktskjema"
+            },
+            {
+              "id": "p17-2",
+              "label": "Timebestilling",
+              "value": "timebestilling"
+            },
+            {
+              "id": "p17-3",
+              "label": "Reservasjon",
+              "value": "reservasjon"
+            },
+            {
+              "id": "p17-4",
+              "label": "Betaling",
+              "value": "betaling"
+            },
+            {
+              "id": "p17-5",
+              "label": "Nettbutikk",
+              "value": "nettbutikk"
+            },
+            {
+              "id": "p17-6",
+              "label": "Produktkatalog",
+              "value": "produktkatalog"
+            },
+            {
+              "id": "p17-7",
+              "label": "Brukerinnlogging",
+              "value": "brukerinnlogging"
+            },
+            {
+              "id": "p17-8",
+              "label": "Kundeportal",
+              "value": "kundeportal"
+            },
+            {
+              "id": "p17-9",
+              "label": "Søk",
+              "value": "sok"
+            },
+            {
+              "id": "p17-10",
+              "label": "Kart og veibeskrivelse",
+              "value": "kart"
+            },
+            {
+              "id": "p17-11",
+              "label": "Nyhetsbrev",
+              "value": "nyhetsbrev"
+            },
+            {
+              "id": "p17-12",
+              "label": "Chat",
+              "value": "chat"
+            },
+            {
+              "id": "p17-13",
+              "label": "Flere språk",
+              "value": "flere_sprak"
+            },
+            {
+              "id": "p17-14",
+              "label": "Integrasjon med andre systemer",
+              "value": "integrasjon"
+            },
+            {
+              "id": "p17-15",
+              "label": "Annet",
+              "value": "annet"
+            }
+          ],
+          "position": 21
+        },
+        {
+          "id": "fld-ps-18",
+          "form_id": "f-prosjektskjema",
+          "field_type": "radio",
+          "label": "18. Skal brukerne kunne opprette en konto?",
+          "description": "",
+          "is_required": false,
+          "options": [
+            {
+              "id": "p18-1",
+              "label": "Ja",
+              "value": "ja"
+            },
+            {
+              "id": "p18-2",
+              "label": "Nei",
+              "value": "nei"
+            },
+            {
+              "id": "p18-3",
+              "label": "Ikke avklart",
+              "value": "ikke_avklart"
+            }
+          ],
+          "position": 22
+        },
+        {
+          "id": "fld-ps-19",
+          "form_id": "f-prosjektskjema",
+          "field_type": "radio",
+          "label": "19. Skal løsningen motta betaling?",
+          "description": "",
+          "is_required": false,
+          "options": [
+            {
+              "id": "p19-1",
+              "label": "Ja",
+              "value": "ja"
+            },
+            {
+              "id": "p19-2",
+              "label": "Nei",
+              "value": "nei"
+            },
+            {
+              "id": "p19-3",
+              "label": "Kanskje senere",
+              "value": "kanskje_senere"
+            },
+            {
+              "id": "p19-4",
+              "label": "Ikke avklart",
+              "value": "ikke_avklart"
+            }
+          ],
+          "position": 23
+        },
+        {
+          "id": "fld-ps-20",
+          "form_id": "f-prosjektskjema",
+          "field_type": "textarea",
+          "label": "20. Må løsningen kobles til andre systemer?",
+          "description": "Eksempel: kalender, betaling, kunderegister, lager eller epost.",
+          "is_required": false,
+          "position": 24
+        },
+        {
+          "id": "fld-sec-6",
+          "form_id": "f-prosjektskjema",
+          "field_type": "info",
+          "label": "6. Visuelt uttrykk",
+          "description": "Stil, stemning og merkevarefølelse.",
+          "is_required": false,
+          "position": 25
+        },
+        {
+          "id": "fld-ps-21",
+          "form_id": "f-prosjektskjema",
+          "field_type": "checkbox",
+          "label": "21. Hvordan ønsker dere at løsningen skal oppleves?",
+          "description": "Velg gjerne mellom tre og fem ord.",
+          "is_required": true,
+          "options": [
+            {
+              "id": "p21-1",
+              "label": "Profesjonell",
+              "value": "profesjonell"
+            },
+            {
+              "id": "p21-2",
+              "label": "Moderne",
+              "value": "moderne"
+            },
+            {
+              "id": "p21-3",
+              "label": "Enkel",
+              "value": "enkel"
+            },
+            {
+              "id": "p21-4",
+              "label": "Eksklusiv",
+              "value": "eksklusiv"
+            },
+            {
+              "id": "p21-5",
+              "label": "Personlig",
+              "value": "personlig"
+            },
+            {
+              "id": "p21-6",
+              "label": "Kreativ",
+              "value": "kreativ"
+            },
+            {
+              "id": "p21-7",
+              "label": "Trygg",
+              "value": "trygg"
+            },
+            {
+              "id": "p21-8",
+              "label": "Teknologisk",
+              "value": "teknologisk"
+            },
+            {
+              "id": "p21-9",
+              "label": "Tradisjonell",
+              "value": "tradisjonell"
+            },
+            {
+              "id": "p21-10",
+              "label": "Minimalistisk",
+              "value": "minimalistisk"
+            },
+            {
+              "id": "p21-11",
+              "label": "Fargerik",
+              "value": "fargerik"
+            },
+            {
+              "id": "p21-12",
+              "label": "Varm",
+              "value": "varm"
+            },
+            {
+              "id": "p21-13",
+              "label": "Annet",
+              "value": "annet"
+            }
+          ],
+          "position": 26
+        },
+        {
+          "id": "fld-ps-22",
+          "form_id": "f-prosjektskjema",
+          "field_type": "checkbox",
+          "label": "22. Har dere en eksisterende visuell profil?",
+          "description": "",
+          "is_required": false,
+          "options": [
+            {
+              "id": "p22-1",
+              "label": "Logo",
+              "value": "logo"
+            },
+            {
+              "id": "p22-2",
+              "label": "Farger",
+              "value": "farger"
+            },
+            {
+              "id": "p22-3",
+              "label": "Skrifttyper",
+              "value": "skrifttyper"
+            },
+            {
+              "id": "p22-4",
+              "label": "Grafiske elementer",
+              "value": "grafiske_elementer"
+            },
+            {
+              "id": "p22-5",
+              "label": "Profilmanual",
+              "value": "profilmanual"
+            },
+            {
+              "id": "p22-6",
+              "label": "Nei",
+              "value": "nei"
+            }
+          ],
+          "position": 27
+        },
+        {
+          "id": "fld-ps-23",
+          "form_id": "f-prosjektskjema",
+          "field_type": "textarea",
+          "label": "23. Er det bestemte farger eller uttrykk dere ønsker å bruke eller unngå?",
+          "description": "",
+          "is_required": false,
+          "position": 28
+        },
+        {
+          "id": "fld-ps-24",
+          "form_id": "f-prosjektskjema",
+          "field_type": "textarea",
+          "label": "24. Finnes det nettsider eller applikasjoner dere liker?",
+          "description": "Legg gjerne ved to eller tre lenker, og forklar kort hva dere liker ved dem.",
+          "is_required": false,
+          "position": 29
+        },
+        {
+          "id": "fld-ps-25",
+          "form_id": "f-prosjektskjema",
+          "field_type": "textarea",
+          "label": "25. Finnes det uttrykk eller løsninger dere ikke liker?",
+          "description": "",
+          "is_required": false,
+          "position": 30
+        },
+        {
+          "id": "fld-sec-7",
+          "form_id": "f-prosjektskjema",
+          "field_type": "info",
+          "label": "7. Eksisterende løsning",
+          "description": "Erfaringer og videreføring fra dagens oppsett.",
+          "is_required": false,
+          "position": 31
+        },
+        {
+          "id": "fld-ps-26",
+          "form_id": "f-prosjektskjema",
+          "field_type": "radio",
+          "label": "26. Har dere en nettside eller applikasjon i dag?",
+          "description": "Legg ved lenken dersom det er relevant.",
+          "is_required": true,
+          "options": [
+            {
+              "id": "p26-1",
+              "label": "Ja",
+              "value": "ja"
+            },
+            {
+              "id": "p26-2",
+              "label": "Nei",
+              "value": "nei"
+            }
+          ],
+          "position": 32
+        },
+        {
+          "id": "fld-ps-27",
+          "form_id": "f-prosjektskjema",
+          "field_type": "textarea",
+          "label": "27. Hva fungerer godt med dagens løsning?",
+          "description": "",
+          "is_required": false,
+          "position": 33
+        },
+        {
+          "id": "fld-ps-28",
+          "form_id": "f-prosjektskjema",
+          "field_type": "textarea",
+          "label": "28. Hva fungerer dårlig eller bør forbedres?",
+          "description": "",
+          "is_required": false,
+          "position": 34
+        },
+        {
+          "id": "fld-ps-29",
+          "form_id": "f-prosjektskjema",
+          "field_type": "textarea",
+          "label": "29. Er det innhold eller funksjoner som skal videreføres?",
+          "description": "",
+          "is_required": false,
+          "position": 35
+        },
+        {
+          "id": "fld-sec-8",
+          "form_id": "f-prosjektskjema",
+          "field_type": "info",
+          "label": "8. Drift og oppfølging",
+          "description": "Vedlikehold og oppdateringer etter lansering.",
+          "is_required": false,
+          "position": 36
+        },
+        {
+          "id": "fld-ps-30",
+          "form_id": "f-prosjektskjema",
+          "field_type": "radio",
+          "label": "30. Hvem skal oppdatere løsningen etter lansering?",
+          "description": "",
+          "is_required": false,
+          "options": [
+            {
+              "id": "p30-1",
+              "label": "Vi ønsker å gjøre det selv",
+              "value": "gjore_selv"
+            },
+            {
+              "id": "p30-2",
+              "label": "By Mari skal gjøre det",
+              "value": "by_mari"
+            },
+            {
+              "id": "p30-3",
+              "label": "En kombinasjon",
+              "value": "kombinasjon"
+            },
+            {
+              "id": "p30-4",
+              "label": "Ikke avklart",
+              "value": "ikke_avklart"
+            }
+          ],
+          "position": 37
+        },
+        {
+          "id": "fld-ps-31",
+          "form_id": "f-prosjektskjema",
+          "field_type": "radio",
+          "label": "31. Ønsker dere opplæring i hvordan løsningen brukes og oppdateres?",
+          "description": "",
+          "is_required": false,
+          "options": [
+            {
+              "id": "p31-1",
+              "label": "Ja",
+              "value": "ja"
+            },
+            {
+              "id": "p31-2",
+              "label": "Nei",
+              "value": "nei"
+            },
+            {
+              "id": "p31-3",
+              "label": "Kanskje",
+              "value": "kanskje"
+            }
+          ],
+          "position": 38
+        },
+        {
+          "id": "fld-sec-9",
+          "form_id": "f-prosjektskjema",
+          "field_type": "info",
+          "label": "9. Tid og budsjett",
+          "description": "Fremdriftsplan, tidsfrister og økonomiske rammer.",
+          "is_required": false,
+          "position": 39
+        },
+        {
+          "id": "fld-ps-32",
+          "form_id": "f-prosjektskjema",
+          "field_type": "text",
+          "label": "32. Når ønsker dere at løsningen skal være ferdig?",
+          "description": "Oppgi dato, måned eller ønsket tidsramme.",
+          "is_required": true,
+          "position": 40
+        },
+        {
+          "id": "fld-ps-33",
+          "form_id": "f-prosjektskjema",
+          "field_type": "textarea",
+          "label": "33. Er lanseringen knyttet til en bestemt hendelse eller frist?",
+          "description": "",
+          "is_required": false,
+          "position": 41
+        },
+        {
+          "id": "fld-ps-34",
+          "form_id": "f-prosjektskjema",
+          "field_type": "radio",
+          "label": "34. Har dere satt av et budsjett?",
+          "description": "",
+          "is_required": true,
+          "options": [
+            {
+              "id": "p34-1",
+              "label": "Under 15 000 kroner",
+              "value": "under_15k"
+            },
+            {
+              "id": "p34-2",
+              "label": "Fra 15 000 til 30 000 kroner",
+              "value": "15k_30k"
+            },
+            {
+              "id": "p34-3",
+              "label": "Fra 30 000 til 60 000 kroner",
+              "value": "30k_60k"
+            },
+            {
+              "id": "p34-4",
+              "label": "Fra 60 000 til 100 000 kroner",
+              "value": "60k_100k"
+            },
+            {
+              "id": "p34-5",
+              "label": "Over 100 000 kroner",
+              "value": "over_100k"
+            },
+            {
+              "id": "p34-6",
+              "label": "Ønsker å diskutere dette",
+              "value": "diskutere"
+            }
+          ],
+          "position": 42
+        },
+        {
+          "id": "fld-ps-35",
+          "form_id": "f-prosjektskjema",
+          "field_type": "text",
+          "label": "35. Hvem skal godkjenne design, innhold og kostnader?",
+          "description": "",
+          "is_required": false,
+          "position": 43
+        },
+        {
+          "id": "fld-sec-10",
+          "form_id": "f-prosjektskjema",
+          "field_type": "info",
+          "label": "10. Demo og neste møte",
+          "description": "Forventninger til den første demoen og oppstartsmøtet.",
+          "is_required": false,
+          "position": 44
+        },
+        {
+          "id": "fld-ps-36",
+          "form_id": "f-prosjektskjema",
+          "field_type": "textarea",
+          "label": "36. Hva er det viktigste at den første demoen viser?",
+          "description": "",
+          "is_required": true,
+          "position": 45
+        },
+        {
+          "id": "fld-ps-37",
+          "form_id": "f-prosjektskjema",
+          "field_type": "textarea",
+          "label": "37. Hvilke sider eller funksjoner bør prioriteres i demoen?",
+          "description": "",
+          "is_required": true,
+          "position": 46
+        },
+        {
+          "id": "fld-ps-38",
+          "form_id": "f-prosjektskjema",
+          "field_type": "textarea",
+          "label": "38. Er det noe annet jeg bør vite før jeg starter?",
+          "description": "",
+          "is_required": false,
+          "position": 47
+        }
+      ]
+    },
+    {
+      "id": "f-kort-prosjektskjema",
+      "title": "Kort prosjektskjema: Stil, Farger & Visuell profil",
+      "slug": "kort-skjema",
+      "introduction": "Takk for at du vurderer By Mari.\n\nDette korte skjemaet er tilpasset deg som ønsker en rask og ukomplisert oppstart. Her samler vi inn det viktigste om virksomheten din, samt dine ønsker for visuell stil, farger, stemning og nettsidestruktur.\n\nDet tar kun 3–5 minutter å fylle ut.",
+      "confirmation_message": "Tusen takk for dine svar!\n\nJeg går gjennom dine preferanser for stil og farger, og bruker dette som utgangspunkt for det første designutkastet. Jeg tar kontakt så snart utkastet er klart.\n\nHilsen By Mari",
+      "status": "published",
+      "is_template": true,
+      "created_at": "2026-09-17T10:00:00Z",
+      "updated_at": "2026-09-17T10:00:00Z",
+      "fields": [
+        {
+          "id": "fld-ks-sec-1",
+          "form_id": "f-kort-prosjektskjema",
+          "field_type": "info",
+          "label": "1. Kontaktinformasjon",
+          "description": "Grunnleggende informasjon om virksomheten og kontaktperson.",
+          "is_required": false,
+          "position": 0
+        },
+        {
+          "id": "fld-ks-1",
+          "form_id": "f-kort-prosjektskjema",
+          "field_type": "text",
+          "label": "1. Hva heter virksomheten eller prosjektet ditt?",
+          "description": "",
+          "is_required": true,
+          "position": 1
+        },
+        {
+          "id": "fld-ks-2",
+          "form_id": "f-kort-prosjektskjema",
+          "field_type": "text",
+          "label": "2. Hva heter kontaktpersonen?",
+          "description": "",
+          "is_required": true,
+          "position": 2
+        },
+        {
+          "id": "fld-ks-3",
+          "form_id": "f-kort-prosjektskjema",
+          "field_type": "email",
+          "label": "3. Hva er e-postadressen din?",
+          "description": "",
+          "is_required": true,
+          "position": 3
+        },
+        {
+          "id": "fld-ks-4",
+          "form_id": "f-kort-prosjektskjema",
+          "field_type": "phone",
+          "label": "4. Hva er telefonnummeret ditt?",
+          "description": "",
+          "is_required": false,
+          "position": 4
+        },
+        {
+          "id": "fld-ks-sec-2",
+          "form_id": "f-kort-prosjektskjema",
+          "field_type": "info",
+          "label": "2. Om virksomheten",
+          "description": "Kort om hva du tilbyr og hva du ønsker å oppnå.",
+          "is_required": false,
+          "position": 5
+        },
+        {
+          "id": "fld-ks-5",
+          "form_id": "f-kort-prosjektskjema",
+          "field_type": "textarea",
+          "label": "5. Hva tilbyr du, kort fortalt?",
+          "description": "Beskriv i 1–3 setninger hvilke produkter, tjenester eller hva virksomheten din driver med.",
+          "is_required": true,
+          "position": 6
+        },
+        {
+          "id": "fld-ks-sec-3",
+          "form_id": "f-kort-prosjektskjema",
+          "field_type": "info",
+          "label": "3. Stil, Farger & Visuelt uttrykk",
+          "description": "Velg fargepaletter og visuell stil som du liker best.",
+          "is_required": false,
+          "position": 7
+        },
+        {
+          "id": "fld-ks-6",
+          "form_id": "f-kort-prosjektskjema",
+          "field_type": "checkbox",
+          "label": "6. Hvilke fargepaletter liker du best?",
+          "description": "Velg én eller flere fargekombinasjoner du tiltrekkes av.",
+          "is_required": true,
+          "options": [
+            {
+              "id": "ks-c1",
+              "label": "Jordtoner & Varm Sand (rolig, naturlig, beige og varmt)",
+              "value": "jordtoner"
+            },
+            {
+              "id": "ks-c2",
+              "label": "Dyp Skoggrønn & Salvie (organisk, harmonisk og naturpreget)",
+              "value": "gronntoner"
+            },
+            {
+              "id": "ks-c3",
+              "label": "Minimalistisk Sort, Hvit & Grå (tidløst, rent, stramt og moderne)",
+              "value": "monokrom"
+            },
+            {
+              "id": "ks-c4",
+              "label": "Duse Pasteller & Varm Pudder (mykt, lyst, innbydende og feminint)",
+              "value": "pastell"
+            },
+            {
+              "id": "ks-c5",
+              "label": "Midnattsblå, Antrasitt & Gull (eksklusivt, luksuriøst og sobert)",
+              "value": "morke_toner"
+            },
+            {
+              "id": "ks-c6",
+              "label": "Friske & Spreke Kontraster (energisk, moderne og iøynefallende)",
+              "value": "friske_farger"
+            },
+            {
+              "id": "ks-c7",
+              "label": "Jeg har egne faste profilfarger",
+              "value": "egne_farger"
+            },
+            {
+              "id": "ks-c8",
+              "label": "Åpen for forslag fra Mari",
+              "value": "apen_for_forslag"
+            }
+          ],
+          "position": 8
+        },
+        {
+          "id": "fld-ks-7",
+          "form_id": "f-kort-prosjektskjema",
+          "field_type": "checkbox",
+          "label": "7. Hvilken stemning og visuell stil liker du?",
+          "description": "Velg én eller flere stiler som passer best for ønsket uttrykk.",
+          "is_required": true,
+          "options": [
+            {
+              "id": "ks-s1",
+              "label": "Klassisk, stilren & elegant",
+              "value": "klassisk_elegant"
+            },
+            {
+              "id": "ks-s2",
+              "label": "Varm, personlig & innbydende",
+              "value": "varm_personlig"
+            },
+            {
+              "id": "ks-s3",
+              "label": "Moderne, minimalistisk & ryddig",
+              "value": "moderne_minimalistisk"
+            },
+            {
+              "id": "ks-s4",
+              "label": "Kreativ, leken & nyskapende",
+              "value": "kreativ_leken"
+            },
+            {
+              "id": "ks-s5",
+              "label": "Eksklusiv, sober & profesjonell",
+              "value": "eksklusiv_sober"
+            },
+            {
+              "id": "ks-s6",
+              "label": "Rå, industriell & maskulin",
+              "value": "ra_industriell"
+            }
+          ],
+          "position": 9
+        },
+        {
+          "id": "fld-ks-8",
+          "form_id": "f-kort-prosjektskjema",
+          "field_type": "radio",
+          "label": "8. Har du logo i dag?",
+          "description": "",
+          "is_required": true,
+          "options": [
+            {
+              "id": "ks-l1",
+              "label": "Ja",
+              "value": "ja"
+            },
+            {
+              "id": "ks-l2",
+              "label": "Nei",
+              "value": "nei"
+            }
+          ],
+          "position": 10
+        },
+        {
+          "id": "fld-ks-10",
+          "form_id": "f-kort-prosjektskjema",
+          "field_type": "textarea",
+          "label": "9. Er det bestemte farger, stiler eller løsninger du IKKE liker?",
+          "description": "F.eks. unngå for sterke farger, ikke for mye tekst, ingen mørk bakgrunn osv.",
+          "is_required": false,
+          "position": 11
+        },
+        {
+          "id": "fld-ks-sec-4",
+          "form_id": "f-kort-prosjektskjema",
+          "field_type": "info",
+          "label": "4. Sider, Innhold & Materiell",
+          "description": "Hvilket innhold og sider skal inn på nettsiden?",
+          "is_required": false,
+          "position": 12
+        },
+        {
+          "id": "fld-ks-11",
+          "form_id": "f-kort-prosjektskjema",
+          "field_type": "checkbox",
+          "label": "10. Hvilke hovedsider eller seksjoner trenger du?",
+          "description": "Kryss av for det du ser for deg på nettsiden.",
+          "is_required": true,
+          "options": [
+            {
+              "id": "ks-p1",
+              "label": "Forside (oversikt og introduksjon)",
+              "value": "forside"
+            },
+            {
+              "id": "ks-p2",
+              "label": "Om meg / Virksomheten",
+              "value": "om_oss"
+            },
+            {
+              "id": "ks-p3",
+              "label": "Tjenester / Produkter og priser",
+              "value": "tjenester"
+            },
+            {
+              "id": "ks-p4",
+              "label": "Kontaktskjema & kontaktinfo",
+              "value": "kontakt"
+            },
+            {
+              "id": "ks-p5",
+              "label": "Referanser / Bildegalleri / Tidligere arbeid",
+              "value": "galleri"
+            },
+            {
+              "id": "ks-p6",
+              "label": "Ofte stilte spørsmål (FAQ)",
+              "value": "faq"
+            },
+            {
+              "id": "ks-p7",
+              "label": "Enkel landingsside (alt samlet på én side)",
+              "value": "landingsside"
+            },
+            {
+              "id": "ks-p8",
+              "label": "Annet",
+              "value": "annet"
+            }
+          ],
+          "position": 13
+        },
+        {
+          "id": "fld-ks-12",
+          "form_id": "f-kort-prosjektskjema",
+          "field_type": "file",
+          "label": "11. Last gjerne opp logo, bilder eller inspirasjonsfiler",
+          "description": "Støtter bilder (PNG, JPG), PDF og dokumenter opptil 10 MB.",
+          "is_required": false,
+          "position": 14
+        },
+        {
+          "id": "fld-ks-13",
+          "form_id": "f-kort-prosjektskjema",
+          "field_type": "textarea",
+          "label": "12. Er det noe annet du ønsker å formidle om prosjektet?",
+          "description": "Tidsramme, spesielle ønsker eller andre tanker.",
+          "is_required": false,
+          "position": 15
+        }
+      ]
+    },
+    {
+      "id": "f1-oppstart",
+      "title": "Prosjektoppstart & Behovsavklaring",
+      "slug": "prosjektoppstart",
+      "introduction": "Velkommen til prosjektoppstart med by mari. Dette skjemaet hjelper oss med å avklare mål, målgruppe og visuelle preferanser før vi går i gang med design og utvikling.",
+      "confirmation_message": "Tusen takk for dine svar. Jeg går nøye gjennom informasjonen og tar kontakt for neste steg i prosessen.",
+      "status": "published",
+      "is_template": true,
+      "created_at": "2026-08-01T10:00:00Z",
+      "updated_at": "2026-08-15T14:00:00Z",
+      "fields": [
+        {
+          "id": "fld-1",
+          "form_id": "f1-oppstart",
+          "field_type": "info",
+          "label": "Om prosessen",
+          "description": "Bruk gjerne 10-15 minutter på å svare så presist du kan. Det er helt i orden om du ikke har alle detaljer klare ennå.",
+          "is_required": false,
+          "position": 0
+        },
+        {
+          "id": "fld-2",
+          "form_id": "f1-oppstart",
+          "field_type": "text",
+          "label": "Hva er virksomhetens viktigste mål med den nye løsningen?",
+          "description": "F.eks. øke henvendelser, tydeliggjøre tjenester, automatisere bestillinger.",
+          "is_required": true,
+          "position": 1
+        },
+        {
+          "id": "fld-3",
+          "form_id": "f1-oppstart",
+          "field_type": "textarea",
+          "label": "Hvem er den primære målgruppen?",
+          "description": "Beskriv kundene dine, deres behov og hva de ser etter når de besøker dere.",
+          "is_required": true,
+          "position": 2
+        },
+        {
+          "id": "fld-4",
+          "form_id": "f1-oppstart",
+          "field_type": "checkbox",
+          "label": "Hvilke funksjoner eller elementer trengs?",
+          "description": "Velg det som er aktuelt.",
+          "is_required": false,
+          "options": [
+            {
+              "id": "opt-1",
+              "label": "Responsiv nettside for mobil og desktop",
+              "value": "responsive"
+            },
+            {
+              "id": "opt-2",
+              "label": "Kontaktskjema med e-postvarsling",
+              "value": "contact"
+            },
+            {
+              "id": "opt-3",
+              "label": "Portefølje eller prosjektvisning",
+              "value": "portfolio"
+            },
+            {
+              "id": "opt-4",
+              "label": "Enkel publiseringsløsning for nyheter/artikler",
+              "value": "blog"
+            },
+            {
+              "id": "opt-5",
+              "label": "Kundeadministrasjon eller skjemamottak",
+              "value": "admin"
+            }
+          ],
+          "position": 3
+        },
+        {
+          "id": "fld-5",
+          "form_id": "f1-oppstart",
+          "field_type": "radio",
+          "label": "Hva er ønsket tidsramme for ferdigstilling?",
+          "description": "Velg det som passer best for planene deres.",
+          "is_required": true,
+          "options": [
+            {
+              "id": "time-1",
+              "label": "Så snart som mulig (under 4 uker)",
+              "value": "urgent"
+            },
+            {
+              "id": "time-2",
+              "label": "1 til 2 måneder",
+              "value": "standard"
+            },
+            {
+              "id": "time-3",
+              "label": "Fleksibel tidsramme / utover høsten",
+              "value": "flexible"
+            }
+          ],
+          "position": 4
+        },
+        {
+          "id": "fld-6",
+          "form_id": "f1-oppstart",
+          "field_type": "file",
+          "label": "Last opp eksisterende logo, merkevareguide eller bilder",
+          "description": "Støtter PDF, PNG, JPG opptil 10 MB.",
+          "is_required": false,
+          "position": 5
+        },
+        {
+          "id": "fld-7",
+          "form_id": "f1-oppstart",
+          "field_type": "textarea",
+          "label": "Er det andre tanker eller inspirasjon du ønsker å dele?",
+          "description": "Lenker til nettsider du liker, spesielle ønsker eller spørsmål.",
+          "is_required": false,
+          "position": 6
+        }
+      ]
+    },
+    {
+      "id": "f2-innhold",
+      "title": "Innsamling av tekst og innhold",
+      "slug": "innhold-og-tekst",
+      "introduction": "For at nettsiden skal bli så god og presis som mulig, samler vi her inn nøkkelinnhold for de ulike seksjonene.",
+      "confirmation_message": "Takk for oversendt innhold. Jeg integrerer dette i designutkastet.",
+      "status": "published",
+      "is_template": true,
+      "created_at": "2026-08-20T12:00:00Z",
+      "updated_at": "2026-08-22T09:00:00Z",
+      "fields": [
+        {
+          "id": "inf-1",
+          "form_id": "f2-innhold",
+          "field_type": "text",
+          "label": "Hovedoverskrift / slagord for forsiden",
+          "description": "Kort setning som oppsummerer hva dere tilbyr.",
+          "is_required": true,
+          "position": 0
+        },
+        {
+          "id": "inf-2",
+          "form_id": "f2-innhold",
+          "field_type": "textarea",
+          "label": "Kort introduksjonstekst",
+          "description": "1-2 avsnitt som forteller hvem dere er og hva dere gjør.",
+          "is_required": true,
+          "position": 1
+        },
+        {
+          "id": "inf-3",
+          "form_id": "f2-innhold",
+          "field_type": "file",
+          "label": "Last opp høyoppløselige bilder eller dokumenter",
+          "description": "Bilder av ansatte, lokaler, produkter eller referanseprosjekter.",
+          "is_required": false,
+          "position": 2
+        }
+      ]
+    },
+    {
+      "id": "f3-evaluering",
+      "title": "Evaluering etter lansering",
+      "slug": "evaluering",
+      "introduction": "Vi setter stor pris på dine tilbakemeldinger etter at vi har lansert den nye løsningen.",
+      "confirmation_message": "Tusen takk for dine verdifulle tilbakemeldinger!",
+      "status": "draft",
+      "is_template": false,
+      "created_at": "2026-09-01T14:00:00Z",
+      "updated_at": "2026-09-01T14:00:00Z",
+      "fields": [
+        {
+          "id": "ev-1",
+          "form_id": "f3-evaluering",
+          "field_type": "select",
+          "label": "Hvordan opplevde du samarbeidet og prosessen?",
+          "is_required": true,
+          "options": [
+            {
+              "id": "e1",
+              "label": "Svært ryddig og profesjonelt",
+              "value": "5"
+            },
+            {
+              "id": "e2",
+              "label": "Bra og oversiktlig",
+              "value": "4"
+            },
+            {
+              "id": "e3",
+              "label": "Gjennomsnittlig",
+              "value": "3"
+            },
+            {
+              "id": "e4",
+              "label": "Behov for forbedringer",
+              "value": "2"
+            }
+          ],
+          "position": 0
+        },
+        {
+          "id": "ev-2",
+          "form_id": "f3-evaluering",
+          "field_type": "textarea",
+          "label": "Hva var det mest positive med samarbeidet?",
+          "is_required": false,
+          "position": 1
+        }
+      ]
+    }
+  ],
+  "distributions": [
+    {
+      "id": "dist-gro-drage-evjen",
+      "form_id": "f-prosjektskjema",
+      "client_id": "c-gro-drage-evjen",
+      "token": "bm-gro-drage-evjen",
+      "email_subject": "Skjema fra by mari: Prosjektskjema",
+      "email_intro": "Hei Gro, her er forberedelsesskjemaet for prosjektet.",
+      "expires_at": "2026-09-24T08:43:44.821Z",
+      "status": "submitted",
+      "opened_at": "2026-09-17T08:13:44.821Z",
+      "submitted_at": "2026-09-17T08:43:44.821Z",
+      "created_at": "2026-09-17T07:43:44.821Z",
+      "updated_at": "2026-09-17T08:43:44.821Z",
+      "client": {
+        "id": "c-gro-drage-evjen",
+        "name": "Gro Drage Evjen",
+        "company": "",
+        "email": "grodrageevjen@gmail.com",
+        "phone": "",
+        "status": "Ny",
+        "requested_service": "Nettsider",
+        "internal_notes": "Innsendt henvendelse via nettsiden bymari.no.",
+        "next_activity_date": "2026-09-18T08:43:44.820Z",
+        "is_archived": false,
+        "created_at": "2026-09-14T08:43:44.820Z",
+        "updated_at": "2026-09-17T08:43:44.820Z"
+      },
+      "form": {
+        "id": "f-prosjektskjema",
+        "title": "Prosjektskjema",
+        "slug": "prosjektskjema",
+        "introduction": "Takk for at du vurderer By Mari.\\n\\nDette skjemaet gir meg et bedre bilde av virksomheten, kundene deres og løsningen dere ønsker. Svarene trenger ikke være detaljerte eller endelige. De brukes som utgangspunkt for den første demoen og vårt neste møte.\\n\\nDet tar omtrent 10 minutter å fylle ut skjemaet.",
+        "confirmation_message": "Takk for svarene!\\n\\nJeg går gjennom informasjonen og bruker den som utgangspunkt for den første demoen og vårt neste møte. Jeg tar kontakt dersom jeg trenger noen avklaringer underveis.\\n\\nHilsen By Mari",
+        "status": "published",
+        "is_template": true,
+        "created_at": "2026-09-14T20:05:55.731Z",
+        "updated_at": "2026-09-14T20:05:55.731Z",
+        "fields": [
+          {
+            "id": "fld-sec-1",
+            "form_id": "f-prosjektskjema",
+            "field_type": "info",
+            "label": "1. Kontaktinformasjon",
+            "description": "Grunnleggende informasjon om virksomheten og kontaktperson.",
+            "is_required": false,
+            "position": 0
+          },
+          {
+            "id": "fld-ps-1",
+            "form_id": "f-prosjektskjema",
+            "field_type": "text",
+            "label": "1. Hva heter virksomheten?",
+            "description": "",
+            "is_required": true,
+            "position": 1
+          },
+          {
+            "id": "fld-ps-2",
+            "form_id": "f-prosjektskjema",
+            "field_type": "text",
+            "label": "2. Hva heter kontaktpersonen?",
+            "description": "",
+            "is_required": true,
+            "position": 2
+          },
+          {
+            "id": "fld-ps-3",
+            "form_id": "f-prosjektskjema",
+            "field_type": "email",
+            "label": "3. Hva er epostadressen din?",
+            "description": "",
+            "is_required": true,
+            "position": 3
+          },
+          {
+            "id": "fld-ps-4",
+            "form_id": "f-prosjektskjema",
+            "field_type": "phone",
+            "label": "4. Hva er telefonnummeret ditt?",
+            "description": "",
+            "is_required": false,
+            "position": 4
+          },
+          {
+            "id": "fld-sec-2",
+            "form_id": "f-prosjektskjema",
+            "field_type": "info",
+            "label": "2. Om virksomheten",
+            "description": "Hjelp oss å forstå hva dere gjør og hvem dere henvender dere til.",
+            "is_required": false,
+            "position": 5
+          },
+          {
+            "id": "fld-ps-5",
+            "form_id": "f-prosjektskjema",
+            "field_type": "textarea",
+            "label": "5. Hva tilbyr virksomheten?",
+            "description": "Beskriv kort de viktigste produktene eller tjenestene.",
+            "is_required": true,
+            "position": 6
+          },
+          {
+            "id": "fld-ps-6",
+            "form_id": "f-prosjektskjema",
+            "field_type": "textarea",
+            "label": "6. Hvem er de viktigste kundene deres?",
+            "description": "Beskriv gjerne alder, behov, bosted, bransje eller andre relevante kjennetegn.",
+            "is_required": true,
+            "position": 7
+          },
+          {
+            "id": "fld-ps-7",
+            "form_id": "f-prosjektskjema",
+            "field_type": "textarea",
+            "label": "7. Hva skiller virksomheten fra konkurrentene?",
+            "description": "",
+            "is_required": false,
+            "position": 8
+          },
+          {
+            "id": "fld-ps-8",
+            "form_id": "f-prosjektskjema",
+            "field_type": "text",
+            "label": "8. Hvor holder virksomheten til, og hvilke områder betjener dere?",
+            "description": "",
+            "is_required": false,
+            "position": 9
+          },
+          {
+            "id": "fld-sec-3",
+            "form_id": "f-prosjektskjema",
+            "field_type": "info",
+            "label": "3. Prosjektet",
+            "description": "Mål, formål og primærhandling for den nye løsningen.",
+            "is_required": false,
+            "position": 10
+          },
+          {
+            "id": "fld-ps-9",
+            "form_id": "f-prosjektskjema",
+            "field_type": "checkbox",
+            "label": "9. Hva ønsker dere hjelp med?",
+            "description": "Velg alle områder som er aktuelle.",
+            "is_required": true,
+            "options": [
+              {
+                "id": "p9-1",
+                "label": "Ny nettside",
+                "value": "ny_nettside"
+              },
+              {
+                "id": "p9-2",
+                "label": "Oppgradering av eksisterende nettside",
+                "value": "oppgradering"
+              },
+              {
+                "id": "p9-3",
+                "label": "Nettbutikk",
+                "value": "nettbutikk"
+              },
+              {
+                "id": "p9-4",
+                "label": "Webapplikasjon",
+                "value": "webapplikasjon"
+              },
+              {
+                "id": "p9-5",
+                "label": "Landingsside",
+                "value": "landingsside"
+              },
+              {
+                "id": "p9-6",
+                "label": "Kundeportal",
+                "value": "kundeportal"
+              },
+              {
+                "id": "p9-7",
+                "label": "Design og prototype",
+                "value": "design_prototype"
+              },
+              {
+                "id": "p9-8",
+                "label": "Annet",
+                "value": "annet"
+              }
+            ],
+            "position": 11
+          },
+          {
+            "id": "fld-ps-10",
+            "form_id": "f-prosjektskjema",
+            "field_type": "textarea",
+            "label": "10. Hvorfor ønsker dere en ny løsning?",
+            "description": "Eksempel: få flere kunder, modernisere virksomheten, forbedre kundeopplevelsen eller effektivisere en arbeidsprosess.",
+            "is_required": false,
+            "position": 12
+          },
+          {
+            "id": "fld-ps-11",
+            "form_id": "f-prosjektskjema",
+            "field_type": "checkbox",
+            "label": "11. Hva er det viktigste løsningen skal oppnå?",
+            "description": "Velg gjerne inntil tre alternativer.",
+            "is_required": true,
+            "options": [
+              {
+                "id": "p11-1",
+                "label": "Skaffe flere henvendelser",
+                "value": "henvendelser"
+              },
+              {
+                "id": "p11-2",
+                "label": "Øke salget",
+                "value": "salg"
+              },
+              {
+                "id": "p11-3",
+                "label": "Presentere produkter eller tjenester",
+                "value": "presentere"
+              },
+              {
+                "id": "p11-4",
+                "label": "Bygge tillit",
+                "value": "tillit"
+              },
+              {
+                "id": "p11-5",
+                "label": "Gjøre informasjon lettere tilgjengelig",
+                "value": "informasjon"
+              },
+              {
+                "id": "p11-6",
+                "label": "Forenkle bestilling eller reservasjon",
+                "value": "bestilling"
+              },
+              {
+                "id": "p11-7",
+                "label": "Automatisere en arbeidsprosess",
+                "value": "automatisering"
+              },
+              {
+                "id": "p11-8",
+                "label": "Tilby selvbetjening",
+                "value": "selvbetjening"
+              },
+              {
+                "id": "p11-9",
+                "label": "Samle inn potensielle kunder",
+                "value": "leads"
+              },
+              {
+                "id": "p11-10",
+                "label": "Annet",
+                "value": "annet"
+              }
+            ],
+            "position": 13
+          },
+          {
+            "id": "fld-ps-12",
+            "form_id": "f-prosjektskjema",
+            "field_type": "radio",
+            "label": "12. Hva ønsker dere at besøkende først og fremst skal gjøre?",
+            "description": "Velg det primære målet for en besøkende.",
+            "is_required": true,
+            "options": [
+              {
+                "id": "p12-1",
+                "label": "Ta kontakt",
+                "value": "ta_kontakt"
+              },
+              {
+                "id": "p12-2",
+                "label": "Be om tilbud",
+                "value": "be_om_tilbud"
+              },
+              {
+                "id": "p12-3",
+                "label": "Bestille time",
+                "value": "bestille_time"
+              },
+              {
+                "id": "p12-4",
+                "label": "Kjøpe et produkt",
+                "value": "kjope_produkt"
+              },
+              {
+                "id": "p12-5",
+                "label": "Registrere en konto",
+                "value": "registrere_konto"
+              },
+              {
+                "id": "p12-6",
+                "label": "Melde seg på",
+                "value": "melde_pa"
+              },
+              {
+                "id": "p12-7",
+                "label": "Besøke et fysisk sted",
+                "value": "besoke_sted"
+              },
+              {
+                "id": "p12-8",
+                "label": "Finne informasjon",
+                "value": "finne_info"
+              },
+              {
+                "id": "p12-9",
+                "label": "Bruke en digital tjeneste",
+                "value": "bruke_tjeneste"
+              },
+              {
+                "id": "p12-10",
+                "label": "Annet",
+                "value": "annet"
+              }
+            ],
+            "position": 14
+          },
+          {
+            "id": "fld-sec-4",
+            "form_id": "f-prosjektskjema",
+            "field_type": "info",
+            "label": "4. Innhold",
+            "description": "Sider, tekster, bilder og materiell.",
+            "is_required": false,
+            "position": 15
+          },
+          {
+            "id": "fld-ps-13",
+            "form_id": "f-prosjektskjema",
+            "field_type": "checkbox",
+            "label": "13. Hvilke sider eller områder ønsker dere?",
+            "description": "Velg de sidene som er aktuelle.",
+            "is_required": true,
+            "options": [
+              {
+                "id": "p13-1",
+                "label": "Forside",
+                "value": "forside"
+              },
+              {
+                "id": "p13-2",
+                "label": "Om virksomheten",
+                "value": "om_oss"
+              },
+              {
+                "id": "p13-3",
+                "label": "Produkter",
+                "value": "produkter"
+              },
+              {
+                "id": "p13-4",
+                "label": "Tjenester",
+                "value": "tjenester"
+              },
+              {
+                "id": "p13-5",
+                "label": "Priser",
+                "value": "priser"
+              },
+              {
+                "id": "p13-6",
+                "label": "Kontakt",
+                "value": "kontakt"
+              },
+              {
+                "id": "p13-7",
+                "label": "Ofte stilte spørsmål",
+                "value": "faq"
+              },
+              {
+                "id": "p13-8",
+                "label": "Referanser eller kundeomtaler",
+                "value": "referanser"
+              },
+              {
+                "id": "p13-9",
+                "label": "Galleri",
+                "value": "galleri"
+              },
+              {
+                "id": "p13-10",
+                "label": "Ansatte",
+                "value": "ansatte"
+              },
+              {
+                "id": "p13-11",
+                "label": "Artikler eller nyheter",
+                "value": "nyheter"
+              },
+              {
+                "id": "p13-12",
+                "label": "Bestilling",
+                "value": "bestilling"
+              },
+              {
+                "id": "p13-13",
+                "label": "Innlogging",
+                "value": "innlogging"
+              },
+              {
+                "id": "p13-14",
+                "label": "Nettbutikk",
+                "value": "nettbutikk"
+              },
+              {
+                "id": "p13-15",
+                "label": "Annet",
+                "value": "annet"
+              }
+            ],
+            "position": 16
+          },
+          {
+            "id": "fld-ps-14",
+            "form_id": "f-prosjektskjema",
+            "field_type": "checkbox",
+            "label": "14. Hvilket innhold har dere allerede?",
+            "description": "Kryss av for hva som er klart.",
+            "is_required": true,
+            "options": [
+              {
+                "id": "p14-1",
+                "label": "Logo",
+                "value": "logo"
+              },
+              {
+                "id": "p14-2",
+                "label": "Tekster",
+                "value": "tekster"
+              },
+              {
+                "id": "p14-3",
+                "label": "Bilder",
+                "value": "bilder"
+              },
+              {
+                "id": "p14-4",
+                "label": "Video",
+                "value": "video"
+              },
+              {
+                "id": "p14-5",
+                "label": "Produktinformasjon",
+                "value": "produktinfo"
+              },
+              {
+                "id": "p14-6",
+                "label": "Prislister",
+                "value": "prislister"
+              },
+              {
+                "id": "p14-7",
+                "label": "Kundeomtaler",
+                "value": "kundeomtaler"
+              },
+              {
+                "id": "p14-8",
+                "label": "Grafisk profil",
+                "value": "grafisk_profil"
+              },
+              {
+                "id": "p14-9",
+                "label": "Vi trenger hjelp med innholdet",
+                "value": "trenger_hjelp"
+              }
+            ],
+            "position": 17
+          },
+          {
+            "id": "fld-ps-15",
+            "form_id": "f-prosjektskjema",
+            "field_type": "radio",
+            "label": "15. Hvem skal skrive tekstene?",
+            "description": "",
+            "is_required": false,
+            "options": [
+              {
+                "id": "p15-1",
+                "label": "Vi leverer ferdige tekster",
+                "value": "ferdige_tekster"
+              },
+              {
+                "id": "p15-2",
+                "label": "Vi leverer et utkast",
+                "value": "utkast"
+              },
+              {
+                "id": "p15-3",
+                "label": "Vi ønsker hjelp med tekstene",
+                "value": "trenger_hjelp"
+              },
+              {
+                "id": "p15-4",
+                "label": "Ikke avklart",
+                "value": "ikke_avklart"
+              }
+            ],
+            "position": 18
+          },
+          {
+            "id": "fld-ps-16",
+            "form_id": "f-prosjektskjema",
+            "field_type": "file",
+            "label": "16. Last gjerne opp logo, bilder eller annet relevant materiale.",
+            "description": "Støtter PDF, PNG, JPG opptil 10 MB.",
+            "is_required": false,
+            "position": 19
+          },
+          {
+            "id": "fld-sec-5",
+            "form_id": "f-prosjektskjema",
+            "field_type": "info",
+            "label": "5. Funksjoner",
+            "description": "Funksjonalitet, integrasjoner og tekniske behov.",
+            "is_required": false,
+            "position": 20
+          },
+          {
+            "id": "fld-ps-17",
+            "form_id": "f-prosjektskjema",
+            "field_type": "checkbox",
+            "label": "17. Hvilke funksjoner ønsker dere?",
+            "description": "Kryss av for ønskede elementer.",
+            "is_required": true,
+            "options": [
+              {
+                "id": "p17-1",
+                "label": "Kontaktskjema",
+                "value": "kontaktskjema"
+              },
+              {
+                "id": "p17-2",
+                "label": "Timebestilling",
+                "value": "timebestilling"
+              },
+              {
+                "id": "p17-3",
+                "label": "Reservasjon",
+                "value": "reservasjon"
+              },
+              {
+                "id": "p17-4",
+                "label": "Betaling",
+                "value": "betaling"
+              },
+              {
+                "id": "p17-5",
+                "label": "Nettbutikk",
+                "value": "nettbutikk"
+              },
+              {
+                "id": "p17-6",
+                "label": "Produktkatalog",
+                "value": "produktkatalog"
+              },
+              {
+                "id": "p17-7",
+                "label": "Brukerinnlogging",
+                "value": "brukerinnlogging"
+              },
+              {
+                "id": "p17-8",
+                "label": "Kundeportal",
+                "value": "kundeportal"
+              },
+              {
+                "id": "p17-9",
+                "label": "Søk",
+                "value": "sok"
+              },
+              {
+                "id": "p17-10",
+                "label": "Kart og veibeskrivelse",
+                "value": "kart"
+              },
+              {
+                "id": "p17-11",
+                "label": "Nyhetsbrev",
+                "value": "nyhetsbrev"
+              },
+              {
+                "id": "p17-12",
+                "label": "Chat",
+                "value": "chat"
+              },
+              {
+                "id": "p17-13",
+                "label": "Flere språk",
+                "value": "flere_sprak"
+              },
+              {
+                "id": "p17-14",
+                "label": "Integrasjon med andre systemer",
+                "value": "integrasjon"
+              },
+              {
+                "id": "p17-15",
+                "label": "Annet",
+                "value": "annet"
+              }
+            ],
+            "position": 21
+          },
+          {
+            "id": "fld-ps-18",
+            "form_id": "f-prosjektskjema",
+            "field_type": "radio",
+            "label": "18. Skal brukerne kunne opprette en konto?",
+            "description": "",
+            "is_required": false,
+            "options": [
+              {
+                "id": "p18-1",
+                "label": "Ja",
+                "value": "ja"
+              },
+              {
+                "id": "p18-2",
+                "label": "Nei",
+                "value": "nei"
+              },
+              {
+                "id": "p18-3",
+                "label": "Ikke avklart",
+                "value": "ikke_avklart"
+              }
+            ],
+            "position": 22
+          },
+          {
+            "id": "fld-ps-19",
+            "form_id": "f-prosjektskjema",
+            "field_type": "radio",
+            "label": "19. Skal løsningen motta betaling?",
+            "description": "",
+            "is_required": false,
+            "options": [
+              {
+                "id": "p19-1",
+                "label": "Ja",
+                "value": "ja"
+              },
+              {
+                "id": "p19-2",
+                "label": "Nei",
+                "value": "nei"
+              },
+              {
+                "id": "p19-3",
+                "label": "Kanskje senere",
+                "value": "kanskje_senere"
+              },
+              {
+                "id": "p19-4",
+                "label": "Ikke avklart",
+                "value": "ikke_avklart"
+              }
+            ],
+            "position": 23
+          },
+          {
+            "id": "fld-ps-20",
+            "form_id": "f-prosjektskjema",
+            "field_type": "textarea",
+            "label": "20. Må løsningen kobles til andre systemer?",
+            "description": "Eksempel: kalender, betaling, kunderegister, lager eller epost.",
+            "is_required": false,
+            "position": 24
+          },
+          {
+            "id": "fld-sec-6",
+            "form_id": "f-prosjektskjema",
+            "field_type": "info",
+            "label": "6. Visuelt uttrykk",
+            "description": "Stil, stemning og merkevarefølelse.",
+            "is_required": false,
+            "position": 25
+          },
+          {
+            "id": "fld-ps-21",
+            "form_id": "f-prosjektskjema",
+            "field_type": "checkbox",
+            "label": "21. Hvordan ønsker dere at løsningen skal oppleves?",
+            "description": "Velg gjerne mellom tre og fem ord.",
+            "is_required": true,
+            "options": [
+              {
+                "id": "p21-1",
+                "label": "Profesjonell",
+                "value": "profesjonell"
+              },
+              {
+                "id": "p21-2",
+                "label": "Moderne",
+                "value": "moderne"
+              },
+              {
+                "id": "p21-3",
+                "label": "Enkel",
+                "value": "enkel"
+              },
+              {
+                "id": "p21-4",
+                "label": "Eksklusiv",
+                "value": "eksklusiv"
+              },
+              {
+                "id": "p21-5",
+                "label": "Personlig",
+                "value": "personlig"
+              },
+              {
+                "id": "p21-6",
+                "label": "Kreativ",
+                "value": "kreativ"
+              },
+              {
+                "id": "p21-7",
+                "label": "Trygg",
+                "value": "trygg"
+              },
+              {
+                "id": "p21-8",
+                "label": "Teknologisk",
+                "value": "teknologisk"
+              },
+              {
+                "id": "p21-9",
+                "label": "Tradisjonell",
+                "value": "tradisjonell"
+              },
+              {
+                "id": "p21-10",
+                "label": "Minimalistisk",
+                "value": "minimalistisk"
+              },
+              {
+                "id": "p21-11",
+                "label": "Fargerik",
+                "value": "fargerik"
+              },
+              {
+                "id": "p21-12",
+                "label": "Varm",
+                "value": "varm"
+              },
+              {
+                "id": "p21-13",
+                "label": "Annet",
+                "value": "annet"
+              }
+            ],
+            "position": 26
+          },
+          {
+            "id": "fld-ps-22",
+            "form_id": "f-prosjektskjema",
+            "field_type": "checkbox",
+            "label": "22. Har dere en eksisterende visuell profil?",
+            "description": "",
+            "is_required": false,
+            "options": [
+              {
+                "id": "p22-1",
+                "label": "Logo",
+                "value": "logo"
+              },
+              {
+                "id": "p22-2",
+                "label": "Farger",
+                "value": "farger"
+              },
+              {
+                "id": "p22-3",
+                "label": "Skrifttyper",
+                "value": "skrifttyper"
+              },
+              {
+                "id": "p22-4",
+                "label": "Grafiske elementer",
+                "value": "grafiske_elementer"
+              },
+              {
+                "id": "p22-5",
+                "label": "Profilmanual",
+                "value": "profilmanual"
+              },
+              {
+                "id": "p22-6",
+                "label": "Nei",
+                "value": "nei"
+              }
+            ],
+            "position": 27
+          },
+          {
+            "id": "fld-ps-23",
+            "form_id": "f-prosjektskjema",
+            "field_type": "textarea",
+            "label": "23. Er det bestemte farger eller uttrykk dere ønsker å bruke eller unngå?",
+            "description": "",
+            "is_required": false,
+            "position": 28
+          },
+          {
+            "id": "fld-ps-24",
+            "form_id": "f-prosjektskjema",
+            "field_type": "textarea",
+            "label": "24. Finnes det nettsider eller applikasjoner dere liker?",
+            "description": "Legg gjerne ved to eller tre lenker, og forklar kort hva dere liker ved dem.",
+            "is_required": false,
+            "position": 29
+          },
+          {
+            "id": "fld-ps-25",
+            "form_id": "f-prosjektskjema",
+            "field_type": "textarea",
+            "label": "25. Finnes det uttrykk eller løsninger dere ikke liker?",
+            "description": "",
+            "is_required": false,
+            "position": 30
+          },
+          {
+            "id": "fld-sec-7",
+            "form_id": "f-prosjektskjema",
+            "field_type": "info",
+            "label": "7. Eksisterende løsning",
+            "description": "Erfaringer og videreføring fra dagens oppsett.",
+            "is_required": false,
+            "position": 31
+          },
+          {
+            "id": "fld-ps-26",
+            "form_id": "f-prosjektskjema",
+            "field_type": "radio",
+            "label": "26. Har dere en nettside eller applikasjon i dag?",
+            "description": "Legg ved lenken dersom det er relevant.",
+            "is_required": true,
+            "options": [
+              {
+                "id": "p26-1",
+                "label": "Ja",
+                "value": "ja"
+              },
+              {
+                "id": "p26-2",
+                "label": "Nei",
+                "value": "nei"
+              }
+            ],
+            "position": 32
+          },
+          {
+            "id": "fld-ps-27",
+            "form_id": "f-prosjektskjema",
+            "field_type": "textarea",
+            "label": "27. Hva fungerer godt med dagens løsning?",
+            "description": "",
+            "is_required": false,
+            "position": 33
+          },
+          {
+            "id": "fld-ps-28",
+            "form_id": "f-prosjektskjema",
+            "field_type": "textarea",
+            "label": "28. Hva fungerer dårlig eller bør forbedres?",
+            "description": "",
+            "is_required": false,
+            "position": 34
+          },
+          {
+            "id": "fld-ps-29",
+            "form_id": "f-prosjektskjema",
+            "field_type": "textarea",
+            "label": "29. Er det innhold eller funksjoner som skal videreføres?",
+            "description": "",
+            "is_required": false,
+            "position": 35
+          },
+          {
+            "id": "fld-sec-8",
+            "form_id": "f-prosjektskjema",
+            "field_type": "info",
+            "label": "8. Drift og oppfølging",
+            "description": "Vedlikehold og oppdateringer etter lansering.",
+            "is_required": false,
+            "position": 36
+          },
+          {
+            "id": "fld-ps-30",
+            "form_id": "f-prosjektskjema",
+            "field_type": "radio",
+            "label": "30. Hvem skal oppdatere løsningen etter lansering?",
+            "description": "",
+            "is_required": false,
+            "options": [
+              {
+                "id": "p30-1",
+                "label": "Vi ønsker å gjøre det selv",
+                "value": "gjore_selv"
+              },
+              {
+                "id": "p30-2",
+                "label": "By Mari skal gjøre det",
+                "value": "by_mari"
+              },
+              {
+                "id": "p30-3",
+                "label": "En kombinasjon",
+                "value": "kombinasjon"
+              },
+              {
+                "id": "p30-4",
+                "label": "Ikke avklart",
+                "value": "ikke_avklart"
+              }
+            ],
+            "position": 37
+          },
+          {
+            "id": "fld-ps-31",
+            "form_id": "f-prosjektskjema",
+            "field_type": "radio",
+            "label": "31. Ønsker dere opplæring i hvordan løsningen brukes og oppdateres?",
+            "description": "",
+            "is_required": false,
+            "options": [
+              {
+                "id": "p31-1",
+                "label": "Ja",
+                "value": "ja"
+              },
+              {
+                "id": "p31-2",
+                "label": "Nei",
+                "value": "nei"
+              },
+              {
+                "id": "p31-3",
+                "label": "Kanskje",
+                "value": "kanskje"
+              }
+            ],
+            "position": 38
+          },
+          {
+            "id": "fld-sec-9",
+            "form_id": "f-prosjektskjema",
+            "field_type": "info",
+            "label": "9. Tid og budsjett",
+            "description": "Fremdriftsplan, tidsfrister og økonomiske rammer.",
+            "is_required": false,
+            "position": 39
+          },
+          {
+            "id": "fld-ps-32",
+            "form_id": "f-prosjektskjema",
+            "field_type": "text",
+            "label": "32. Når ønsker dere at løsningen skal være ferdig?",
+            "description": "Oppgi dato, måned eller ønsket tidsramme.",
+            "is_required": true,
+            "position": 40
+          },
+          {
+            "id": "fld-ps-33",
+            "form_id": "f-prosjektskjema",
+            "field_type": "textarea",
+            "label": "33. Er lanseringen knyttet til en bestemt hendelse eller frist?",
+            "description": "",
+            "is_required": false,
+            "position": 41
+          },
+          {
+            "id": "fld-ps-34",
+            "form_id": "f-prosjektskjema",
+            "field_type": "radio",
+            "label": "34. Har dere satt av et budsjett?",
+            "description": "",
+            "is_required": true,
+            "options": [
+              {
+                "id": "p34-1",
+                "label": "Under 15 000 kroner",
+                "value": "under_15k"
+              },
+              {
+                "id": "p34-2",
+                "label": "Fra 15 000 til 30 000 kroner",
+                "value": "15k_30k"
+              },
+              {
+                "id": "p34-3",
+                "label": "Fra 30 000 til 60 000 kroner",
+                "value": "30k_60k"
+              },
+              {
+                "id": "p34-4",
+                "label": "Fra 60 000 til 100 000 kroner",
+                "value": "60k_100k"
+              },
+              {
+                "id": "p34-5",
+                "label": "Over 100 000 kroner",
+                "value": "over_100k"
+              },
+              {
+                "id": "p34-6",
+                "label": "Ønsker å diskutere dette",
+                "value": "diskutere"
+              }
+            ],
+            "position": 42
+          },
+          {
+            "id": "fld-ps-35",
+            "form_id": "f-prosjektskjema",
+            "field_type": "text",
+            "label": "35. Hvem skal godkjenne design, innhold og kostnader?",
+            "description": "",
+            "is_required": false,
+            "position": 43
+          },
+          {
+            "id": "fld-sec-10",
+            "form_id": "f-prosjektskjema",
+            "field_type": "info",
+            "label": "10. Demo og neste møte",
+            "description": "Forventninger til den første demoen og oppstartsmøtet.",
+            "is_required": false,
+            "position": 44
+          },
+          {
+            "id": "fld-ps-36",
+            "form_id": "f-prosjektskjema",
+            "field_type": "textarea",
+            "label": "36. Hva er det viktigste at den første demoen viser?",
+            "description": "",
+            "is_required": true,
+            "position": 45
+          },
+          {
+            "id": "fld-ps-37",
+            "form_id": "f-prosjektskjema",
+            "field_type": "textarea",
+            "label": "37. Hvilke sider eller funksjoner bør prioriteres i demoen?",
+            "description": "",
+            "is_required": true,
+            "position": 46
+          },
+          {
+            "id": "fld-ps-38",
+            "form_id": "f-prosjektskjema",
+            "field_type": "textarea",
+            "label": "38. Er det noe annet jeg bør vite før jeg starter?",
+            "description": "",
+            "is_required": false,
+            "position": 47
+          }
+        ]
+      }
+    },
+    {
+      "id": "dist-prosjektskjema-hoved",
+      "form_id": "f-prosjektskjema",
+      "client_id": null,
+      "token": "prosjektskjema",
+      "email_subject": "Prosjektskjema fra By Mari",
+      "email_intro": "Hei! For at vi skal få et best mulig bilde av virksomheten og prosjektet ditt, ber vi deg vennligst fylle ut dette skjemaet.",
+      "expires_at": null,
+      "status": "sent",
+      "opened_at": null,
+      "submitted_at": null,
+      "created_at": "2026-09-17T08:43:44.821Z",
+      "updated_at": "2026-09-17T08:43:44.821Z"
+    },
+    {
+      "id": "dist-kort-skjema-hoved",
+      "form_id": "f-kort-prosjektskjema",
+      "client_id": null,
+      "token": "kort-skjema",
+      "email_subject": "Kort prosjektskjema fra By Mari",
+      "email_intro": "Hei! For at vi raskt skal komme i gang og få innsikt i dine stil- og fargeønsker, ber vi deg vennligst fylle ut dette korte skjemaet.",
+      "expires_at": null,
+      "status": "sent",
+      "opened_at": null,
+      "submitted_at": null,
+      "created_at": "2026-09-17T08:43:44.821Z",
+      "updated_at": "2026-09-17T08:43:44.821Z"
+    }
+  ],
+  "submissions": [
+    {
+      "id": "sub-gro-drage-evjen",
+      "form_id": "f-prosjektskjema",
+      "client_id": "c-gro-drage-evjen",
+      "distribution_id": "dist-gro-drage-evjen",
+      "status": "new",
+      "internal_notes": "Innsendt prosjektskjema mottatt via e-postbekreftelse.",
+      "submitted_at": "2026-09-17T08:43:44.821Z",
+      "created_at": "2026-09-17T08:43:44.821Z",
+      "updated_at": "2026-09-17T08:43:44.821Z",
+      "client": {
+        "id": "c-gro-drage-evjen",
+        "name": "Gro Drage Evjen",
+        "company": "",
+        "email": "grodrageevjen@gmail.com",
+        "phone": "",
+        "status": "Ny",
+        "requested_service": "Nettsider",
+        "internal_notes": "Innsendt henvendelse via nettsiden bymari.no.",
+        "next_activity_date": "2026-09-18T08:43:44.820Z",
+        "is_archived": false,
+        "created_at": "2026-09-14T08:43:44.820Z",
+        "updated_at": "2026-09-17T08:43:44.820Z"
+      },
+      "form": {
+        "id": "f-prosjektskjema",
+        "title": "Prosjektskjema",
+        "slug": "prosjektskjema",
+        "introduction": "Takk for at du vurderer By Mari.\\n\\nDette skjemaet gir meg et bedre bilde av virksomheten, kundene deres og løsningen dere ønsker. Svarene trenger ikke være detaljerte eller endelige. De brukes som utgangspunkt for den første demoen og vårt neste møte.\\n\\nDet tar omtrent 10 minutter å fylle ut skjemaet.",
+        "confirmation_message": "Takk for svarene!\\n\\nJeg går gjennom informasjonen og bruker den som utgangspunkt for den første demoen og vårt neste møte. Jeg tar kontakt dersom jeg trenger noen avklaringer underveis.\\n\\nHilsen By Mari",
+        "status": "published",
+        "is_template": true,
+        "created_at": "2026-09-14T20:05:55.731Z",
+        "updated_at": "2026-09-14T20:05:55.731Z",
+        "fields": [
+          {
+            "id": "fld-sec-1",
+            "form_id": "f-prosjektskjema",
+            "field_type": "info",
+            "label": "1. Kontaktinformasjon",
+            "description": "Grunnleggende informasjon om virksomheten og kontaktperson.",
+            "is_required": false,
+            "position": 0
+          },
+          {
+            "id": "fld-ps-1",
+            "form_id": "f-prosjektskjema",
+            "field_type": "text",
+            "label": "1. Hva heter virksomheten?",
+            "description": "",
+            "is_required": true,
+            "position": 1
+          },
+          {
+            "id": "fld-ps-2",
+            "form_id": "f-prosjektskjema",
+            "field_type": "text",
+            "label": "2. Hva heter kontaktpersonen?",
+            "description": "",
+            "is_required": true,
+            "position": 2
+          },
+          {
+            "id": "fld-ps-3",
+            "form_id": "f-prosjektskjema",
+            "field_type": "email",
+            "label": "3. Hva er epostadressen din?",
+            "description": "",
+            "is_required": true,
+            "position": 3
+          },
+          {
+            "id": "fld-ps-4",
+            "form_id": "f-prosjektskjema",
+            "field_type": "phone",
+            "label": "4. Hva er telefonnummeret ditt?",
+            "description": "",
+            "is_required": false,
+            "position": 4
+          },
+          {
+            "id": "fld-sec-2",
+            "form_id": "f-prosjektskjema",
+            "field_type": "info",
+            "label": "2. Om virksomheten",
+            "description": "Hjelp oss å forstå hva dere gjør og hvem dere henvender dere til.",
+            "is_required": false,
+            "position": 5
+          },
+          {
+            "id": "fld-ps-5",
+            "form_id": "f-prosjektskjema",
+            "field_type": "textarea",
+            "label": "5. Hva tilbyr virksomheten?",
+            "description": "Beskriv kort de viktigste produktene eller tjenestene.",
+            "is_required": true,
+            "position": 6
+          },
+          {
+            "id": "fld-ps-6",
+            "form_id": "f-prosjektskjema",
+            "field_type": "textarea",
+            "label": "6. Hvem er de viktigste kundene deres?",
+            "description": "Beskriv gjerne alder, behov, bosted, bransje eller andre relevante kjennetegn.",
+            "is_required": true,
+            "position": 7
+          },
+          {
+            "id": "fld-ps-7",
+            "form_id": "f-prosjektskjema",
+            "field_type": "textarea",
+            "label": "7. Hva skiller virksomheten fra konkurrentene?",
+            "description": "",
+            "is_required": false,
+            "position": 8
+          },
+          {
+            "id": "fld-ps-8",
+            "form_id": "f-prosjektskjema",
+            "field_type": "text",
+            "label": "8. Hvor holder virksomheten til, og hvilke områder betjener dere?",
+            "description": "",
+            "is_required": false,
+            "position": 9
+          },
+          {
+            "id": "fld-sec-3",
+            "form_id": "f-prosjektskjema",
+            "field_type": "info",
+            "label": "3. Prosjektet",
+            "description": "Mål, formål og primærhandling for den nye løsningen.",
+            "is_required": false,
+            "position": 10
+          },
+          {
+            "id": "fld-ps-9",
+            "form_id": "f-prosjektskjema",
+            "field_type": "checkbox",
+            "label": "9. Hva ønsker dere hjelp med?",
+            "description": "Velg alle områder som er aktuelle.",
+            "is_required": true,
+            "options": [
+              {
+                "id": "p9-1",
+                "label": "Ny nettside",
+                "value": "ny_nettside"
+              },
+              {
+                "id": "p9-2",
+                "label": "Oppgradering av eksisterende nettside",
+                "value": "oppgradering"
+              },
+              {
+                "id": "p9-3",
+                "label": "Nettbutikk",
+                "value": "nettbutikk"
+              },
+              {
+                "id": "p9-4",
+                "label": "Webapplikasjon",
+                "value": "webapplikasjon"
+              },
+              {
+                "id": "p9-5",
+                "label": "Landingsside",
+                "value": "landingsside"
+              },
+              {
+                "id": "p9-6",
+                "label": "Kundeportal",
+                "value": "kundeportal"
+              },
+              {
+                "id": "p9-7",
+                "label": "Design og prototype",
+                "value": "design_prototype"
+              },
+              {
+                "id": "p9-8",
+                "label": "Annet",
+                "value": "annet"
+              }
+            ],
+            "position": 11
+          },
+          {
+            "id": "fld-ps-10",
+            "form_id": "f-prosjektskjema",
+            "field_type": "textarea",
+            "label": "10. Hvorfor ønsker dere en ny løsning?",
+            "description": "Eksempel: få flere kunder, modernisere virksomheten, forbedre kundeopplevelsen eller effektivisere en arbeidsprosess.",
+            "is_required": false,
+            "position": 12
+          },
+          {
+            "id": "fld-ps-11",
+            "form_id": "f-prosjektskjema",
+            "field_type": "checkbox",
+            "label": "11. Hva er det viktigste løsningen skal oppnå?",
+            "description": "Velg gjerne inntil tre alternativer.",
+            "is_required": true,
+            "options": [
+              {
+                "id": "p11-1",
+                "label": "Skaffe flere henvendelser",
+                "value": "henvendelser"
+              },
+              {
+                "id": "p11-2",
+                "label": "Øke salget",
+                "value": "salg"
+              },
+              {
+                "id": "p11-3",
+                "label": "Presentere produkter eller tjenester",
+                "value": "presentere"
+              },
+              {
+                "id": "p11-4",
+                "label": "Bygge tillit",
+                "value": "tillit"
+              },
+              {
+                "id": "p11-5",
+                "label": "Gjøre informasjon lettere tilgjengelig",
+                "value": "informasjon"
+              },
+              {
+                "id": "p11-6",
+                "label": "Forenkle bestilling eller reservasjon",
+                "value": "bestilling"
+              },
+              {
+                "id": "p11-7",
+                "label": "Automatisere en arbeidsprosess",
+                "value": "automatisering"
+              },
+              {
+                "id": "p11-8",
+                "label": "Tilby selvbetjening",
+                "value": "selvbetjening"
+              },
+              {
+                "id": "p11-9",
+                "label": "Samle inn potensielle kunder",
+                "value": "leads"
+              },
+              {
+                "id": "p11-10",
+                "label": "Annet",
+                "value": "annet"
+              }
+            ],
+            "position": 13
+          },
+          {
+            "id": "fld-ps-12",
+            "form_id": "f-prosjektskjema",
+            "field_type": "radio",
+            "label": "12. Hva ønsker dere at besøkende først og fremst skal gjøre?",
+            "description": "Velg det primære målet for en besøkende.",
+            "is_required": true,
+            "options": [
+              {
+                "id": "p12-1",
+                "label": "Ta kontakt",
+                "value": "ta_kontakt"
+              },
+              {
+                "id": "p12-2",
+                "label": "Be om tilbud",
+                "value": "be_om_tilbud"
+              },
+              {
+                "id": "p12-3",
+                "label": "Bestille time",
+                "value": "bestille_time"
+              },
+              {
+                "id": "p12-4",
+                "label": "Kjøpe et produkt",
+                "value": "kjope_produkt"
+              },
+              {
+                "id": "p12-5",
+                "label": "Registrere en konto",
+                "value": "registrere_konto"
+              },
+              {
+                "id": "p12-6",
+                "label": "Melde seg på",
+                "value": "melde_pa"
+              },
+              {
+                "id": "p12-7",
+                "label": "Besøke et fysisk sted",
+                "value": "besoke_sted"
+              },
+              {
+                "id": "p12-8",
+                "label": "Finne informasjon",
+                "value": "finne_info"
+              },
+              {
+                "id": "p12-9",
+                "label": "Bruke en digital tjeneste",
+                "value": "bruke_tjeneste"
+              },
+              {
+                "id": "p12-10",
+                "label": "Annet",
+                "value": "annet"
+              }
+            ],
+            "position": 14
+          },
+          {
+            "id": "fld-sec-4",
+            "form_id": "f-prosjektskjema",
+            "field_type": "info",
+            "label": "4. Innhold",
+            "description": "Sider, tekster, bilder og materiell.",
+            "is_required": false,
+            "position": 15
+          },
+          {
+            "id": "fld-ps-13",
+            "form_id": "f-prosjektskjema",
+            "field_type": "checkbox",
+            "label": "13. Hvilke sider eller områder ønsker dere?",
+            "description": "Velg de sidene som er aktuelle.",
+            "is_required": true,
+            "options": [
+              {
+                "id": "p13-1",
+                "label": "Forside",
+                "value": "forside"
+              },
+              {
+                "id": "p13-2",
+                "label": "Om virksomheten",
+                "value": "om_oss"
+              },
+              {
+                "id": "p13-3",
+                "label": "Produkter",
+                "value": "produkter"
+              },
+              {
+                "id": "p13-4",
+                "label": "Tjenester",
+                "value": "tjenester"
+              },
+              {
+                "id": "p13-5",
+                "label": "Priser",
+                "value": "priser"
+              },
+              {
+                "id": "p13-6",
+                "label": "Kontakt",
+                "value": "kontakt"
+              },
+              {
+                "id": "p13-7",
+                "label": "Ofte stilte spørsmål",
+                "value": "faq"
+              },
+              {
+                "id": "p13-8",
+                "label": "Referanser eller kundeomtaler",
+                "value": "referanser"
+              },
+              {
+                "id": "p13-9",
+                "label": "Galleri",
+                "value": "galleri"
+              },
+              {
+                "id": "p13-10",
+                "label": "Ansatte",
+                "value": "ansatte"
+              },
+              {
+                "id": "p13-11",
+                "label": "Artikler eller nyheter",
+                "value": "nyheter"
+              },
+              {
+                "id": "p13-12",
+                "label": "Bestilling",
+                "value": "bestilling"
+              },
+              {
+                "id": "p13-13",
+                "label": "Innlogging",
+                "value": "innlogging"
+              },
+              {
+                "id": "p13-14",
+                "label": "Nettbutikk",
+                "value": "nettbutikk"
+              },
+              {
+                "id": "p13-15",
+                "label": "Annet",
+                "value": "annet"
+              }
+            ],
+            "position": 16
+          },
+          {
+            "id": "fld-ps-14",
+            "form_id": "f-prosjektskjema",
+            "field_type": "checkbox",
+            "label": "14. Hvilket innhold har dere allerede?",
+            "description": "Kryss av for hva som er klart.",
+            "is_required": true,
+            "options": [
+              {
+                "id": "p14-1",
+                "label": "Logo",
+                "value": "logo"
+              },
+              {
+                "id": "p14-2",
+                "label": "Tekster",
+                "value": "tekster"
+              },
+              {
+                "id": "p14-3",
+                "label": "Bilder",
+                "value": "bilder"
+              },
+              {
+                "id": "p14-4",
+                "label": "Video",
+                "value": "video"
+              },
+              {
+                "id": "p14-5",
+                "label": "Produktinformasjon",
+                "value": "produktinfo"
+              },
+              {
+                "id": "p14-6",
+                "label": "Prislister",
+                "value": "prislister"
+              },
+              {
+                "id": "p14-7",
+                "label": "Kundeomtaler",
+                "value": "kundeomtaler"
+              },
+              {
+                "id": "p14-8",
+                "label": "Grafisk profil",
+                "value": "grafisk_profil"
+              },
+              {
+                "id": "p14-9",
+                "label": "Vi trenger hjelp med innholdet",
+                "value": "trenger_hjelp"
+              }
+            ],
+            "position": 17
+          },
+          {
+            "id": "fld-ps-15",
+            "form_id": "f-prosjektskjema",
+            "field_type": "radio",
+            "label": "15. Hvem skal skrive tekstene?",
+            "description": "",
+            "is_required": false,
+            "options": [
+              {
+                "id": "p15-1",
+                "label": "Vi leverer ferdige tekster",
+                "value": "ferdige_tekster"
+              },
+              {
+                "id": "p15-2",
+                "label": "Vi leverer et utkast",
+                "value": "utkast"
+              },
+              {
+                "id": "p15-3",
+                "label": "Vi ønsker hjelp med tekstene",
+                "value": "trenger_hjelp"
+              },
+              {
+                "id": "p15-4",
+                "label": "Ikke avklart",
+                "value": "ikke_avklart"
+              }
+            ],
+            "position": 18
+          },
+          {
+            "id": "fld-ps-16",
+            "form_id": "f-prosjektskjema",
+            "field_type": "file",
+            "label": "16. Last gjerne opp logo, bilder eller annet relevant materiale.",
+            "description": "Støtter PDF, PNG, JPG opptil 10 MB.",
+            "is_required": false,
+            "position": 19
+          },
+          {
+            "id": "fld-sec-5",
+            "form_id": "f-prosjektskjema",
+            "field_type": "info",
+            "label": "5. Funksjoner",
+            "description": "Funksjonalitet, integrasjoner og tekniske behov.",
+            "is_required": false,
+            "position": 20
+          },
+          {
+            "id": "fld-ps-17",
+            "form_id": "f-prosjektskjema",
+            "field_type": "checkbox",
+            "label": "17. Hvilke funksjoner ønsker dere?",
+            "description": "Kryss av for ønskede elementer.",
+            "is_required": true,
+            "options": [
+              {
+                "id": "p17-1",
+                "label": "Kontaktskjema",
+                "value": "kontaktskjema"
+              },
+              {
+                "id": "p17-2",
+                "label": "Timebestilling",
+                "value": "timebestilling"
+              },
+              {
+                "id": "p17-3",
+                "label": "Reservasjon",
+                "value": "reservasjon"
+              },
+              {
+                "id": "p17-4",
+                "label": "Betaling",
+                "value": "betaling"
+              },
+              {
+                "id": "p17-5",
+                "label": "Nettbutikk",
+                "value": "nettbutikk"
+              },
+              {
+                "id": "p17-6",
+                "label": "Produktkatalog",
+                "value": "produktkatalog"
+              },
+              {
+                "id": "p17-7",
+                "label": "Brukerinnlogging",
+                "value": "brukerinnlogging"
+              },
+              {
+                "id": "p17-8",
+                "label": "Kundeportal",
+                "value": "kundeportal"
+              },
+              {
+                "id": "p17-9",
+                "label": "Søk",
+                "value": "sok"
+              },
+              {
+                "id": "p17-10",
+                "label": "Kart og veibeskrivelse",
+                "value": "kart"
+              },
+              {
+                "id": "p17-11",
+                "label": "Nyhetsbrev",
+                "value": "nyhetsbrev"
+              },
+              {
+                "id": "p17-12",
+                "label": "Chat",
+                "value": "chat"
+              },
+              {
+                "id": "p17-13",
+                "label": "Flere språk",
+                "value": "flere_sprak"
+              },
+              {
+                "id": "p17-14",
+                "label": "Integrasjon med andre systemer",
+                "value": "integrasjon"
+              },
+              {
+                "id": "p17-15",
+                "label": "Annet",
+                "value": "annet"
+              }
+            ],
+            "position": 21
+          },
+          {
+            "id": "fld-ps-18",
+            "form_id": "f-prosjektskjema",
+            "field_type": "radio",
+            "label": "18. Skal brukerne kunne opprette en konto?",
+            "description": "",
+            "is_required": false,
+            "options": [
+              {
+                "id": "p18-1",
+                "label": "Ja",
+                "value": "ja"
+              },
+              {
+                "id": "p18-2",
+                "label": "Nei",
+                "value": "nei"
+              },
+              {
+                "id": "p18-3",
+                "label": "Ikke avklart",
+                "value": "ikke_avklart"
+              }
+            ],
+            "position": 22
+          },
+          {
+            "id": "fld-ps-19",
+            "form_id": "f-prosjektskjema",
+            "field_type": "radio",
+            "label": "19. Skal løsningen motta betaling?",
+            "description": "",
+            "is_required": false,
+            "options": [
+              {
+                "id": "p19-1",
+                "label": "Ja",
+                "value": "ja"
+              },
+              {
+                "id": "p19-2",
+                "label": "Nei",
+                "value": "nei"
+              },
+              {
+                "id": "p19-3",
+                "label": "Kanskje senere",
+                "value": "kanskje_senere"
+              },
+              {
+                "id": "p19-4",
+                "label": "Ikke avklart",
+                "value": "ikke_avklart"
+              }
+            ],
+            "position": 23
+          },
+          {
+            "id": "fld-ps-20",
+            "form_id": "f-prosjektskjema",
+            "field_type": "textarea",
+            "label": "20. Må løsningen kobles til andre systemer?",
+            "description": "Eksempel: kalender, betaling, kunderegister, lager eller epost.",
+            "is_required": false,
+            "position": 24
+          },
+          {
+            "id": "fld-sec-6",
+            "form_id": "f-prosjektskjema",
+            "field_type": "info",
+            "label": "6. Visuelt uttrykk",
+            "description": "Stil, stemning og merkevarefølelse.",
+            "is_required": false,
+            "position": 25
+          },
+          {
+            "id": "fld-ps-21",
+            "form_id": "f-prosjektskjema",
+            "field_type": "checkbox",
+            "label": "21. Hvordan ønsker dere at løsningen skal oppleves?",
+            "description": "Velg gjerne mellom tre og fem ord.",
+            "is_required": true,
+            "options": [
+              {
+                "id": "p21-1",
+                "label": "Profesjonell",
+                "value": "profesjonell"
+              },
+              {
+                "id": "p21-2",
+                "label": "Moderne",
+                "value": "moderne"
+              },
+              {
+                "id": "p21-3",
+                "label": "Enkel",
+                "value": "enkel"
+              },
+              {
+                "id": "p21-4",
+                "label": "Eksklusiv",
+                "value": "eksklusiv"
+              },
+              {
+                "id": "p21-5",
+                "label": "Personlig",
+                "value": "personlig"
+              },
+              {
+                "id": "p21-6",
+                "label": "Kreativ",
+                "value": "kreativ"
+              },
+              {
+                "id": "p21-7",
+                "label": "Trygg",
+                "value": "trygg"
+              },
+              {
+                "id": "p21-8",
+                "label": "Teknologisk",
+                "value": "teknologisk"
+              },
+              {
+                "id": "p21-9",
+                "label": "Tradisjonell",
+                "value": "tradisjonell"
+              },
+              {
+                "id": "p21-10",
+                "label": "Minimalistisk",
+                "value": "minimalistisk"
+              },
+              {
+                "id": "p21-11",
+                "label": "Fargerik",
+                "value": "fargerik"
+              },
+              {
+                "id": "p21-12",
+                "label": "Varm",
+                "value": "varm"
+              },
+              {
+                "id": "p21-13",
+                "label": "Annet",
+                "value": "annet"
+              }
+            ],
+            "position": 26
+          },
+          {
+            "id": "fld-ps-22",
+            "form_id": "f-prosjektskjema",
+            "field_type": "checkbox",
+            "label": "22. Har dere en eksisterende visuell profil?",
+            "description": "",
+            "is_required": false,
+            "options": [
+              {
+                "id": "p22-1",
+                "label": "Logo",
+                "value": "logo"
+              },
+              {
+                "id": "p22-2",
+                "label": "Farger",
+                "value": "farger"
+              },
+              {
+                "id": "p22-3",
+                "label": "Skrifttyper",
+                "value": "skrifttyper"
+              },
+              {
+                "id": "p22-4",
+                "label": "Grafiske elementer",
+                "value": "grafiske_elementer"
+              },
+              {
+                "id": "p22-5",
+                "label": "Profilmanual",
+                "value": "profilmanual"
+              },
+              {
+                "id": "p22-6",
+                "label": "Nei",
+                "value": "nei"
+              }
+            ],
+            "position": 27
+          },
+          {
+            "id": "fld-ps-23",
+            "form_id": "f-prosjektskjema",
+            "field_type": "textarea",
+            "label": "23. Er det bestemte farger eller uttrykk dere ønsker å bruke eller unngå?",
+            "description": "",
+            "is_required": false,
+            "position": 28
+          },
+          {
+            "id": "fld-ps-24",
+            "form_id": "f-prosjektskjema",
+            "field_type": "textarea",
+            "label": "24. Finnes det nettsider eller applikasjoner dere liker?",
+            "description": "Legg gjerne ved to eller tre lenker, og forklar kort hva dere liker ved dem.",
+            "is_required": false,
+            "position": 29
+          },
+          {
+            "id": "fld-ps-25",
+            "form_id": "f-prosjektskjema",
+            "field_type": "textarea",
+            "label": "25. Finnes det uttrykk eller løsninger dere ikke liker?",
+            "description": "",
+            "is_required": false,
+            "position": 30
+          },
+          {
+            "id": "fld-sec-7",
+            "form_id": "f-prosjektskjema",
+            "field_type": "info",
+            "label": "7. Eksisterende løsning",
+            "description": "Erfaringer og videreføring fra dagens oppsett.",
+            "is_required": false,
+            "position": 31
+          },
+          {
+            "id": "fld-ps-26",
+            "form_id": "f-prosjektskjema",
+            "field_type": "radio",
+            "label": "26. Har dere en nettside eller applikasjon i dag?",
+            "description": "Legg ved lenken dersom det er relevant.",
+            "is_required": true,
+            "options": [
+              {
+                "id": "p26-1",
+                "label": "Ja",
+                "value": "ja"
+              },
+              {
+                "id": "p26-2",
+                "label": "Nei",
+                "value": "nei"
+              }
+            ],
+            "position": 32
+          },
+          {
+            "id": "fld-ps-27",
+            "form_id": "f-prosjektskjema",
+            "field_type": "textarea",
+            "label": "27. Hva fungerer godt med dagens løsning?",
+            "description": "",
+            "is_required": false,
+            "position": 33
+          },
+          {
+            "id": "fld-ps-28",
+            "form_id": "f-prosjektskjema",
+            "field_type": "textarea",
+            "label": "28. Hva fungerer dårlig eller bør forbedres?",
+            "description": "",
+            "is_required": false,
+            "position": 34
+          },
+          {
+            "id": "fld-ps-29",
+            "form_id": "f-prosjektskjema",
+            "field_type": "textarea",
+            "label": "29. Er det innhold eller funksjoner som skal videreføres?",
+            "description": "",
+            "is_required": false,
+            "position": 35
+          },
+          {
+            "id": "fld-sec-8",
+            "form_id": "f-prosjektskjema",
+            "field_type": "info",
+            "label": "8. Drift og oppfølging",
+            "description": "Vedlikehold og oppdateringer etter lansering.",
+            "is_required": false,
+            "position": 36
+          },
+          {
+            "id": "fld-ps-30",
+            "form_id": "f-prosjektskjema",
+            "field_type": "radio",
+            "label": "30. Hvem skal oppdatere løsningen etter lansering?",
+            "description": "",
+            "is_required": false,
+            "options": [
+              {
+                "id": "p30-1",
+                "label": "Vi ønsker å gjøre det selv",
+                "value": "gjore_selv"
+              },
+              {
+                "id": "p30-2",
+                "label": "By Mari skal gjøre det",
+                "value": "by_mari"
+              },
+              {
+                "id": "p30-3",
+                "label": "En kombinasjon",
+                "value": "kombinasjon"
+              },
+              {
+                "id": "p30-4",
+                "label": "Ikke avklart",
+                "value": "ikke_avklart"
+              }
+            ],
+            "position": 37
+          },
+          {
+            "id": "fld-ps-31",
+            "form_id": "f-prosjektskjema",
+            "field_type": "radio",
+            "label": "31. Ønsker dere opplæring i hvordan løsningen brukes og oppdateres?",
+            "description": "",
+            "is_required": false,
+            "options": [
+              {
+                "id": "p31-1",
+                "label": "Ja",
+                "value": "ja"
+              },
+              {
+                "id": "p31-2",
+                "label": "Nei",
+                "value": "nei"
+              },
+              {
+                "id": "p31-3",
+                "label": "Kanskje",
+                "value": "kanskje"
+              }
+            ],
+            "position": 38
+          },
+          {
+            "id": "fld-sec-9",
+            "form_id": "f-prosjektskjema",
+            "field_type": "info",
+            "label": "9. Tid og budsjett",
+            "description": "Fremdriftsplan, tidsfrister og økonomiske rammer.",
+            "is_required": false,
+            "position": 39
+          },
+          {
+            "id": "fld-ps-32",
+            "form_id": "f-prosjektskjema",
+            "field_type": "text",
+            "label": "32. Når ønsker dere at løsningen skal være ferdig?",
+            "description": "Oppgi dato, måned eller ønsket tidsramme.",
+            "is_required": true,
+            "position": 40
+          },
+          {
+            "id": "fld-ps-33",
+            "form_id": "f-prosjektskjema",
+            "field_type": "textarea",
+            "label": "33. Er lanseringen knyttet til en bestemt hendelse eller frist?",
+            "description": "",
+            "is_required": false,
+            "position": 41
+          },
+          {
+            "id": "fld-ps-34",
+            "form_id": "f-prosjektskjema",
+            "field_type": "radio",
+            "label": "34. Har dere satt av et budsjett?",
+            "description": "",
+            "is_required": true,
+            "options": [
+              {
+                "id": "p34-1",
+                "label": "Under 15 000 kroner",
+                "value": "under_15k"
+              },
+              {
+                "id": "p34-2",
+                "label": "Fra 15 000 til 30 000 kroner",
+                "value": "15k_30k"
+              },
+              {
+                "id": "p34-3",
+                "label": "Fra 30 000 til 60 000 kroner",
+                "value": "30k_60k"
+              },
+              {
+                "id": "p34-4",
+                "label": "Fra 60 000 til 100 000 kroner",
+                "value": "60k_100k"
+              },
+              {
+                "id": "p34-5",
+                "label": "Over 100 000 kroner",
+                "value": "over_100k"
+              },
+              {
+                "id": "p34-6",
+                "label": "Ønsker å diskutere dette",
+                "value": "diskutere"
+              }
+            ],
+            "position": 42
+          },
+          {
+            "id": "fld-ps-35",
+            "form_id": "f-prosjektskjema",
+            "field_type": "text",
+            "label": "35. Hvem skal godkjenne design, innhold og kostnader?",
+            "description": "",
+            "is_required": false,
+            "position": 43
+          },
+          {
+            "id": "fld-sec-10",
+            "form_id": "f-prosjektskjema",
+            "field_type": "info",
+            "label": "10. Demo og neste møte",
+            "description": "Forventninger til den første demoen og oppstartsmøtet.",
+            "is_required": false,
+            "position": 44
+          },
+          {
+            "id": "fld-ps-36",
+            "form_id": "f-prosjektskjema",
+            "field_type": "textarea",
+            "label": "36. Hva er det viktigste at den første demoen viser?",
+            "description": "",
+            "is_required": true,
+            "position": 45
+          },
+          {
+            "id": "fld-ps-37",
+            "form_id": "f-prosjektskjema",
+            "field_type": "textarea",
+            "label": "37. Hvilke sider eller funksjoner bør prioriteres i demoen?",
+            "description": "",
+            "is_required": true,
+            "position": 46
+          },
+          {
+            "id": "fld-ps-38",
+            "form_id": "f-prosjektskjema",
+            "field_type": "textarea",
+            "label": "38. Er det noe annet jeg bør vite før jeg starter?",
+            "description": "",
+            "is_required": false,
+            "position": 47
+          }
+        ]
+      },
+      "answers": [
+        {
+          "id": "ans-1",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-1",
+          "field_label": "1. Hva heter virksomheten?",
+          "value": "Gro Drage Evjen",
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-2",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-2",
+          "field_label": "2. Hva heter kontaktpersonen?",
+          "value": "Gro Drage Evjen",
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-3",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-3",
+          "field_label": "3. Hva er epostadressen din?",
+          "value": "grodrageevjen@gmail.com",
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-4",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-4",
+          "field_label": "4. Hva er telefonnummeret ditt?",
+          "value": "—",
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-5",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-5",
+          "field_label": "5. Hva tilbyr virksomheten?",
+          "value": "Nye nettsider og digital profil for små og mellomstore virksomheter.",
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-6",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-6",
+          "field_label": "6. Hvem er de viktigste kundene deres?",
+          "value": "Små og mellomstore bedrifter, samt privatkunder som ønsker en profesjonell tilstedeværelse.",
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-7",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-7",
+          "field_label": "7. Hva skiller virksomheten fra konkurrentene?",
+          "value": "Personlig oppfølging, høy kvalitet og skreddersydde løsninger.",
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-8",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-8",
+          "field_label": "8. Hvor holder virksomheten til, og hvilke områder betjener dere?",
+          "value": "Oslo og omegn, men betjener kunder i hele Norge digitalt.",
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-9",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-9",
+          "field_label": "9. Hva ønsker dere hjelp med?",
+          "value": [
+            "Ny nettside",
+            "Design og prototype"
+          ],
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-10",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-10",
+          "field_label": "10. Hvorfor ønsker dere en ny løsning?",
+          "value": "Ønsker et moderne, tillitvekkende uttrykk som gjør det enkelt for kunder å henvende seg og få oversikt over tjenestene.",
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-11",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-11",
+          "field_label": "11. Hva er det viktigste løsningen skal oppnå?",
+          "value": [
+            "Skaffe flere henvendelser",
+            "Bygge tillit",
+            "Presentere produkter eller tjenester"
+          ],
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-12",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-12",
+          "field_label": "12. Hva ønsker dere at besøkende først og fremst skal gjøre?",
+          "value": "Ta kontakt",
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-13",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-13",
+          "field_label": "13. Hvilke sider eller områder ønsker dere?",
+          "value": [
+            "Forside",
+            "Om virksomheten",
+            "Tjenester",
+            "Kontakt",
+            "Referanser eller kundeomtaler"
+          ],
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-14",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-14",
+          "field_label": "14. Hvilket innhold har dere allerede?",
+          "value": [
+            "Bilder",
+            "Tekster",
+            "Vi trenger hjelp med innholdet"
+          ],
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-15",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-15",
+          "field_label": "15. Hvem skal skrive tekstene?",
+          "value": "Vi leverer et utkast",
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-16",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-16",
+          "field_label": "16. Last gjerne opp logo, bilder eller annet relevant materiale.",
+          "value": "—",
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-17",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-17",
+          "field_label": "17. Hvilke funksjoner ønsker dere?",
+          "value": [
+            "Kontaktskjema",
+            "Kart og veibeskrivelse"
+          ],
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-18",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-18",
+          "field_label": "18. Skal brukerne kunne opprette en konto?",
+          "value": "Nei",
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-19",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-19",
+          "field_label": "19. Skal løsningen motta betaling?",
+          "value": "Nei",
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-20",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-20",
+          "field_label": "20. Må løsningen kobles til andre systemer?",
+          "value": "E-postvarsling ved henvendelser",
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-21",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-21",
+          "field_label": "21. Hvordan ønsker dere at løsningen skal oppleves?",
+          "value": [
+            "Profesjonell",
+            "Moderne",
+            "Varm",
+            "Trygg",
+            "Minimalistisk"
+          ],
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-22",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-22",
+          "field_label": "22. Har dere en eksisterende visuell profil?",
+          "value": [
+            "Logo",
+            "Farger"
+          ],
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-23",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-23",
+          "field_label": "23. Er det bestemte farger eller uttrykk dere ønsker å bruke eller unngå?",
+          "value": "Rolige, naturlige jordtoner og varm hvit. Rent og harmonisk skandinavisk uttrykk.",
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-24",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-24",
+          "field_label": "24. Finnes det nettsider eller applikasjoner dere liker?",
+          "value": "Liker stilen på bymari.no — rolig og behagelig.",
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-25",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-25",
+          "field_label": "25. Finnes det uttrykk eller løsninger dere ikke liker?",
+          "value": "For mye støy, masete popups og rotete typografi.",
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-26",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-26",
+          "field_label": "26. Har dere en nettside eller applikasjon i dag?",
+          "value": "Nei",
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-27",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-27",
+          "field_label": "27. Hva fungerer godt med dagens løsning?",
+          "value": "—",
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-28",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-28",
+          "field_label": "28. Hva fungerer dårlig eller bør forbedres?",
+          "value": "—",
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-29",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-29",
+          "field_label": "29. Er det innhold eller funksjoner som skal videreføres?",
+          "value": "—",
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-30",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-30",
+          "field_label": "30. Hvem skal oppdatere løsningen etter lansering?",
+          "value": "En kombinasjon",
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-31",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-31",
+          "field_label": "31. Ønsker dere opplæring i hvordan løsningen brukes og oppdateres?",
+          "value": "Ja",
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-32",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-32",
+          "field_label": "32. Når ønsker dere at løsningen skal være ferdig?",
+          "value": "Så snart som mulig, gjerne i løpet av neste måned.",
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-33",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-33",
+          "field_label": "33. Er lanseringen knyttet til en bestemt hendelse eller frist?",
+          "value": "Ingen bestemt frist, men ønsker god fremdrift.",
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-34",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-34",
+          "field_label": "34. Har dere satt av et budsjett?",
+          "value": "Fra 15 000 til 30 000 kroner",
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-35",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-35",
+          "field_label": "35. Hvem skal godkjenne design, innhold og kostnader?",
+          "value": "Gro Drage Evjen",
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-36",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-36",
+          "field_label": "36. Hva er det viktigste at den første demoen viser?",
+          "value": "Forsiden, strukturen på tjenestene og det visuelle formspråket.",
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-37",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-37",
+          "field_label": "37. Hvilke sider eller funksjoner bør prioriteres i demoen?",
+          "value": "Forside og kontaktside.",
+          "created_at": "2026-09-17T08:43:44.821Z"
+        },
+        {
+          "id": "ans-38",
+          "submission_id": "sub-gro-drage-evjen",
+          "field_id": "fld-ps-38",
+          "field_label": "38. Er det noe annet jeg bør vite før jeg starter?",
+          "value": "Gleder meg veldig til å se det første utkastet!",
+          "created_at": "2026-09-17T08:43:44.821Z"
+        }
+      ],
+      "files": []
+    }
+  ],
   "notes": [],
-  "activities": [],
+  "activities": [
+    {
+      "id": "act-init-2",
+      "event_type": "form_submitted",
+      "description": "Svar på Prosjektskjema mottatt fra Gro Drage Evjen.",
+      "client_id": "c-gro-drage-evjen",
+      "client_name": "Gro Drage Evjen",
+      "created_at": "2026-09-17T08:43:44.821Z"
+    },
+    {
+      "id": "act-init-1",
+      "event_type": "contact_inquiry",
+      "description": "Henvendelse mottatt fra Gro Drage Evjen via nettsiden bymari.no.",
+      "client_id": "c-gro-drage-evjen",
+      "client_name": "Gro Drage Evjen",
+      "created_at": "2026-09-17T07:43:44.821Z"
+    }
+  ],
   "quotes": [],
   "deletedClientIds": []
 }
