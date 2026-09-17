@@ -60,23 +60,38 @@ export async function POST(
     const clientName = quote.client?.name || signedName || "Kunden";
     const clientEmail = quote.client?.email || "";
 
+    // Resolve client ID if needed
+    let targetClientId = quote.client_id || quote.client?.id;
+    if (!targetClientId && (quote.client?.email || clientEmail)) {
+      const emailToMatch = (quote.client?.email || clientEmail).toLowerCase().trim();
+      const allClients = await dataStore.getClients();
+      const matched = allClients.find(c => c.email.toLowerCase().trim() === emailToMatch);
+      if (matched) targetClientId = matched.id;
+    }
+
     if (action === "accept") {
       quote.status = "accepted";
       quote.accepted_at = nowIso;
       quote.signed_name = signedName || quote.client?.name || "Kunde";
       quote.client_note = note || "";
       quote.updated_at = nowIso;
+      if (targetClientId) quote.client_id = targetClientId;
 
       // Update CRM client status to "Aktiv kunde"
-      if (quote.client_id) {
-        await dataStore.updateClient(quote.client_id, { status: "Aktiv kunde" });
+      if (targetClientId) {
+        await dataStore.updateClient(targetClientId, { status: "Aktiv kunde" });
+        await dataStore.addClientNote(
+          targetClientId,
+          `🎉 Pristilbud (${quote.package_name} - kr ${quote.total_price.toLocaleString("no-NO")},-) akseptert av ${clientName}${note ? `\nKommentar: ${note}` : ""}`,
+          "System"
+        );
       }
 
       // Log activity
       await dataStore.logActivity({
         event_type: "quote_accepted",
         description: `🎉 Pristilbud (${quote.package_name} - kr ${quote.total_price.toLocaleString("no-NO")},-) akseptert av ${clientName}`,
-        client_id: quote.client_id || null,
+        client_id: targetClientId || null,
         client_name: clientName,
         metadata: { quote_id: quote.id, total_price: quote.total_price, signed_name: signedName }
       });
@@ -85,7 +100,7 @@ export async function POST(
       await sendQuoteAcceptedNotificationEmail({
         quoteId: quote.id,
         clientName: quote.client?.name || signedName || "Kunde",
-        clientEmail: quote.client?.email || "",
+        clientEmail: quote.client?.email || clientEmail || "",
         totalPrice: quote.total_price,
         signedName: signedName || quote.client?.name || "",
         note: note || ""
@@ -95,17 +110,23 @@ export async function POST(
       quote.declined_at = nowIso;
       quote.client_note = reason || note || "";
       quote.updated_at = nowIso;
+      if (targetClientId) quote.client_id = targetClientId;
 
       // Update CRM client status if applicable
-      if (quote.client_id) {
-        await dataStore.updateClient(quote.client_id, { status: "Avsluttet" });
+      if (targetClientId) {
+        await dataStore.updateClient(targetClientId, { status: "Avsluttet" });
+        await dataStore.addClientNote(
+          targetClientId,
+          `✕ Pristilbud (${quote.package_name}) avvist av ${clientName}${reason || note ? `\nBegrunnelse: ${reason || note}` : ""}`,
+          "System"
+        );
       }
 
       // Log activity
       await dataStore.logActivity({
         event_type: "quote_declined",
         description: `Pristilbud (${quote.package_name}) avvist av ${clientName}`,
-        client_id: quote.client_id || null,
+        client_id: targetClientId || null,
         client_name: clientName,
         metadata: { quote_id: quote.id, reason: reason || note }
       });
@@ -114,7 +135,7 @@ export async function POST(
       await sendQuoteDeclinedNotificationEmail({
         quoteId: quote.id,
         clientName: quote.client?.name || "Kunde",
-        clientEmail: quote.client?.email || "",
+        clientEmail: quote.client?.email || clientEmail || "",
         totalPrice: quote.total_price,
         reason: reason || note || ""
       });

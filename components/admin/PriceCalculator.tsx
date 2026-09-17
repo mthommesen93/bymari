@@ -350,35 +350,54 @@ export function PriceCalculator({ client, onSaved }: PriceCalculatorProps) {
   };
 
   const handleSaveToClient = async () => {
-    if (!client) return;
-    
-    // Add internal note with quote via API & store
+    if (!client && !selectedRecipientId) return;
+    setIsSending(true);
     try {
-      await fetch(`/api/clients/${client.id}/notes`, {
+      const selectedAddons = addons
+        .filter(a => a.selected && a.id !== "maintenance")
+        .map(a => ({
+          name: a.name,
+          price: a.price,
+          quantity: a.hasQuantity ? (a.quantity || 1) : 1
+        }));
+
+      const res = await fetch("/api/quotes/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          content: `Pristilbud opprettet:\n${quoteText}`,
-          authorName: "Mari"
+          clientId: client?.id || selectedRecipientId || null,
+          clientName: (recipientName || client?.name || "").trim(),
+          clientEmail: (recipientEmail || client?.email || "").trim(),
+          packageName: packages[basePackage].name,
+          basePrice,
+          addons: selectedAddons,
+          customLines,
+          discount,
+          subtotal,
+          vatAmount,
+          totalPrice: totalOneTime,
+          monthlyPrice: monthlyMaintenance,
+          deliveryTime,
+          validityDays,
+          emailSubject: `Pristilbud fra by mari: ${packages[basePackage].name}`,
+          emailIntro: `Hei ${client?.name || recipientName || "kunde"}, her er pristilbudet for prosjektet ditt.`,
+          sendEmailDirectly: false
         })
       });
-    } catch {}
 
-    await dataStore.addClientNote(
-      client.id,
-      `Pristilbud opprettet:\n${quoteText}`,
-      "Mari"
-    );
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Kunne ikke lagre pristilbudet.");
+      }
 
-    // Update status to "Tilbud sendt"
-    await dataStore.updateClient(client.id, {
-      status: "Tilbud sendt",
-      next_activity_date: new Date(Date.now() + validityDays * 24 * 60 * 60 * 1000).toISOString()
-    });
-
-    setSavedMessage("Tilbudet er lagret på kunden, og status er oppdatert til «Tilbud sendt»!");
-    setTimeout(() => setSavedMessage(""), 4000);
-    if (onSaved) onSaved();
+      setSavedMessage("Pristilbudet er lagret på kundekortet!");
+      setTimeout(() => setSavedMessage(""), 4000);
+      if (onSaved) onSaved();
+    } catch (err: any) {
+      alert(err.message || "Kunne ikke lagre tilbudet.");
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (

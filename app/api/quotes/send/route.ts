@@ -29,10 +29,18 @@ export async function GET(req: NextRequest) {
       console.warn("site_content quotes query fallback:", scErr);
     }
 
-    // 2. Fallback / merge with memory store
-    if (allQuotes.length === 0) {
+    // 2. Merge with memory store
+    try {
       const memQuotes = await dataStore.getQuotes();
-      allQuotes = memQuotes;
+      const existingTokens = new Set(allQuotes.map((q) => q.token || q.id));
+      memQuotes.forEach((mq) => {
+        if (!existingTokens.has(mq.token) && !existingTokens.has(mq.id)) {
+          allQuotes.push(mq);
+          existingTokens.add(mq.token || mq.id);
+        }
+      });
+    } catch (memErr) {
+      console.warn("Memory quotes query fallback:", memErr);
     }
 
     if (clientId || email || name) {
@@ -45,12 +53,12 @@ export async function GET(req: NextRequest) {
           return true;
         }
         // Email match
-        const qEmail = (q.client?.email || q.recipient_email || q.client_email || q.email || "").toLowerCase().trim();
-        if (normalizedEmail && qEmail && qEmail === normalizedEmail) {
+        const qEmail = (q.client?.email || q.recipient_email || q.client_email || q.email || q.recipientEmail || "").toLowerCase().trim();
+        if (normalizedEmail && qEmail && (qEmail === normalizedEmail || qEmail.includes(normalizedEmail) || normalizedEmail.includes(qEmail))) {
           return true;
         }
         // Name match
-        const qName = (q.client?.name || q.recipient_name || q.client_name || "").toLowerCase().trim();
+        const qName = (q.client?.name || q.recipient_name || q.client_name || q.recipientName || "").toLowerCase().trim();
         if (normalizedName && qName && (qName === normalizedName || qName.includes(normalizedName) || normalizedName.includes(qName))) {
           return true;
         }
