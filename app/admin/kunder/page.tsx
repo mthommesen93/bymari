@@ -89,9 +89,8 @@ export default function KunderPage() {
           is_archived: false
         })
       });
-      const data = await res.json();
-      if (data.client) {
-        await dataStore.createClient(data.client);
+      if (!res.ok) {
+        await dataStore.createClient({ ...formData, is_archived: false });
       }
     } catch (e) {
       await dataStore.createClient({ ...formData, is_archived: false });

@@ -171,6 +171,11 @@ export default function KundeDetailPage() {
 
   const handleDelete = async () => {
     if (!client) return;
+    try {
+      await fetch(`/api/clients/${client.id}`, { method: "DELETE" });
+    } catch (e) {
+      console.warn("API delete client error:", e);
+    }
     await dataStore.deleteClient(client.id);
     router.push("/admin/kunder");
   };

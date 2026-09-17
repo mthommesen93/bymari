@@ -33,6 +33,7 @@ let submissions: Submission[] = [...initialSubmissions];
 let notes: ClientNote[] = [...initialNotes];
 let activities: Activity[] = [...initialActivities];
 let quotes: Quote[] = [];
+let deletedClientIds: Set<string> = new Set();
 
 function getFs(): any {
   if (typeof window !== "undefined") return null;
@@ -88,6 +89,13 @@ function saveServerFile(data: any) {
   }
 }
 
+// LocalStorage helpers for browser caching
+const CLIENTS_STORAGE_KEY = "bymari_clients_cache";
+const FORMS_STORAGE_KEY = "bymari_forms_cache";
+const ACTIVITIES_STORAGE_KEY = "bymari_activities_cache";
+const QUOTES_STORAGE_KEY = "bymari_quotes_cache";
+const DELETED_CLIENTS_STORAGE_KEY = "bymari_deleted_clients_cache";
+
 export function syncStore() {
   if (typeof window === "undefined") {
     saveServerFile({
@@ -97,13 +105,15 @@ export function syncStore() {
       submissions,
       notes,
       activities,
-      quotes
+      quotes,
+      deletedClientIds: Array.from(deletedClientIds)
     });
   } else {
     setStored(CLIENTS_STORAGE_KEY, clients);
     setStored(QUOTES_STORAGE_KEY, quotes);
     setStored(FORMS_STORAGE_KEY, forms);
     setStored(ACTIVITIES_STORAGE_KEY, activities);
+    setStored(DELETED_CLIENTS_STORAGE_KEY, Array.from(deletedClientIds));
   }
 }
 
@@ -111,12 +121,17 @@ export function syncStore() {
 if (typeof window === "undefined") {
   const serverData = loadServerFile();
   if (serverData) {
+    if (Array.isArray(serverData.deletedClientIds)) {
+      deletedClientIds = new Set(serverData.deletedClientIds);
+    }
     if (Array.isArray(serverData.clients) && serverData.clients.length > 0) {
       const existing = new Set(serverData.clients.map((c: any) => c.id || c.email?.toLowerCase()));
       initialClients.forEach(ic => {
-        if (!existing.has(ic.id) && !existing.has(ic.email.toLowerCase())) serverData.clients.push(ic);
+        if (!deletedClientIds.has(ic.id) && !deletedClientIds.has(ic.email.toLowerCase())) {
+          if (!existing.has(ic.id) && !existing.has(ic.email.toLowerCase())) serverData.clients.push(ic);
+        }
       });
-      clients = serverData.clients;
+      clients = serverData.clients.filter((c: any) => !deletedClientIds.has(c.id) && !deletedClientIds.has(c.email?.toLowerCase()));
     }
     if (Array.isArray(serverData.quotes) && serverData.quotes.length > 0) {
       quotes = serverData.quotes;
@@ -153,12 +168,6 @@ function getSupabase() {
     return null;
   }
 }
-
-// LocalStorage helpers for browser caching
-const CLIENTS_STORAGE_KEY = "bymari_clients_cache";
-const FORMS_STORAGE_KEY = "bymari_forms_cache";
-const ACTIVITIES_STORAGE_KEY = "bymari_activities_cache";
-const QUOTES_STORAGE_KEY = "bymari_quotes_cache";
 
 function getStored<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
@@ -205,24 +214,46 @@ export const dataStore = {
   // CLIENTS (CRM)
   // --------------------------------------------------------------------------
   async getClients(filters?: { query?: string; status?: ClientStatus; is_archived?: boolean }): Promise<Client[]> {
-    let combinedClients: Client[] = [...clients];
+    if (typeof window !== "undefined") {
+      const localDeleted = getStored<string[]>(DELETED_CLIENTS_STORAGE_KEY, []);
+      localDeleted.forEach(id => deletedClientIds.add(id));
+    }
 
-    // Ensure initialClients are always included
+    const supabase = getSupabase();
+    if (supabase) {
+      try {
+        const { data: delData } = await supabase
+          .from("site_content")
+          .select("content")
+          .eq("key", "deleted_clients_all")
+          .single();
+        if (delData?.content && Array.isArray(delData.content)) {
+          delData.content.forEach((d: string) => deletedClientIds.add(d));
+        }
+      } catch {}
+    }
+
+    let combinedClients: Client[] = clients.filter(c => !deletedClientIds.has(c.id) && !deletedClientIds.has(c.email?.toLowerCase()));
+
+    // Only include initialClients that have NOT been deleted
     initialClients.forEach(ic => {
-      if (!combinedClients.some(c => c.id === ic.id || c.email.toLowerCase() === ic.email.toLowerCase())) {
-        combinedClients.push(ic);
+      if (!deletedClientIds.has(ic.id) && !deletedClientIds.has(ic.email?.toLowerCase())) {
+        if (!combinedClients.some(c => c.id === ic.id || c.email?.toLowerCase() === ic.email?.toLowerCase())) {
+          combinedClients.push(ic);
+        }
       }
     });
 
-    const supabase = getSupabase();
     if (supabase) {
       // 1. Try SQL table 'clients'
       try {
         const { data, error } = await supabase.from("clients").select("*").order("created_at", { ascending: false });
         if (!error && data && data.length > 0) {
           data.forEach((c: any) => {
-            if (!combinedClients.some(existing => existing.id === c.id || existing.email.toLowerCase() === c.email.toLowerCase())) {
-              combinedClients.push(c as Client);
+            if (!deletedClientIds.has(c.id) && !deletedClientIds.has(c.email?.toLowerCase())) {
+              if (!combinedClients.some(existing => existing.id === c.id || existing.email?.toLowerCase() === c.email?.toLowerCase())) {
+                combinedClients.push(c as Client);
+              }
             }
           });
         }
@@ -240,8 +271,10 @@ export const dataStore = {
 
         if (scData?.content && Array.isArray(scData.content)) {
           scData.content.forEach((c: any) => {
-            if (!combinedClients.some(existing => existing.id === c.id || existing.email.toLowerCase() === c.email.toLowerCase())) {
-              combinedClients.push(c as Client);
+            if (!deletedClientIds.has(c.id) && !deletedClientIds.has(c.email?.toLowerCase())) {
+              if (!combinedClients.some(existing => existing.id === c.id || existing.email?.toLowerCase() === c.email?.toLowerCase())) {
+                combinedClients.push(c as Client);
+              }
             }
           });
         }
@@ -254,18 +287,20 @@ export const dataStore = {
       const local = getStored<Client[]>(CLIENTS_STORAGE_KEY, []);
       if (local.length > 0) {
         local.forEach(l => {
-          if (!combinedClients.some(existing => existing.id === l.id || existing.email.toLowerCase() === l.email.toLowerCase())) {
-            combinedClients.push(l);
+          if (!deletedClientIds.has(l.id) && !deletedClientIds.has(l.email?.toLowerCase())) {
+            if (!combinedClients.some(existing => existing.id === l.id || existing.email?.toLowerCase() === l.email?.toLowerCase())) {
+              combinedClients.push(l);
+            }
           }
         });
       }
     }
 
     // Keep memory, disk and local storage in sync
-    clients = combinedClients;
+    clients = combinedClients.filter(c => !deletedClientIds.has(c.id) && !deletedClientIds.has(c.email?.toLowerCase()));
     syncStore();
 
-    let result = [...combinedClients];
+    let result = [...clients];
     if (filters?.is_archived !== undefined) {
       result = result.filter(c => c.is_archived === filters.is_archived);
     } else {
@@ -306,6 +341,12 @@ export const dataStore = {
       updated_at: new Date().toISOString()
     };
 
+    // Remove from deleted list if re-added
+    deletedClientIds.delete(newClient.id);
+    if (newClient.email) {
+      deletedClientIds.delete(newClient.email.toLowerCase());
+    }
+
     // 1. Memory and Storage Sync
     clients.unshift(newClient);
     syncStore();
@@ -344,7 +385,7 @@ export const dataStore = {
           .single();
 
         const currentList = Array.isArray(scData?.content) ? scData.content : [];
-        const updatedList = [newClient, ...currentList.filter((c: any) => c.id !== newClient.id && c.email.toLowerCase() !== newClient.email.toLowerCase())];
+        const updatedList = [newClient, ...currentList.filter((c: any) => c.id !== newClient.id && c.email?.toLowerCase() !== newClient.email?.toLowerCase())];
 
         await supabase.from("site_content").upsert({
           key: "clients_all",
@@ -354,6 +395,15 @@ export const dataStore = {
       } catch (scErr) {
         console.warn("Supabase site_content clients_all save warning:", scErr);
       }
+
+      // Update deleted_clients_all in Supabase
+      try {
+        await supabase.from("site_content").upsert({
+          key: "deleted_clients_all",
+          content: Array.from(deletedClientIds),
+          updated_at: new Date().toISOString()
+        });
+      } catch {}
     }
 
     await this.logActivity({
@@ -431,7 +481,13 @@ export const dataStore = {
   },
 
   async deleteClient(id: string): Promise<boolean> {
-    clients = clients.filter(c => c.id !== id);
+    const target = clients.find(c => c.id === id) || initialClients.find(c => c.id === id);
+    if (target?.email) {
+      deletedClientIds.add(target.email.toLowerCase());
+    }
+    deletedClientIds.add(id);
+
+    clients = clients.filter(c => c.id !== id && (!target?.email || c.email?.toLowerCase() !== target.email.toLowerCase()));
     syncStore();
 
     const supabase = getSupabase();
@@ -448,13 +504,21 @@ export const dataStore = {
           .single();
 
         if (scData?.content && Array.isArray(scData.content)) {
-          const updatedList = scData.content.filter((c: any) => c.id !== id);
+          const updatedList = scData.content.filter((c: any) => c.id !== id && (!target?.email || c.email?.toLowerCase() !== target.email.toLowerCase()));
           await supabase.from("site_content").upsert({
             key: "clients_all",
             content: updatedList,
             updated_at: new Date().toISOString()
           });
         }
+      } catch {}
+
+      try {
+        await supabase.from("site_content").upsert({
+          key: "deleted_clients_all",
+          content: Array.from(deletedClientIds),
+          updated_at: new Date().toISOString()
+        });
       } catch {}
     }
     return true;
