@@ -33,13 +33,25 @@ export default function SvarPage() {
         }
       } catch {}
 
-      if (data.length === 0) {
-        data = await dataStore.getSubmissions(filterOptions);
-      } else if (selectedStatus !== "Alle") {
+      const storeData = await dataStore.getSubmissions();
+      const existingIds = new Set(data.map(s => s.id));
+      storeData.forEach(sd => {
+        if (!existingIds.has(sd.id)) {
+          data.push(sd);
+        }
+      });
+
+      if (selectedStatus !== "Alle") {
         data = data.filter(s => s.status === selectedStatus);
       }
 
-      setSubmissions(data);
+      setSubmissions(
+        data.sort(
+          (a, b) =>
+            new Date(b.submitted_at || (b as any).created_at).getTime() -
+            new Date(a.submitted_at || (a as any).created_at).getTime()
+        )
+      );
     } catch (err) {
       console.error("loadSubmissions error:", err);
     } finally {

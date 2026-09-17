@@ -204,9 +204,27 @@ export default function SvarDetailPage() {
           {/* Render answers structured by form fields / sections */}
           <div className="space-y-6">
             {(() => {
-              const formFields = (submission.form?.fields && submission.form.fields.length > 0) 
-                ? submission.form.fields 
-                : initialForms[0].fields || [];
+              const matchingForm =
+                initialForms.find(
+                  (f) =>
+                    f.id === submission.form_id ||
+                    f.id === submission.form?.id ||
+                    f.slug === (submission.form as any)?.slug
+                ) || submission.form;
+              const formFields =
+                submission.form?.fields && submission.form.fields.length > 0
+                  ? submission.form.fields
+                  : matchingForm?.fields && matchingForm.fields.length > 0
+                  ? matchingForm.fields
+                  : (submission.answers || []).map((a, i) => ({
+                      id: a.field_id || "fld-" + i,
+                      form_id: submission.form_id,
+                      field_type: "text" as any,
+                      label: a.field_label,
+                      description: "",
+                      is_required: false,
+                      position: i
+                    }));
               
               const renderedFieldIds = new Set<string>();
 

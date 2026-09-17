@@ -1614,6 +1614,22 @@ export const initialForms: Form[] = [
 
 export const initialDistributions: FormDistribution[] = [
   {
+    id: "dist-mari-kort-skjema",
+    form_id: "f-kort-prosjektskjema",
+    client_id: "c-mari",
+    token: "mari-kort-skjema",
+    email_subject: "Kort prosjektskjema: Stil, Farger & Visuell profil",
+    email_intro: "Hei Mari, her er det korte forberedelsesskjemaet for prosjektet.",
+    expires_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+    status: "submitted",
+    opened_at: "2026-09-17T09:15:00.000Z",
+    submitted_at: "2026-09-17T09:30:00.000Z",
+    created_at: "2026-09-17T09:00:00.000Z",
+    updated_at: "2026-09-17T09:30:00.000Z",
+    client: initialClients[1],
+    form: initialForms[0]
+  },
+  {
     id: "dist-gro-drage-evjen",
     form_id: "f-prosjektskjema",
     client_id: "c-gro-drage-evjen",
@@ -1627,7 +1643,7 @@ export const initialDistributions: FormDistribution[] = [
     created_at: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
     updated_at: new Date().toISOString(),
     client: initialClients[0],
-    form: initialForms[0]
+    form: initialForms[1] || initialForms[0]
   },
   {
     id: "dist-prosjektskjema-hoved",
@@ -1660,6 +1676,34 @@ export const initialDistributions: FormDistribution[] = [
 ];
 
 export const initialSubmissions: Submission[] = [
+  {
+    id: "sub-mari-thommesen",
+    form_id: "f-kort-prosjektskjema",
+    client_id: "c-mari",
+    distribution_id: "dist-mari-kort-skjema",
+    status: "new",
+    internal_notes: "Besvart kort prosjektskjema med ønsker om visuell profil, stil og farger.",
+    submitted_at: "2026-09-17T09:30:00.000Z",
+    created_at: "2026-09-17T09:30:00.000Z",
+    updated_at: "2026-09-17T09:30:00.000Z",
+    client: initialClients[1],
+    form: initialForms[0],
+    answers: [
+      { id: "ans-ks-1", submission_id: "sub-mari-thommesen", field_id: "fld-ks-1", field_label: "1. Hva heter virksomheten eller prosjektet ditt?", value: "By Mari", created_at: "2026-09-17T09:30:00.000Z" },
+      { id: "ans-ks-2", submission_id: "sub-mari-thommesen", field_id: "fld-ks-2", field_label: "2. Hva heter kontaktpersonen?", value: "Mari Thommesen", created_at: "2026-09-17T09:30:00.000Z" },
+      { id: "ans-ks-3", submission_id: "sub-mari-thommesen", field_id: "fld-ks-3", field_label: "3. Hva er e-postadressen din?", value: "hei@bymari.no", created_at: "2026-09-17T09:30:00.000Z" },
+      { id: "ans-ks-4", submission_id: "sub-mari-thommesen", field_id: "fld-ks-4", field_label: "4. Hva er telefonnummeret ditt?", value: "", created_at: "2026-09-17T09:30:00.000Z" },
+      { id: "ans-ks-5", submission_id: "sub-mari-thommesen", field_id: "fld-ks-5", field_label: "5. Hva tilbyr du, kort fortalt?", value: "Design, nettsider og visuell identitet for bedrifter som ønsker en helhetlig og sober tilstedeværelse på nett.", created_at: "2026-09-17T09:30:00.000Z" },
+      { id: "ans-ks-6", submission_id: "sub-mari-thommesen", field_id: "fld-ks-6", field_label: "6. Hvilke fargepaletter liker du best?", value: ["jordtoner", "gronntoner"], created_at: "2026-09-17T09:30:00.000Z" },
+      { id: "ans-ks-7", submission_id: "sub-mari-thommesen", field_id: "fld-ks-7", field_label: "7. Hvilken stemning og visuell stil liker du?", value: ["klassisk_elegant", "moderne_minimalistisk"], created_at: "2026-09-17T09:30:00.000Z" },
+      { id: "ans-ks-8", submission_id: "sub-mari-thommesen", field_id: "fld-ks-8", field_label: "8. Har du logo i dag?", value: "ja", created_at: "2026-09-17T09:30:00.000Z" },
+      { id: "ans-ks-10", submission_id: "sub-mari-thommesen", field_id: "fld-ks-10", field_label: "9. Er det bestemte farger, stiler eller løsninger du IKKE liker?", value: "Unngå for sterke neonfarger eller rotete oppsett. Ønsker et sobert og rent uttrykk.", created_at: "2026-09-17T09:30:00.000Z" },
+      { id: "ans-ks-11", submission_id: "sub-mari-thommesen", field_id: "fld-ks-11", field_label: "10. Hvilke hovedsider eller seksjoner trenger du?", value: ["forside", "om_oss", "tjenester", "kontakt", "galleri"], created_at: "2026-09-17T09:30:00.000Z" },
+      { id: "ans-ks-12", submission_id: "sub-mari-thommesen", field_id: "fld-ks-12", field_label: "11. Last gjerne opp logo, bilder eller inspirasjonsfiler", value: "", created_at: "2026-09-17T09:30:00.000Z" },
+      { id: "ans-ks-13", submission_id: "sub-mari-thommesen", field_id: "fld-ks-13", field_label: "12. Er det noe annet du ønsker å formidle om prosjektet?", value: "Skandinavisk minimalistisk stil med god kontrast og luft.", created_at: "2026-09-17T09:30:00.000Z" }
+    ],
+    files: []
+  },
   {
     id: "sub-gro-drage-evjen",
     form_id: "f-prosjektskjema",
@@ -1719,6 +1763,14 @@ export const initialSubmissions: Submission[] = [
 export const initialNotes: ClientNote[] = [];
 
 export const initialActivities: Activity[] = [
+  {
+    id: "act-init-3",
+    event_type: "form_submitted",
+    description: "Svar på Kort prosjektskjema mottatt fra Mari Thommesen.",
+    client_id: "c-mari",
+    client_name: "Mari Thommesen",
+    created_at: "2026-09-17T09:30:00.000Z"
+  },
   {
     id: "act-init-2",
     event_type: "form_submitted",

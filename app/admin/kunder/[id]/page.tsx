@@ -119,23 +119,53 @@ export default function KundeDetailPage() {
       ]);
       if (dRes.ok) {
         const dJson = await dRes.json();
-        if (dJson.distributions && Array.isArray(dJson.distributions)) d = dJson.distributions;
+        if (dJson.distributions && Array.isArray(dJson.distributions)) {
+          const ids = new Set(dJson.distributions.map((item: any) => item.id || item.token));
+          d.forEach((item: any) => {
+            if (!ids.has(item.id) && !ids.has(item.token)) dJson.distributions.push(item);
+          });
+          d = dJson.distributions;
+        }
       }
       if (sRes.ok) {
         const sJson = await sRes.json();
-        if (sJson.submissions && Array.isArray(sJson.submissions)) s = sJson.submissions;
+        if (sJson.submissions && Array.isArray(sJson.submissions)) {
+          const ids = new Set(sJson.submissions.map((item: any) => item.id));
+          s.forEach((item: any) => {
+            if (!ids.has(item.id)) sJson.submissions.push(item);
+          });
+          s = sJson.submissions;
+        }
       }
       if (qRes.ok) {
         const qJson = await qRes.json();
-        if (qJson.quotes && Array.isArray(qJson.quotes)) q = qJson.quotes;
+        if (qJson.quotes && Array.isArray(qJson.quotes)) {
+          const ids = new Set(qJson.quotes.map((item: any) => item.id));
+          q.forEach((item: any) => {
+            if (!ids.has(item.id)) qJson.quotes.push(item);
+          });
+          q = qJson.quotes;
+        }
       }
       if (nRes.ok) {
         const nJson = await nRes.json();
-        if (nJson.notes && Array.isArray(nJson.notes)) n = nJson.notes;
+        if (nJson.notes && Array.isArray(nJson.notes)) {
+          const ids = new Set(nJson.notes.map((item: any) => item.id));
+          n.forEach((item: any) => {
+            if (!ids.has(item.id)) nJson.notes.push(item);
+          });
+          n = nJson.notes;
+        }
       }
       if (fRes.ok) {
         const fJson = await fRes.json();
-        if (fJson.forms && Array.isArray(fJson.forms)) fList = fJson.forms;
+        if (fJson.forms && Array.isArray(fJson.forms)) {
+          const ids = new Set(fJson.forms.map((item: any) => item.id || item.slug));
+          fList.forEach((item: any) => {
+            if (!ids.has(item.id) && !ids.has(item.slug)) fJson.forms.push(item);
+          });
+          fList = fJson.forms;
+        }
       }
     } catch (err) {
       console.warn("Client data sub-resource fetch warning:", err);

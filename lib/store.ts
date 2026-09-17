@@ -93,6 +93,9 @@ const CLIENTS_STORAGE_KEY = "bymari_clients_cache";
 const FORMS_STORAGE_KEY = "bymari_forms_cache";
 const ACTIVITIES_STORAGE_KEY = "bymari_activities_cache";
 const QUOTES_STORAGE_KEY = "bymari_quotes_cache";
+const SUBMISSIONS_STORAGE_KEY = "bymari_submissions_cache";
+const DISTRIBUTIONS_STORAGE_KEY = "bymari_distributions_cache";
+const NOTES_STORAGE_KEY = "bymari_notes_cache";
 
 export function syncStore() {
   if (typeof window === "undefined") {
@@ -110,17 +113,20 @@ export function syncStore() {
     setStored(QUOTES_STORAGE_KEY, quotes);
     setStored(FORMS_STORAGE_KEY, forms);
     setStored(ACTIVITIES_STORAGE_KEY, activities);
+    setStored(SUBMISSIONS_STORAGE_KEY, submissions);
+    setStored(DISTRIBUTIONS_STORAGE_KEY, distributions);
+    setStored(NOTES_STORAGE_KEY, notes);
   }
 }
 
-// Initialize server data from disk
-if (typeof window === "undefined") {
+export function reloadServerData() {
+  if (typeof window !== "undefined") return;
   const serverData = loadServerFile();
   if (serverData) {
     if (Array.isArray(serverData.clients) && serverData.clients.length > 0) {
       clients = serverData.clients;
     }
-    if (Array.isArray(serverData.quotes) && serverData.quotes.length > 0) {
+    if (Array.isArray(serverData.quotes)) {
       quotes = serverData.quotes;
     }
     if (Array.isArray(serverData.forms) && serverData.forms.length > 0) {
@@ -136,14 +142,39 @@ if (typeof window === "undefined") {
     if (Array.isArray(serverData.submissions) && serverData.submissions.length > 0) {
       submissions = serverData.submissions;
     }
-    if (Array.isArray(serverData.notes) && serverData.notes.length > 0) {
+    if (Array.isArray(serverData.notes)) {
       notes = serverData.notes;
     }
-    if (Array.isArray(serverData.activities) && serverData.activities.length > 0) {
+    if (Array.isArray(serverData.activities)) {
       activities = serverData.activities;
     }
   }
+
+  // Ensure initial fallback data is merged if missing
+  const currentSubIds = new Set(submissions.map(s => s.id));
+  initialSubmissions.forEach(is => {
+    if (!currentSubIds.has(is.id)) {
+      submissions.push(is);
+    }
+  });
+
+  const currentDistIds = new Set(distributions.map(d => d.id || d.token));
+  initialDistributions.forEach(idst => {
+    if (!currentDistIds.has(idst.id) && !currentDistIds.has(idst.token)) {
+      distributions.push(idst);
+    }
+  });
+
+  const currentClientIds = new Set(clients.map(c => c.id));
+  initialClients.forEach(ic => {
+    if (!currentClientIds.has(ic.id)) {
+      clients.push(ic);
+    }
+  });
 }
+
+// Initial load
+reloadServerData();
 
 function getSupabase() {
   try {
@@ -483,6 +514,21 @@ export const dataStore = {
   // FORMS (Form Builder)
   // --------------------------------------------------------------------------
   async getForms(filters?: { status?: FormStatus; is_template?: boolean }): Promise<Form[]> {
+    if (typeof window !== "undefined") {
+      const local = getStored<Form[]>(FORMS_STORAGE_KEY, []);
+      if (local && Array.isArray(local) && local.length > 0) {
+        forms = local;
+      }
+    } else {
+      reloadServerData();
+    }
+    const currentFormIds = new Set(forms.map(f => f.id || f.slug));
+    initialForms.forEach(ifm => {
+      if (!currentFormIds.has(ifm.id) && !currentFormIds.has(ifm.slug)) {
+        forms.push(ifm);
+      }
+    });
+
     let result = [...forms];
     if (filters?.status) {
       result = result.filter(f => f.status === filters.status);
@@ -558,17 +604,21 @@ export const dataStore = {
   // FORM DISTRIBUTIONS
   // --------------------------------------------------------------------------
   async getDistributions(filters?: { clientId?: string; email?: string; formId?: string }): Promise<FormDistribution[]> {
-    if (typeof window === "undefined") {
-      const serverData = loadServerFile();
-      if (serverData && Array.isArray(serverData.distributions) && serverData.distributions.length > 0) {
-        const existingIds = new Set(distributions.map(d => d.id || d.token));
-        serverData.distributions.forEach((sd: any) => {
-          if (!existingIds.has(sd.id) && !existingIds.has(sd.token)) {
-            distributions.push(sd);
-          }
-        });
+    if (typeof window !== "undefined") {
+      const local = getStored<FormDistribution[]>(DISTRIBUTIONS_STORAGE_KEY, []);
+      if (local && Array.isArray(local) && local.length > 0) {
+        distributions = local;
       }
+    } else {
+      reloadServerData();
     }
+
+    const currentDistIds = new Set(distributions.map(d => d.id || d.token));
+    initialDistributions.forEach(idst => {
+      if (!currentDistIds.has(idst.id) && !currentDistIds.has(idst.token)) {
+        distributions.push(idst);
+      }
+    });
     const supabase = getSupabase();
     if (supabase) {
       try {
@@ -706,17 +756,21 @@ export const dataStore = {
   // SUBMISSIONS & ANSWERS
   // --------------------------------------------------------------------------
   async getSubmissions(filters?: { status?: ResponseStatus; clientId?: string; email?: string; formId?: string }): Promise<Submission[]> {
-    if (typeof window === "undefined") {
-      const serverData = loadServerFile();
-      if (serverData && Array.isArray(serverData.submissions) && serverData.submissions.length > 0) {
-        const existingIds = new Set(submissions.map(s => s.id));
-        serverData.submissions.forEach((ss: any) => {
-          if (!existingIds.has(ss.id)) {
-            submissions.push(ss);
-          }
-        });
+    if (typeof window !== "undefined") {
+      const local = getStored<Submission[]>(SUBMISSIONS_STORAGE_KEY, []);
+      if (local && Array.isArray(local) && local.length > 0) {
+        submissions = local;
       }
+    } else {
+      reloadServerData();
     }
+
+    const currentSubIds = new Set(submissions.map(s => s.id));
+    initialSubmissions.forEach(is => {
+      if (!currentSubIds.has(is.id)) {
+        submissions.push(is);
+      }
+    });
 
     let result = [...submissions];
 
