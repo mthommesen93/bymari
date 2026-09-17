@@ -166,12 +166,33 @@ export function FormBuilder({ initialForm, isNew = false }: FormBuilderProps) {
   // Save form
   const handleSave = async () => {
     setIsSaving(true);
-    if (isNew || !formData.id) {
-      const created = await dataStore.createForm(formData);
-      setIsSaving(false);
-      router.push(`/admin/skjemaer/${created.id}`);
-    } else {
-      await dataStore.updateForm(formData.id, formData);
+    try {
+      if (isNew || !formData.id) {
+        const res = await fetch("/api/forms", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData)
+        });
+        const data = await res.json();
+        const created = data.form || (await dataStore.createForm(formData));
+        setIsSaving(false);
+        router.push(`/admin/skjemaer/${created.id}`);
+      } else {
+        const res = await fetch(`/api/forms/${formData.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData)
+        });
+        await dataStore.updateForm(formData.id, formData);
+        setIsSaving(false);
+        setSavedNotification(true);
+        setTimeout(() => setSavedNotification(false), 2500);
+      }
+    } catch (err) {
+      console.error("Save form error:", err);
+      if (formData.id) {
+        await dataStore.updateForm(formData.id, formData);
+      }
       setIsSaving(false);
       setSavedNotification(true);
       setTimeout(() => setSavedNotification(false), 2500);

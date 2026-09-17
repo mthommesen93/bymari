@@ -14,6 +14,17 @@ export default function EditFormPage() {
 
   useEffect(() => {
     async function load() {
+      try {
+        const res = await fetch(`/api/forms/${id}`);
+        if (res.ok) {
+          const json = await res.json();
+          if (json.form) {
+            setForm(json.form);
+            setLoading(false);
+            return;
+          }
+        }
+      } catch {}
       const f = await dataStore.getFormById(id);
       setForm(f);
       setLoading(false);

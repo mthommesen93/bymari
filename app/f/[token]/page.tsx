@@ -17,8 +17,122 @@ import {
   Lock, 
   Loader2,
   Calendar,
-  Clock
+  Clock,
+  Palette,
+  Sparkles,
+  Layers,
+  Sparkle
 } from "lucide-react";
+
+// Visual Color Palettes Preset Definitions
+const COLOR_PALETTES: Record<string, { title: string; subtitle: string; swatches: string[] }> = {
+  "jordtoner": {
+    title: "Jordtoner & Varm Sand",
+    subtitle: "Rolig, naturlig, beige og varmt",
+    swatches: ["#FAF8F5", "#EFE8DE", "#D5C7B2", "#9E8C73", "#4A3F35"]
+  },
+  "gronntoner": {
+    title: "Dyp Skoggrønn & Salvie",
+    subtitle: "Organisk, harmonisk og naturpreget",
+    swatches: ["#F4F6F4", "#D1DCD3", "#8FA796", "#34463B", "#1C2720"]
+  },
+  "monokrom": {
+    title: "Minimalistisk Sort, Hvit & Grå",
+    subtitle: "Tidløst, rent, stramt og moderne",
+    swatches: ["#FFFFFF", "#F3F4F6", "#D1D5DB", "#4B5563", "#111827"]
+  },
+  "pastell": {
+    title: "Duse Pasteller & Varm Pudder",
+    subtitle: "Mykt, lyst, innbydende og feminint",
+    swatches: ["#FDF8F5", "#F7E5DE", "#ECC2B3", "#C99786", "#6A4A40"]
+  },
+  "morke_toner": {
+    title: "Midnattsblå, Antrasitt & Gull",
+    subtitle: "Eksklusivt, luksuriøst og sobert",
+    swatches: ["#1A202C", "#2D3748", "#1E293B", "#C5A880", "#E2E8F0"]
+  },
+  "friske_farger": {
+    title: "Friske & Spreke Kontraster",
+    subtitle: "Energisk, moderne og iøynefallende",
+    swatches: ["#FFF9EB", "#F59E0B", "#10B981", "#3B82F6", "#1E293B"]
+  }
+};
+
+function getPaletteInfo(opt: { label: string; value?: string }) {
+  const val = (opt.value || "").toLowerCase();
+  const lbl = opt.label.toLowerCase();
+  const key = Object.keys(COLOR_PALETTES).find(k => 
+    val === k || 
+    lbl.includes(k) ||
+    (k === "jordtoner" && (lbl.includes("jordtoner") || lbl.includes("sand") || lbl.includes("beige"))) ||
+    (k === "gronntoner" && (lbl.includes("skoggrønn") || lbl.includes("salvie") || lbl.includes("natur"))) ||
+    (k === "monokrom" && (lbl.includes("sort") || lbl.includes("monokrom") || lbl.includes("hvit og grå"))) ||
+    (k === "pastell" && (lbl.includes("pastell") || lbl.includes("pudder"))) ||
+    (k === "morke_toner" && (lbl.includes("midnatt") || lbl.includes("antrasitt") || lbl.includes("gull") || lbl.includes("dype farger"))) ||
+    (k === "friske_farger" && (lbl.includes("frisk") || lbl.includes("sprek")))
+  );
+  return key ? COLOR_PALETTES[key] : null;
+}
+
+const STYLE_CARDS: Record<string, { title: string; subtitle: string; tag: string; fontClass: string; preview: string }> = {
+  "klassisk_elegant": {
+    title: "Klassisk & Elegant",
+    subtitle: "Tidløs eleganse, harmonisk ro og diskré luksus",
+    tag: "Tidløs & Sofistikert",
+    fontClass: "font-serif italic",
+    preview: "Aa — by mari"
+  },
+  "varm_personlig": {
+    title: "Varm & Personlig",
+    subtitle: "Innbydende, naturlig, nær og ekte",
+    tag: "Organisk & Innbydende",
+    fontClass: "font-sans font-medium",
+    preview: "Ekte & Varm"
+  },
+  "moderne_minimalistisk": {
+    title: "Moderne & Minimalistisk",
+    subtitle: "Rene linjer, stram struktur, fokus og luft",
+    tag: "Strukturert & Rent",
+    fontClass: "font-sans font-light tracking-widest uppercase",
+    preview: "MODERNE MINIMALISME"
+  },
+  "kreativ_leken": {
+    title: "Kreativ & Leken",
+    subtitle: "Nyskapende, fargerik, dynamisk og uventet",
+    tag: "Modig & Nyskapende",
+    fontClass: "font-sans font-bold",
+    preview: "Kreativt & Nytt"
+  },
+  "eksklusiv_sober": {
+    title: "Eksklusiv & Sober",
+    subtitle: "Premium finish, autoritær ro og luksuriøse detaljer",
+    tag: "High-End & Sobert",
+    fontClass: "font-serif tracking-wider uppercase",
+    preview: "PREMIUM FINISH"
+  },
+  "ra_industriell": {
+    title: "Rå & Industriell",
+    subtitle: "Tydelig tyngde, kontraster, upolert og kraftfull",
+    tag: "Karakter & Kraft",
+    fontClass: "font-mono font-medium tracking-wider",
+    preview: "[ RÅ KRAFT ]"
+  }
+};
+
+function getStyleCardInfo(opt: { label: string; value?: string }) {
+  const val = (opt.value || "").toLowerCase();
+  const lbl = opt.label.toLowerCase();
+  const key = Object.keys(STYLE_CARDS).find(k => 
+    val === k ||
+    (k === "klassisk_elegant" && (lbl.includes("klassisk") || lbl.includes("elegant"))) ||
+    (k === "varm_personlig" && (lbl.includes("varm") || lbl.includes("personlig"))) ||
+    (k === "moderne_minimalistisk" && (lbl.includes("moderne") || lbl.includes("minimalistisk"))) ||
+    (k === "kreativ_leken" && (lbl.includes("kreativ") || lbl.includes("leken"))) ||
+    (k === "eksklusiv_sober" && (lbl.includes("eksklusiv") || lbl.includes("sober"))) ||
+    (k === "ra_industriell" && (lbl.includes("rå") || lbl.includes("industriell")))
+  );
+  return key ? STYLE_CARDS[key] : null;
+}
 
 // Helper to cleanly format line breaks from storage or raw strings
 function renderCleanText(text?: string | null) {
@@ -457,55 +571,270 @@ export default function CustomerFormRunnerPage() {
                     />
                   )}
 
-                  {field.field_type === "radio" && (
-                    <div className="space-y-2 pt-1">
-                      {(field.options || []).map((opt) => (
-                        <label 
-                          key={opt.id} 
-                          className={`flex items-center space-x-3 p-3.5 border rounded-sm cursor-pointer transition-colors text-sm ${
-                            answers[field.id] === opt.label
-                              ? "bg-forest-green-light/40 border-forest-green text-charcoal font-medium"
-                              : "bg-warm-white/40 border-sand/70 hover:bg-warm-white text-charcoal/90"
-                          }`}
-                        >
-                          <input
-                            type="radio"
-                            name={`fld-${field.id}`}
-                            checked={answers[field.id] === opt.label}
-                            onChange={() => handleAnswerChange(field.id, opt.label)}
-                            className="text-forest-green focus:ring-forest-green"
-                          />
-                          <span>{opt.label}</span>
-                        </label>
-                      ))}
-                    </div>
-                  )}
+                  {field.field_type === "radio" && (() => {
+                    const isBinaryJaNei = field.options?.length === 2 && 
+                      field.options.some(o => o.label.toLowerCase() === "ja") && 
+                      field.options.some(o => o.label.toLowerCase() === "nei");
 
-                  {field.field_type === "checkbox" && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
-                      {(field.options || []).map((opt) => {
-                        const checked = ((answers[field.id] as string[]) || []).includes(opt.label);
-                        return (
+                    const isStyleQuestion = field.label.toLowerCase().includes("stil") || 
+                      field.label.toLowerCase().includes("stemning") ||
+                      field.id === "fld-ks-7";
+
+                    if (isBinaryJaNei) {
+                      return (
+                        <div className="grid grid-cols-2 gap-3 pt-1">
+                          {(field.options || []).map((opt) => {
+                            const isSelected = answers[field.id] === opt.label;
+                            return (
+                              <button
+                                key={opt.id}
+                                type="button"
+                                onClick={() => handleAnswerChange(field.id, opt.label)}
+                                className={`py-4 px-6 rounded-sm border text-center font-medium text-sm transition-all flex items-center justify-center space-x-2 ${
+                                  isSelected
+                                    ? "bg-forest-green text-warm-white border-forest-green shadow-sm ring-2 ring-forest-green/20"
+                                    : "bg-warm-white/60 hover:bg-warm-white border-sand text-charcoal/90 hover:border-forest-green/40"
+                                }`}
+                              >
+                                {isSelected && <Check className="w-4 h-4 mr-1 text-warm-white" />}
+                                <span>{opt.label}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      );
+                    }
+
+                    if (isStyleQuestion) {
+                      return (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
+                          {(field.options || []).map((opt) => {
+                            const isSelected = answers[field.id] === opt.label;
+                            const styleInfo = getStyleCardInfo(opt);
+                            return (
+                              <div
+                                key={opt.id}
+                                onClick={() => handleAnswerChange(field.id, opt.label)}
+                                className={`p-4 border rounded-sm cursor-pointer transition-all flex flex-col justify-between space-y-3 ${
+                                  isSelected
+                                    ? "bg-forest-green-light/40 border-forest-green shadow-sm ring-1 ring-forest-green"
+                                    : "bg-warm-white/40 border-sand hover:bg-warm-white hover:border-sand-dark"
+                                }`}
+                              >
+                                <div className="space-y-1.5">
+                                  <div className="flex items-center justify-between">
+                                    {styleInfo?.tag ? (
+                                      <span className="text-[10px] uppercase font-mono tracking-wider px-2 py-0.5 bg-sand/40 text-charcoal/80 rounded-xs">
+                                        {styleInfo.tag}
+                                      </span>
+                                    ) : <span />}
+                                    <input
+                                      type="radio"
+                                      name={`fld-${field.id}`}
+                                      checked={isSelected}
+                                      onChange={() => handleAnswerChange(field.id, opt.label)}
+                                      className="text-forest-green focus:ring-forest-green"
+                                    />
+                                  </div>
+                                  <p className="text-sm font-medium text-charcoal">
+                                    {styleInfo?.title || opt.label}
+                                  </p>
+                                  {styleInfo?.subtitle && (
+                                    <p className="text-xs text-charcoal/60 leading-relaxed font-light">
+                                      {styleInfo.subtitle}
+                                    </p>
+                                  )}
+                                </div>
+                                {styleInfo?.preview && (
+                                  <div className={`p-2.5 bg-white/80 border border-sand/60 rounded-xs text-center ${styleInfo.fontClass}`}>
+                                    {styleInfo.preview}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div className="space-y-2 pt-1">
+                        {(field.options || []).map((opt) => (
                           <label 
                             key={opt.id} 
-                            className={`flex items-center space-x-3 p-3 border rounded-sm cursor-pointer transition-colors text-sm ${
-                              checked
+                            className={`flex items-center space-x-3 p-3.5 border rounded-sm cursor-pointer transition-colors text-sm ${
+                              answers[field.id] === opt.label
                                 ? "bg-forest-green-light/40 border-forest-green text-charcoal font-medium"
                                 : "bg-warm-white/40 border-sand/70 hover:bg-warm-white text-charcoal/90"
                             }`}
                           >
                             <input
-                              type="checkbox"
-                              checked={checked}
-                              onChange={() => handleCheckboxToggle(field.id, opt.label)}
-                              className="rounded-xs text-forest-green focus:ring-forest-green"
+                              type="radio"
+                              name={`fld-${field.id}`}
+                              checked={answers[field.id] === opt.label}
+                              onChange={() => handleAnswerChange(field.id, opt.label)}
+                              className="text-forest-green focus:ring-forest-green"
                             />
                             <span>{opt.label}</span>
                           </label>
-                        );
-                      })}
-                    </div>
-                  )}
+                        ))}
+                      </div>
+                    );
+                  })()}
+
+                  {field.field_type === "checkbox" && (() => {
+                    const isColorQuestion = field.label.toLowerCase().includes("farge") || 
+                      field.label.toLowerCase().includes("palett") || 
+                      field.id === "fld-ks-6";
+
+                    const isStyleQuestion = field.label.toLowerCase().includes("stil") || 
+                      field.label.toLowerCase().includes("stemning") ||
+                      field.id === "fld-ks-7";
+
+                    if (isColorQuestion) {
+                      return (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
+                          {(field.options || []).map((opt) => {
+                            const checked = ((answers[field.id] as string[]) || []).includes(opt.label);
+                            const palette = getPaletteInfo(opt);
+                            const isCustomOption = opt.label.toLowerCase().includes("egne faste") || opt.label.toLowerCase().includes("egne fargekoder");
+                            const isMariSuggestion = opt.label.toLowerCase().includes("åpen for forslag");
+
+                            return (
+                              <div
+                                key={opt.id}
+                                onClick={() => handleCheckboxToggle(field.id, opt.label)}
+                                className={`p-4 border rounded-sm cursor-pointer transition-all flex flex-col justify-between space-y-3 ${
+                                  checked
+                                    ? "bg-forest-green-light/40 border-forest-green shadow-sm ring-1 ring-forest-green"
+                                    : "bg-warm-white/40 border-sand hover:bg-warm-white hover:border-sand-dark"
+                                }`}
+                              >
+                                <div className="space-y-1.5">
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center space-x-1.5">
+                                      {palette ? (
+                                        <Palette className="w-3.5 h-3.5 text-forest-green" />
+                                      ) : isMariSuggestion ? (
+                                        <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                                      ) : (
+                                        <Layers className="w-3.5 h-3.5 text-charcoal/60" />
+                                      )}
+                                      <span className="text-[11px] font-mono uppercase tracking-wider text-charcoal/60">
+                                        {palette ? "Fargepalett" : isMariSuggestion ? "Anbefaling" : "Tilpasset"}
+                                      </span>
+                                    </div>
+                                    <input
+                                      type="checkbox"
+                                      checked={checked}
+                                      onChange={() => handleCheckboxToggle(field.id, opt.label)}
+                                      className="rounded-xs text-forest-green focus:ring-forest-green"
+                                    />
+                                  </div>
+                                  <p className="text-sm font-medium text-charcoal">
+                                    {palette?.title || opt.label}
+                                  </p>
+                                  <p className="text-xs text-charcoal/65 leading-relaxed font-light">
+                                    {palette?.subtitle || (isCustomOption ? "Du oppgir fargekoder eller sender profilmanual" : isMariSuggestion ? "Mari designer en harmonisk fargepalett for deg" : "")}
+                                  </p>
+                                </div>
+
+                                {palette && palette.swatches && (
+                                  <div className="flex items-center space-x-2 pt-2 border-t border-sand/40">
+                                    {palette.swatches.map((hex, sIdx) => (
+                                      <span
+                                        key={sIdx}
+                                        style={{ backgroundColor: hex }}
+                                        className="w-6 h-6 rounded-full border border-sand shadow-xs inline-block shrink-0 transition-transform hover:scale-110"
+                                        title={hex}
+                                      />
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    }
+
+                    if (isStyleQuestion) {
+                      return (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
+                          {(field.options || []).map((opt) => {
+                            const checked = ((answers[field.id] as string[]) || []).includes(opt.label);
+                            const styleInfo = getStyleCardInfo(opt);
+                            return (
+                              <div
+                                key={opt.id}
+                                onClick={() => handleCheckboxToggle(field.id, opt.label)}
+                                className={`p-4 border rounded-sm cursor-pointer transition-all flex flex-col justify-between space-y-3 ${
+                                  checked
+                                    ? "bg-forest-green-light/40 border-forest-green shadow-sm ring-1 ring-forest-green"
+                                    : "bg-warm-white/40 border-sand hover:bg-warm-white hover:border-sand-dark"
+                                }`}
+                              >
+                                <div className="space-y-1.5">
+                                  <div className="flex items-center justify-between">
+                                    {styleInfo?.tag ? (
+                                      <span className="text-[10px] uppercase font-mono tracking-wider px-2 py-0.5 bg-sand/40 text-charcoal/80 rounded-xs">
+                                        {styleInfo.tag}
+                                      </span>
+                                    ) : <span />}
+                                    <input
+                                      type="checkbox"
+                                      checked={checked}
+                                      onChange={() => handleCheckboxToggle(field.id, opt.label)}
+                                      className="rounded-xs text-forest-green focus:ring-forest-green"
+                                    />
+                                  </div>
+                                  <p className="text-sm font-medium text-charcoal">
+                                    {styleInfo?.title || opt.label}
+                                  </p>
+                                  {styleInfo?.subtitle && (
+                                    <p className="text-xs text-charcoal/60 leading-relaxed font-light">
+                                      {styleInfo.subtitle}
+                                    </p>
+                                  )}
+                                </div>
+                                {styleInfo?.preview && (
+                                  <div className={`p-2.5 bg-white/80 border border-sand/60 rounded-xs text-center ${styleInfo.fontClass}`}>
+                                    {styleInfo.preview}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                        {(field.options || []).map((opt) => {
+                          const checked = ((answers[field.id] as string[]) || []).includes(opt.label);
+                          return (
+                            <label 
+                              key={opt.id} 
+                              className={`flex items-center space-x-3 p-3 border rounded-sm cursor-pointer transition-colors text-sm ${
+                                checked
+                                  ? "bg-forest-green-light/40 border-forest-green text-charcoal font-medium"
+                                  : "bg-warm-white/40 border-sand/70 hover:bg-warm-white text-charcoal/90"
+                              }`}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={checked}
+                                onChange={() => handleCheckboxToggle(field.id, opt.label)}
+                                className="rounded-xs text-forest-green focus:ring-forest-green"
+                              />
+                              <span>{opt.label}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
 
                   {field.field_type === "select" && (
                     <select

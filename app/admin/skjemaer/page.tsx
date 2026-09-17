@@ -15,13 +15,36 @@ export default function SkjemaerPage() {
 
   const loadForms = async () => {
     setLoading(true);
-    const filterOptions: any = {};
-    if (selectedStatus !== "Alle") {
-      filterOptions.status = selectedStatus as FormStatus;
+    try {
+      let data: Form[] = [];
+      const res = await fetch("/api/forms");
+      if (res.ok) {
+        const json = await res.json();
+        if (json.forms && Array.isArray(json.forms)) {
+          data = json.forms;
+        }
+      }
+      if (data.length === 0) {
+        const filterOptions: any = {};
+        if (selectedStatus !== "Alle") {
+          filterOptions.status = selectedStatus as FormStatus;
+        }
+        data = await dataStore.getForms(filterOptions);
+      } else if (selectedStatus !== "Alle") {
+        data = data.filter(f => f.status === selectedStatus);
+      }
+      setForms(data);
+    } catch (err) {
+      console.warn("Forms load error, using store fallback:", err);
+      const filterOptions: any = {};
+      if (selectedStatus !== "Alle") {
+        filterOptions.status = selectedStatus as FormStatus;
+      }
+      const data = await dataStore.getForms(filterOptions);
+      setForms(data);
+    } finally {
+      setLoading(false);
     }
-    const data = await dataStore.getForms(filterOptions);
-    setForms(data);
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -29,15 +52,24 @@ export default function SkjemaerPage() {
   }, [selectedStatus]);
 
   const handleDuplicate = async (form: Form) => {
-    await dataStore.createForm({
+    const payload = {
       title: form.title + " (Kopi)",
       slug: form.slug + "-kopi-" + Math.random().toString(36).substring(2, 6),
       introduction: form.introduction,
       confirmation_message: form.confirmation_message,
-      status: "draft",
+      status: "draft" as FormStatus,
       is_template: false,
       fields: form.fields || []
-    });
+    };
+    try {
+      await fetch("/api/forms", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+    } catch {
+      await dataStore.createForm(payload);
+    }
     loadForms();
   };
 
