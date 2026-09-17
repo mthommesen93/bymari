@@ -34,6 +34,115 @@ let notes: ClientNote[] = [...initialNotes];
 let activities: Activity[] = [...initialActivities];
 let quotes: Quote[] = [];
 
+function getFs(): any {
+  if (typeof window !== "undefined") return null;
+  try {
+    const req = eval("require");
+    return req("fs");
+  } catch {
+    return null;
+  }
+}
+
+function getPath(): any {
+  if (typeof window !== "undefined") return null;
+  try {
+    const req = eval("require");
+    return req("path");
+  } catch {
+    return null;
+  }
+}
+
+function loadServerFile(): any {
+  if (typeof window !== "undefined") return null;
+  try {
+    const fs = getFs();
+    const path = getPath();
+    if (!fs || !path) return null;
+    const storeFile = path.join(process.cwd(), "data", "store_data.json");
+    if (fs.existsSync(storeFile)) {
+      const raw = fs.readFileSync(storeFile, "utf-8");
+      return JSON.parse(raw);
+    }
+  } catch (err) {
+    console.warn("Failed to read store_data.json:", err);
+  }
+  return null;
+}
+
+function saveServerFile(data: any) {
+  if (typeof window !== "undefined") return;
+  try {
+    const fs = getFs();
+    const path = getPath();
+    if (!fs || !path) return;
+    const dataDir = path.join(process.cwd(), "data");
+    const storeFile = path.join(dataDir, "store_data.json");
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
+    fs.writeFileSync(storeFile, JSON.stringify(data, null, 2), "utf-8");
+  } catch (err) {
+    console.warn("Failed to write store_data.json:", err);
+  }
+}
+
+export function syncStore() {
+  if (typeof window === "undefined") {
+    saveServerFile({
+      clients,
+      forms,
+      distributions,
+      submissions,
+      notes,
+      activities,
+      quotes
+    });
+  } else {
+    setStored(CLIENTS_STORAGE_KEY, clients);
+    setStored(QUOTES_STORAGE_KEY, quotes);
+    setStored(FORMS_STORAGE_KEY, forms);
+    setStored(ACTIVITIES_STORAGE_KEY, activities);
+  }
+}
+
+// Initialize server data from disk
+if (typeof window === "undefined") {
+  const serverData = loadServerFile();
+  if (serverData) {
+    if (Array.isArray(serverData.clients) && serverData.clients.length > 0) {
+      const existing = new Set(serverData.clients.map((c: any) => c.id || c.email?.toLowerCase()));
+      initialClients.forEach(ic => {
+        if (!existing.has(ic.id) && !existing.has(ic.email.toLowerCase())) serverData.clients.push(ic);
+      });
+      clients = serverData.clients;
+    }
+    if (Array.isArray(serverData.quotes) && serverData.quotes.length > 0) {
+      quotes = serverData.quotes;
+    }
+    if (Array.isArray(serverData.forms) && serverData.forms.length > 0) {
+      const existing = new Set(serverData.forms.map((f: any) => f.id || f.slug));
+      initialForms.forEach(ifm => {
+        if (!existing.has(ifm.id) && !existing.has(ifm.slug)) serverData.forms.push(ifm);
+      });
+      forms = serverData.forms;
+    }
+    if (Array.isArray(serverData.distributions) && serverData.distributions.length > 0) {
+      distributions = serverData.distributions;
+    }
+    if (Array.isArray(serverData.submissions) && serverData.submissions.length > 0) {
+      submissions = serverData.submissions;
+    }
+    if (Array.isArray(serverData.notes) && serverData.notes.length > 0) {
+      notes = serverData.notes;
+    }
+    if (Array.isArray(serverData.activities) && serverData.activities.length > 0) {
+      activities = serverData.activities;
+    }
+  }
+}
+
 function getSupabase() {
   try {
     if (typeof window !== "undefined") {
@@ -98,17 +207,22 @@ export const dataStore = {
   async getClients(filters?: { query?: string; status?: ClientStatus; is_archived?: boolean }): Promise<Client[]> {
     let combinedClients: Client[] = [...clients];
 
+    // Ensure initialClients are always included
+    initialClients.forEach(ic => {
+      if (!combinedClients.some(c => c.id === ic.id || c.email.toLowerCase() === ic.email.toLowerCase())) {
+        combinedClients.push(ic);
+      }
+    });
+
     const supabase = getSupabase();
     if (supabase) {
       // 1. Try SQL table 'clients'
       try {
         const { data, error } = await supabase.from("clients").select("*").order("created_at", { ascending: false });
         if (!error && data && data.length > 0) {
-          const ids = new Set(combinedClients.map(c => c.id));
           data.forEach((c: any) => {
-            if (!ids.has(c.id)) {
+            if (!combinedClients.some(existing => existing.id === c.id || existing.email.toLowerCase() === c.email.toLowerCase())) {
               combinedClients.push(c as Client);
-              ids.add(c.id);
             }
           });
         }
@@ -125,11 +239,9 @@ export const dataStore = {
           .single();
 
         if (scData?.content && Array.isArray(scData.content)) {
-          const ids = new Set(combinedClients.map(c => c.id));
           scData.content.forEach((c: any) => {
-            if (!ids.has(c.id)) {
+            if (!combinedClients.some(existing => existing.id === c.id || existing.email.toLowerCase() === c.email.toLowerCase())) {
               combinedClients.push(c as Client);
-              ids.add(c.id);
             }
           });
         }
@@ -141,19 +253,17 @@ export const dataStore = {
     if (typeof window !== "undefined") {
       const local = getStored<Client[]>(CLIENTS_STORAGE_KEY, []);
       if (local.length > 0) {
-        const ids = new Set(combinedClients.map(c => c.id));
         local.forEach(l => {
-          if (!ids.has(l.id)) {
+          if (!combinedClients.some(existing => existing.id === l.id || existing.email.toLowerCase() === l.email.toLowerCase())) {
             combinedClients.push(l);
-            ids.add(l.id);
           }
         });
       }
     }
 
-    // Keep global cache in sync
+    // Keep memory, disk and local storage in sync
     clients = combinedClients;
-    setStored(CLIENTS_STORAGE_KEY, clients);
+    syncStore();
 
     let result = [...combinedClients];
     if (filters?.is_archived !== undefined) {
@@ -196,9 +306,9 @@ export const dataStore = {
       updated_at: new Date().toISOString()
     };
 
-    // 1. Memory and LocalStorage
+    // 1. Memory and Storage Sync
     clients.unshift(newClient);
-    setStored(CLIENTS_STORAGE_KEY, clients);
+    syncStore();
 
     // 2. Supabase SQL table
     const supabase = getSupabase();
@@ -270,7 +380,7 @@ export const dataStore = {
     } else {
       clients.unshift(updated);
     }
-    setStored(CLIENTS_STORAGE_KEY, clients);
+    syncStore();
 
     const supabase = getSupabase();
     if (supabase) {
@@ -322,7 +432,7 @@ export const dataStore = {
 
   async deleteClient(id: string): Promise<boolean> {
     clients = clients.filter(c => c.id !== id);
-    setStored(CLIENTS_STORAGE_KEY, clients);
+    syncStore();
 
     const supabase = getSupabase();
     if (supabase) {
@@ -392,6 +502,7 @@ export const dataStore = {
     };
     newForm.fields?.forEach(f => { f.form_id = newForm.id; });
     forms.unshift(newForm);
+    syncStore();
 
     await this.logActivity({
       event_type: "form_created",
@@ -413,12 +524,14 @@ export const dataStore = {
       updated_at: new Date().toISOString()
     };
     forms[index] = updated;
+    syncStore();
     return updated;
   },
 
   async deleteForm(id: string): Promise<boolean> {
     const initialLen = forms.length;
     forms = forms.filter(f => f.id !== id);
+    syncStore();
     return forms.length < initialLen;
   },
 
@@ -878,7 +991,7 @@ export const dataStore = {
     };
 
     quotes.unshift(newQuote);
-    setStored(QUOTES_STORAGE_KEY, quotes);
+    syncStore();
 
     const supabase = getSupabase();
     if (supabase) {
@@ -931,7 +1044,7 @@ export const dataStore = {
     } else {
       quotes.unshift(updated);
     }
-    setStored(QUOTES_STORAGE_KEY, quotes);
+    syncStore();
 
     const supabase = getSupabase();
     if (supabase) {

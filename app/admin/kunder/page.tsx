@@ -74,7 +74,7 @@ export default function KunderPage() {
     if (!formData.name || !formData.email) return;
 
     try {
-      await fetch("/api/clients", {
+      const res = await fetch("/api/clients", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -89,6 +89,10 @@ export default function KunderPage() {
           is_archived: false
         })
       });
+      const data = await res.json();
+      if (data.client) {
+        await dataStore.createClient(data.client);
+      }
     } catch (e) {
       await dataStore.createClient({ ...formData, is_archived: false });
     }
@@ -104,7 +108,7 @@ export default function KunderPage() {
       internal_notes: "",
       next_activity_date: ""
     });
-    loadClients();
+    await loadClients();
   };
 
   const statusTabs = ["Alle", "Ny", "Kontaktet", "Møte avtalt", "Tilbud sendt", "Aktiv kunde", "Avsluttet"];
