@@ -84,9 +84,9 @@ export default function KundeDetailPage() {
 
     let [n, d, s, q, fList] = await Promise.all([
       dataStore.getClientNotes(id),
-      dataStore.getDistributions({ clientId: id }),
-      dataStore.getSubmissions({ clientId: id }),
-      dataStore.getQuotes({ clientId: id }),
+      dataStore.getDistributions({ clientId: id, email: c.email }),
+      dataStore.getSubmissions({ clientId: id, email: c.email }),
+      dataStore.getQuotes({ clientId: id, email: c.email }),
       dataStore.getForms()
     ]);
 
@@ -94,11 +94,11 @@ export default function KundeDetailPage() {
       const clientEmail = c?.email ? encodeURIComponent(c.email) : "";
       const clientName = c?.name ? encodeURIComponent(c.name) : "";
       const [dRes, sRes, qRes, nRes, fRes] = await Promise.all([
-        fetch(`/api/forms/distribute?clientId=${id}${clientEmail ? `&email=${clientEmail}` : ""}`),
-        fetch(`/api/forms/submissions?clientId=${id}${clientEmail ? `&email=${clientEmail}` : ""}`),
-        fetch(`/api/quotes/send?clientId=${id}${clientEmail ? `&email=${clientEmail}` : ""}${clientName ? `&name=${clientName}` : ""}`),
-        fetch(`/api/clients/${id}/notes`),
-        fetch(`/api/forms`)
+        fetch(`/api/forms/distribute?clientId=${id}${clientEmail ? `&email=${clientEmail}` : ""}`, { cache: "no-store" }),
+        fetch(`/api/forms/submissions?clientId=${id}${clientEmail ? `&email=${clientEmail}` : ""}`, { cache: "no-store" }),
+        fetch(`/api/quotes/send?clientId=${id}${clientEmail ? `&email=${clientEmail}` : ""}${clientName ? `&name=${clientName}` : ""}`, { cache: "no-store" }),
+        fetch(`/api/clients/${id}/notes`, { cache: "no-store" }),
+        fetch(`/api/forms`, { cache: "no-store" })
       ]);
       if (dRes.ok) {
         const dJson = await dRes.json();

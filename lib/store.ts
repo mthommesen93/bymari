@@ -636,44 +636,89 @@ export const dataStore = {
   // --------------------------------------------------------------------------
   // FORM DISTRIBUTIONS
   // --------------------------------------------------------------------------
-  async getDistributions(filters?: { clientId?: string; formId?: string }): Promise<FormDistribution[]> {
+  async getDistributions(filters?: { clientId?: string; email?: string; formId?: string }): Promise<FormDistribution[]> {
+    if (typeof window === "undefined") {
+      const serverData = loadServerFile();
+      if (serverData && Array.isArray(serverData.distributions) && serverData.distributions.length > 0) {
+        const existingIds = new Set(distributions.map(d => d.id || d.token));
+        serverData.distributions.forEach((sd: any) => {
+          if (!existingIds.has(sd.id) && !existingIds.has(sd.token)) {
+            distributions.push(sd);
+          }
+        });
+      }
+    }
+    const supabase = getSupabase();
+    if (supabase) {
+      try {
+        const { data: scData } = await supabase
+          .from("site_content")
+          .select("content")
+          .eq("key", "form_distributions_all")
+          .single();
+        if (scData?.content && Array.isArray(scData.content)) {
+          const existingIds = new Set(distributions.map(d => d.id || d.token));
+          scData.content.forEach((sd: any) => {
+            if (!existingIds.has(sd.id) && !existingIds.has(sd.token)) {
+              distributions.push(sd);
+            }
+          });
+        }
+      } catch {}
+    }
+
     let result = [...distributions];
-    if (filters?.clientId) {
-      result = result.filter(d => d.client_id === filters.clientId);
+    if (filters?.clientId || filters?.email) {
+      const filterEmail = filters.email ? filters.email.toLowerCase().trim() : "";
+      result = result.filter(d => {
+        const matchId = filters.clientId && (d.client_id === filters.clientId || (d as any).client?.id === filters.clientId);
+        const matchEmail = filterEmail && (
+          ((d as any).recipient_email && (d as any).recipient_email.toLowerCase().trim() === filterEmail) ||
+          ((d as any).client?.email && (d as any).client.email.toLowerCase().trim() === filterEmail) ||
+          (d.client_id && clients.find(c => c.id === d.client_id)?.email?.toLowerCase().trim() === filterEmail)
+        );
+        return matchId || matchEmail;
+      });
     }
     if (filters?.formId) {
-      result = result.filter(d => d.form_id === filters.formId);
+      result = result.filter(d => d.form_id === filters.formId || (d as any).form?.id === filters.formId);
     }
     return result.map(d => ({
       ...d,
-      form: forms.find(f => f.id === d.form_id),
-      client: clients.find(c => c.id === d.client_id)
+      form: forms.find(f => f.id === d.form_id) || (d as any).form,
+      client: clients.find(c => c.id === d.client_id) || (d as any).client
     })).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   },
 
   async getDistributionByToken(token: string): Promise<FormDistribution | null> {
-    const dist = distributions.find(d => d.token === token);
+    const all = await this.getDistributions();
+    const dist = all.find(d => d.token === token) || distributions.find(d => d.token === token);
     if (!dist) return null;
 
     return {
       ...dist,
-      form: forms.find(f => f.id === dist.form_id),
-      client: clients.find(c => c.id === dist.client_id)
+      form: forms.find(f => f.id === dist.form_id) || (dist as any).form,
+      client: clients.find(c => c.id === dist.client_id) || (dist as any).client
     };
   },
 
   async createDistribution(data: {
     form_id: string;
     client_id?: string | null;
+    recipient_email?: string | null;
     email_subject?: string;
     email_intro?: string;
     expires_at?: string | null;
   }): Promise<FormDistribution> {
     const token = "bm-" + Math.random().toString(36).substring(2, 10) + "-" + Date.now().toString(36);
+    const resolvedClient = data.client_id ? clients.find(c => c.id === data.client_id) : undefined;
+    const resolvedEmail = data.recipient_email || resolvedClient?.email || null;
+
     const newDist: FormDistribution = {
       id: "dist-" + Date.now().toString(36),
       form_id: data.form_id,
       client_id: data.client_id,
+      recipient_email: resolvedEmail,
       token,
       email_subject: data.email_subject || "Skjema fra by mari",
       email_intro: data.email_intro || "",
@@ -685,13 +730,14 @@ export const dataStore = {
       updated_at: new Date().toISOString()
     };
     distributions.unshift(newDist);
+    syncStore();
 
     const form = forms.find(f => f.id === data.form_id);
-    const client = data.client_id ? clients.find(c => c.id === data.client_id) : undefined;
+    const client = resolvedClient;
 
     await this.logActivity({
       event_type: "form_sent",
-      description: `Skjema "${form?.title || "Skjema"}" sendt til ${client?.name || "Kunde"}`,
+      description: `Skjema "${form?.title || "Skjema"}" sendt til ${client?.name || resolvedEmail || "Kunde"}`,
       client_id: client?.id,
       client_name: client?.name,
       form_id: form?.id,
@@ -711,6 +757,7 @@ export const dataStore = {
       dist.status = "opened";
       dist.opened_at = new Date().toISOString();
       dist.updated_at = new Date().toISOString();
+      syncStore();
 
       const form = forms.find(f => f.id === dist.form_id);
       const client = dist.client_id ? clients.find(c => c.id === dist.client_id) : undefined;
@@ -730,41 +777,63 @@ export const dataStore = {
     if (!dist) return false;
     dist.status = "revoked";
     dist.updated_at = new Date().toISOString();
+    syncStore();
     return true;
   },
 
   // --------------------------------------------------------------------------
   // SUBMISSIONS & ANSWERS
   // --------------------------------------------------------------------------
-  async getSubmissions(filters?: { status?: ResponseStatus; clientId?: string; formId?: string }): Promise<Submission[]> {
+  async getSubmissions(filters?: { status?: ResponseStatus; clientId?: string; email?: string; formId?: string }): Promise<Submission[]> {
+    if (typeof window === "undefined") {
+      const serverData = loadServerFile();
+      if (serverData && Array.isArray(serverData.submissions) && serverData.submissions.length > 0) {
+        const existingIds = new Set(submissions.map(s => s.id));
+        serverData.submissions.forEach((ss: any) => {
+          if (!existingIds.has(ss.id)) {
+            submissions.push(ss);
+          }
+        });
+      }
+    }
+
     let result = [...submissions];
 
     if (filters?.status) {
       result = result.filter(s => s.status === filters.status);
     }
-    if (filters?.clientId) {
-      result = result.filter(s => s.client_id === filters.clientId);
+    if (filters?.clientId || filters?.email) {
+      const filterEmail = filters.email ? filters.email.toLowerCase().trim() : "";
+      result = result.filter(s => {
+        const matchId = filters.clientId && (s.client_id === filters.clientId || (s as any).client?.id === filters.clientId);
+        const matchEmail = filterEmail && (
+          ((s as any).client?.email && (s as any).client.email.toLowerCase().trim() === filterEmail) ||
+          (s.client_id && clients.find(c => c.id === s.client_id)?.email?.toLowerCase().trim() === filterEmail)
+        );
+        return matchId || matchEmail;
+      });
     }
     if (filters?.formId) {
-      result = result.filter(s => s.form_id === filters.formId);
+      result = result.filter(s => s.form_id === filters.formId || (s as any).form?.id === filters.formId);
     }
 
     return result.map(s => ({
       ...s,
-      form: forms.find(f => f.id === s.form_id),
-      client: clients.find(c => c.id === s.client_id),
+      form: forms.find(f => f.id === s.form_id) || (s as any).form,
+      client: clients.find(c => c.id === s.client_id) || (s as any).client,
       distribution: distributions.find(d => d.id === s.distribution_id)
     })).sort((a, b) => new Date(b.submitted_at).getTime() - new Date(a.submitted_at).getTime());
   },
 
   async getSubmissionById(id: string): Promise<Submission | null> {
-    const s = submissions.find(item => item.id === id);
+    const all = await this.getSubmissions();
+    const s = all.find(item => item.id === id) || submissions.find(item => item.id === id);
     if (!s) return null;
 
     return {
       ...s,
-      form: forms.find(f => f.id === s.form_id),
-      client: clients.find(c => c.id === s.client_id),
+      form: forms.find(f => f.id === s.form_id) || (s as any).form,
+      client: clients.find(c => c.id === s.client_id) || (s as any).client,
       distribution: distributions.find(d => d.id === s.distribution_id)
     };
   },
@@ -817,6 +886,8 @@ export const dataStore = {
       }
     }
 
+    syncStore();
+
     const form = forms.find(f => f.id === payload.form_id);
     const client = payload.client_id ? clients.find(c => c.id === payload.client_id) : undefined;
 
@@ -848,6 +919,7 @@ export const dataStore = {
       updated_at: new Date().toISOString()
     };
     submissions[index] = updated;
+    syncStore();
 
     if (updates.status && updates.status !== prev.status) {
       const form = forms.find(f => f.id === updated.form_id);
@@ -866,6 +938,18 @@ export const dataStore = {
   // CLIENT NOTES
   // --------------------------------------------------------------------------
   async getClientNotes(clientId: string): Promise<ClientNote[]> {
+    if (typeof window === "undefined") {
+      const serverData = loadServerFile();
+      if (serverData && Array.isArray(serverData.notes) && serverData.notes.length > 0) {
+        const existingIds = new Set(notes.map(n => n.id));
+        serverData.notes.forEach((sn: any) => {
+          if (!existingIds.has(sn.id)) {
+            notes.push(sn);
+          }
+        });
+      }
+    }
+
     const supabase = getSupabase();
     if (supabase) {
       try {
@@ -904,6 +988,7 @@ export const dataStore = {
       updated_at: new Date().toISOString()
     };
     notes.unshift(newNote);
+    syncStore();
 
     const supabase = getSupabase();
     if (supabase) {
@@ -941,6 +1026,7 @@ export const dataStore = {
   async deleteClientNote(noteId: string): Promise<boolean> {
     const initialLen = notes.length;
     notes = notes.filter(n => n.id !== noteId);
+    syncStore();
 
     const supabase = getSupabase();
     if (supabase) {

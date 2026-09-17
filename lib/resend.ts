@@ -8,6 +8,77 @@ export const ADMIN_NOTIFICATION_EMAIL = process.env.ADMIN_NOTIFICATION_EMAIL || 
 export const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://bymari.no";
 
 /**
+ * Robust email sender that verifies res.error and falls back to onboarding@resend.dev if domain is unverified
+ */
+export async function sendWithFallback(params: {
+  to: string | string[];
+  subject: string;
+  html: string;
+  from?: string;
+}) {
+  const isDevOrDemo =
+    process.env.NODE_ENV === "test" ||
+    !process.env.RESEND_API_KEY ||
+    process.env.RESEND_API_KEY === "demo_key" ||
+    process.env.RESEND_API_KEY === "re_123456789";
+
+  if (isDevOrDemo) {
+    console.log(`[Resend Simulator] Email to ${params.to} ("${params.subject}")`);
+    return { success: true, simulated: true };
+  }
+
+  const primaryFrom = params.from || DEFAULT_FROM_EMAIL;
+  try {
+    const res = await resend.emails.send({
+      from: primaryFrom,
+      to: params.to,
+      subject: params.subject,
+      html: params.html
+    });
+
+    if (res.error) {
+      console.warn(`Resend primary sender (${primaryFrom}) error:`, res.error);
+      // If primary sender failed (e.g. domain unverified), retry with verified default onboarding@resend.dev
+      if (!primaryFrom.includes("onboarding@resend.dev")) {
+        console.log("Retrying email send using By Mari <onboarding@resend.dev>...");
+        const fallbackRes = await resend.emails.send({
+          from: "By Mari <onboarding@resend.dev>",
+          to: params.to,
+          subject: params.subject,
+          html: params.html
+        });
+        if (fallbackRes.error) {
+          console.error("Resend fallback sender also failed:", fallbackRes.error);
+          return { success: false, error: fallbackRes.error };
+        }
+        return { success: true, data: fallbackRes.data, fallbackUsed: true };
+      }
+      return { success: false, error: res.error };
+    }
+
+    return { success: true, data: res.data };
+  } catch (err: any) {
+    console.error("Resend send caught exception:", err);
+    if (!primaryFrom.includes("onboarding@resend.dev")) {
+      try {
+        const fallbackRes = await resend.emails.send({
+          from: "By Mari <onboarding@resend.dev>",
+          to: params.to,
+          subject: params.subject,
+          html: params.html
+        });
+        if (fallbackRes.data && !fallbackRes.error) {
+          return { success: true, data: fallbackRes.data, fallbackUsed: true };
+        }
+      } catch (fErr) {
+        console.error("Fallback caught exception:", fErr);
+      }
+    }
+    return { success: false, error: err };
+  }
+}
+
+/**
  * Generate a Scandinavian branded HTML email layout for By Mari
  */
 export function renderByMariEmailHtml(options: {
@@ -76,11 +147,6 @@ export async function sendContactNotificationEmail(data: {
   service: string;
   message: string;
 }) {
-  if (process.env.NODE_ENV === "test" || !process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === "demo_key") {
-    console.log("[Resend Simulator] Contact lead logged:", data);
-    return { success: true, simulated: true };
-  }
-
   const contentHtml = `
     <div style="background-color: #F7F5F0; padding: 20px; border-radius: 4px; border: 1px solid #DED7CB;">
       <p style="margin: 0 0 8px 0;"><strong>Navn:</strong> ${data.name}</p>
@@ -94,24 +160,17 @@ export async function sendContactNotificationEmail(data: {
     </div>
   `;
 
-  try {
-    const res = await resend.emails.send({
-      from: DEFAULT_FROM_EMAIL,
-      to: ADMIN_NOTIFICATION_EMAIL,
-      subject: `Ny henvendelse: ${data.name} (${data.service})`,
-      html: renderByMariEmailHtml({
-        title: "Ny henvendelse fra bymari.no",
-        intro: "En potensiell kunde har sendt inn en forespørsel via kontaktskjemaet på nettsiden.",
-        contentHtml,
-        ctaText: "Åpne adminpanel",
-        ctaUrl: `${APP_URL}/admin/kunder`
-      })
-    });
-    return { success: true, data: res };
-  } catch (error) {
-    console.error("Resend contact notification error:", error);
-    return { success: false, error };
-  }
+  return await sendWithFallback({
+    to: ADMIN_NOTIFICATION_EMAIL,
+    subject: `Ny henvendelse: ${data.name} (${data.service})`,
+    html: renderByMariEmailHtml({
+      title: "Ny henvendelse fra bymari.no",
+      intro: "En potensiell kunde har sendt inn en forespørsel via kontaktskjemaet på nettsiden.",
+      contentHtml,
+      ctaText: "Åpne adminpanel",
+      ctaUrl: `${APP_URL}/admin/kunder`
+    })
+  });
 }
 
 export async function sendFormDistributionEmail(data: {
@@ -124,11 +183,6 @@ export async function sendFormDistributionEmail(data: {
 }) {
   const formUrl = `${APP_URL}/f/${data.token}`;
 
-  if (process.env.NODE_ENV === "test" || !process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === "demo_key") {
-    console.log(`[Resend Simulator] Form distribution email to ${data.recipientEmail} (${formUrl})`);
-    return { success: true, simulated: true, url: formUrl };
-  }
-
   const contentHtml = `
     <p style="margin: 0 0 16px 0; font-size: 15px; color: #4A4B48;">
       For å sikre et ryddig og skreddersydd resultat for prosjektet ditt, ber vi deg vennligst fylle ut skjemaet <strong>«${data.formTitle}»</strong>.
@@ -138,24 +192,19 @@ export async function sendFormDistributionEmail(data: {
     </p>
   `;
 
-  try {
-    const res = await resend.emails.send({
-      from: DEFAULT_FROM_EMAIL,
-      to: data.recipientEmail,
-      subject: data.emailSubject,
-      html: renderByMariEmailHtml({
-        title: data.formTitle,
-        intro: data.emailIntro || `Hei ${data.recipientName}, her er skjemaet for prosjektet ditt.`,
-        contentHtml,
-        ctaText: "Åpne skjema",
-        ctaUrl: formUrl
-      })
-    });
-    return { success: true, data: res, url: formUrl };
-  } catch (error) {
-    console.error("Resend form distribution error:", error);
-    return { success: false, error };
-  }
+  const sendRes = await sendWithFallback({
+    to: data.recipientEmail,
+    subject: data.emailSubject,
+    html: renderByMariEmailHtml({
+      title: data.formTitle,
+      intro: data.emailIntro || `Hei ${data.recipientName}, her er skjemaet for prosjektet ditt.`,
+      contentHtml,
+      ctaText: "Åpne skjema",
+      ctaUrl: formUrl
+    })
+  });
+
+  return { ...sendRes, url: formUrl };
 }
 
 export async function sendFormSubmissionNotificationEmail(data: {
@@ -166,11 +215,6 @@ export async function sendFormSubmissionNotificationEmail(data: {
   submissionId: string;
   answers: { field_label: string; value: any }[];
 }) {
-  if (process.env.NODE_ENV === "test" || !process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === "demo_key") {
-    console.log("[Resend Simulator] Submission notification received for:", data.formTitle);
-    return { success: true, simulated: true };
-  }
-
   const answersHtml = data.answers
     .map(
       (a) => `
@@ -193,24 +237,17 @@ export async function sendFormSubmissionNotificationEmail(data: {
     </div>
   `;
 
-  try {
-    const res = await resend.emails.send({
-      from: DEFAULT_FROM_EMAIL,
-      to: ADMIN_NOTIFICATION_EMAIL,
-      subject: `Nytt skjemasvar: ${data.formTitle}${data.clientName ? " fra " + data.clientName : ""}`,
-      html: renderByMariEmailHtml({
-        title: `Nytt svar på ${data.formTitle}`,
-        intro: `Et nytt svar er registrert${data.clientName ? " fra " + data.clientName : ""}.`,
-        contentHtml,
-        ctaText: "Se alle svar i adminpanelet",
-        ctaUrl: `${APP_URL}/admin/svar`
-      })
-    });
-    return { success: true, data: res };
-  } catch (error) {
-    console.error("Resend form submission notification error:", error);
-    return { success: false, error };
-  }
+  return await sendWithFallback({
+    to: ADMIN_NOTIFICATION_EMAIL,
+    subject: `Nytt skjemasvar: ${data.formTitle}${data.clientName ? " fra " + data.clientName : ""}`,
+    html: renderByMariEmailHtml({
+      title: `Nytt svar på ${data.formTitle}`,
+      intro: `Et nytt svar er registrert${data.clientName ? " fra " + data.clientName : ""}.`,
+      contentHtml,
+      ctaText: "Se alle svar i adminpanelet",
+      ctaUrl: `${APP_URL}/admin/svar`
+    })
+  });
 }
 
 /**
@@ -237,11 +274,6 @@ export async function sendQuoteEmail(data: {
   const quoteUrl = `${APP_URL}/tilbud/${data.token}`;
   const acceptUrl = `${APP_URL}/tilbud/${data.token}?action=accept`;
   const declineUrl = `${APP_URL}/tilbud/${data.token}?action=decline`;
-
-  if (process.env.NODE_ENV === "test" || !process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === "demo_key") {
-    console.log(`[Resend Simulator] Quote email to ${data.recipientEmail} (${quoteUrl})`);
-    return { success: true, simulated: true, url: quoteUrl };
-  }
 
   // Build items HTML table
   const addonsRows = data.addons
@@ -358,23 +390,18 @@ export async function sendQuoteEmail(data: {
     </div>
   `;
 
-  try {
-    const res = await resend.emails.send({
-      from: DEFAULT_FROM_EMAIL,
-      to: data.recipientEmail,
-      subject: data.emailSubject,
-      html: renderByMariEmailHtml({
-        title: `Pristilbud til ${data.recipientName}`,
-        intro: data.emailIntro || `Hei ${data.recipientName}, her er det skreddersydde pristilbudet for prosjektet ditt.`,
-        contentHtml,
-        footerNote: "by mari — Digitale løsninger, laget med omhu."
-      })
-    });
-    return { success: true, data: res, url: quoteUrl };
-  } catch (error) {
-    console.error("Resend quote email error:", error);
-    return { success: false, error };
-  }
+  const sendRes = await sendWithFallback({
+    to: data.recipientEmail,
+    subject: data.emailSubject,
+    html: renderByMariEmailHtml({
+      title: `Pristilbud til ${data.recipientName}`,
+      intro: data.emailIntro || `Hei ${data.recipientName}, her er det skreddersydde pristilbudet for prosjektet ditt.`,
+      contentHtml,
+      footerNote: "by mari — Digitale løsninger, laget med omhu."
+    })
+  });
+
+  return { ...sendRes, url: quoteUrl };
 }
 
 /**
@@ -388,11 +415,6 @@ export async function sendQuoteAcceptedNotificationEmail(data: {
   signedName?: string;
   note?: string;
 }) {
-  if (process.env.NODE_ENV === "test" || !process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === "demo_key") {
-    console.log(`[Resend Simulator] Quote accepted by ${data.clientName}`);
-    return { success: true, simulated: true };
-  }
-
   const contentHtml = `
     <div style="background-color: #EBF3ED; border: 1px solid #C4DEC9; border-radius: 4px; padding: 24px; margin-bottom: 20px;">
       <h3 style="margin: 0 0 12px 0; color: #2E5C38; font-size: 16px;">🎉 Gratulerer, tilbudet er akseptert!</h3>
@@ -403,24 +425,17 @@ export async function sendQuoteAcceptedNotificationEmail(data: {
     </div>
   `;
 
-  try {
-    const res = await resend.emails.send({
-      from: DEFAULT_FROM_EMAIL,
-      to: ADMIN_NOTIFICATION_EMAIL,
-      subject: `🎉 Tilbud akseptert av ${data.clientName} (kr ${data.totalPrice.toLocaleString("no-NO")},-)`,
-      html: renderByMariEmailHtml({
-        title: "Pristilbud akseptert!",
-        intro: `Kunden har takket ja til tilbudet. Status i CRM er oppdatert til «Aktiv kunde».`,
-        contentHtml,
-        ctaText: "Åpne kundekort i admin",
-        ctaUrl: `${APP_URL}/admin/kunder`
-      })
-    });
-    return { success: true, data: res };
-  } catch (error) {
-    console.error("Resend quote accepted notification error:", error);
-    return { success: false, error };
-  }
+  return await sendWithFallback({
+    to: ADMIN_NOTIFICATION_EMAIL,
+    subject: `🎉 Tilbud akseptert av ${data.clientName} (kr ${data.totalPrice.toLocaleString("no-NO")},-)`,
+    html: renderByMariEmailHtml({
+      title: "Pristilbud akseptert!",
+      intro: `Kunden har takket ja til tilbudet. Status i CRM er oppdatert til «Aktiv kunde».`,
+      contentHtml,
+      ctaText: "Åpne kundekort i admin",
+      ctaUrl: `${APP_URL}/admin/kunder`
+    })
+  });
 }
 
 /**
@@ -433,11 +448,6 @@ export async function sendQuoteDeclinedNotificationEmail(data: {
   totalPrice: number;
   reason?: string;
 }) {
-  if (process.env.NODE_ENV === "test" || !process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === "demo_key") {
-    console.log(`[Resend Simulator] Quote declined by ${data.clientName}`);
-    return { success: true, simulated: true };
-  }
-
   const contentHtml = `
     <div style="background-color: #F7F5F0; border: 1px solid #DED7CB; border-radius: 4px; padding: 20px; margin-bottom: 20px;">
       <p style="margin: 0 0 8px 0; font-size: 14px; color: #20211F;"><strong>Kunde:</strong> ${data.clientName} (${data.clientEmail})</p>
@@ -446,22 +456,15 @@ export async function sendQuoteDeclinedNotificationEmail(data: {
     </div>
   `;
 
-  try {
-    const res = await resend.emails.send({
-      from: DEFAULT_FROM_EMAIL,
-      to: ADMIN_NOTIFICATION_EMAIL,
-      subject: `Tilbud avvist av ${data.clientName}`,
-      html: renderByMariEmailHtml({
-        title: "Pristilbud avvist",
-        intro: `Kunden har takket nei til tilbudet.`,
-        contentHtml,
-        ctaText: "Se kunde i admin",
-        ctaUrl: `${APP_URL}/admin/kunder`
-      })
-    });
-    return { success: true, data: res };
-  } catch (error) {
-    console.error("Resend quote declined notification error:", error);
-    return { success: false, error };
-  }
+  return await sendWithFallback({
+    to: ADMIN_NOTIFICATION_EMAIL,
+    subject: `Tilbud avvist av ${data.clientName}`,
+    html: renderByMariEmailHtml({
+      title: "Pristilbud avvist",
+      intro: `Kunden har takket nei til tilbudet.`,
+      contentHtml,
+      ctaText: "Se kunde i admin",
+      ctaUrl: `${APP_URL}/admin/kunder`
+    })
+  });
 }

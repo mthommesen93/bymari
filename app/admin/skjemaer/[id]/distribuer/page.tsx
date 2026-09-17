@@ -85,7 +85,7 @@ export default function DistribuerSkjemaPage() {
       // 4. Fetch distributions
       let loadedDists: FormDistribution[] = [];
       try {
-        const distRes = await fetch(`/api/forms/distribute?formId=${activeId}`);
+        const distRes = await fetch(`/api/forms/distribute?formId=${activeId}`, { cache: "no-store" });
         if (distRes.ok) {
           const distData = await distRes.json();
           if (distData.distributions) loadedDists = distData.distributions;

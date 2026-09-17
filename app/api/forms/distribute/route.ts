@@ -4,11 +4,15 @@ import { sendFormDistributionEmail } from "@/lib/resend";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { initialDistributions } from "@/lib/demo-data";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const formId = searchParams.get("formId") || undefined;
     const clientId = searchParams.get("clientId") || undefined;
+    const email = searchParams.get("email") || undefined;
 
     let allDistributions: any[] = [];
 
@@ -52,17 +56,37 @@ export async function GET(req: NextRequest) {
       console.warn("DB distributions fetch fallback:", dbErr);
     }
 
-    // 3. Fallback to memory / initial distributions
+    // 3. Fallback / Merge with memory & disk distributions
+    try {
+      const memoryDistributions = await dataStore.getDistributions({ formId, clientId, email });
+      const existingIds = new Set(allDistributions.map(d => d.id || d.token));
+      memoryDistributions.forEach(md => {
+        if (!existingIds.has(md.id) && !existingIds.has(md.token)) {
+          allDistributions.push(md);
+        }
+      });
+    } catch (memErr) {
+      console.warn("dataStore distributions fallback:", memErr);
+    }
+
     if (allDistributions.length === 0) {
-      const memoryDistributions = await dataStore.getDistributions({ formId, clientId });
-      allDistributions = memoryDistributions.length > 0 ? memoryDistributions : initialDistributions;
+      allDistributions = [...initialDistributions];
     }
 
     if (formId) {
       allDistributions = allDistributions.filter(d => d.form_id === formId || d.form?.id === formId);
     }
-    if (clientId) {
-      allDistributions = allDistributions.filter(d => d.client_id === clientId || d.client?.id === clientId);
+    if (clientId || email) {
+      const filterEmail = email ? email.toLowerCase().trim() : "";
+      allDistributions = allDistributions.filter(d => {
+        const matchClient = clientId && (d.client_id === clientId || d.client?.id === clientId);
+        const matchEmail = filterEmail && (
+          (d.recipient_email && d.recipient_email.toLowerCase().trim() === filterEmail) ||
+          (d.client?.email && d.client.email.toLowerCase().trim() === filterEmail) ||
+          (d.client_email && d.client_email.toLowerCase().trim() === filterEmail)
+        );
+        return matchClient || matchEmail;
+      });
     }
 
     return NextResponse.json({
@@ -102,6 +126,7 @@ export async function POST(req: NextRequest) {
     const newDist = await dataStore.createDistribution({
       form_id: form.id,
       client_id: client ? client.id : null,
+      recipient_email: client ? client.email : null,
       email_subject: emailSubject || `Skjema fra by mari: ${form.title}`,
       email_intro: emailIntro || "",
       expires_at: formattedExpiresAt
@@ -109,6 +134,7 @@ export async function POST(req: NextRequest) {
 
     const fullDistRecord = {
       ...newDist,
+      recipient_email: client ? client.email : null,
       form: {
         id: form.id,
         title: form.title,

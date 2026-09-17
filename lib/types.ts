@@ -77,6 +77,7 @@ export interface FormDistribution {
   id: string;
   form_id: string;
   client_id?: string | null;
+  recipient_email?: string | null;
   token: string;
   email_subject?: string | null;
   email_intro?: string | null;
