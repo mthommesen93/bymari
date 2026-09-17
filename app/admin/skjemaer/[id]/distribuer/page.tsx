@@ -70,13 +70,15 @@ export default function DistribuerSkjemaPage() {
       // 3. Fetch clients
       let loadedClients: Client[] = [];
       try {
-        const clientRes = await fetch("/api/clients");
+        const clientRes = await fetch("/api/clients", { cache: "no-store" });
         if (clientRes.ok) {
           const clientData = await clientRes.json();
-          if (clientData.clients) loadedClients = clientData.clients;
+          if (clientData.clients && Array.isArray(clientData.clients)) {
+            loadedClients = clientData.clients;
+          }
         }
-      } catch {}
-      if (loadedClients.length === 0) {
+      } catch (err) {
+        console.warn("Client fetch warning:", err);
         loadedClients = await dataStore.getClients();
       }
       setClients(loadedClients);

@@ -27,20 +27,6 @@
       "is_archived": false,
       "created_at": "2026-09-15T10:00:00.000Z",
       "updated_at": "2026-09-17T10:00:00.000Z"
-    },
-    {
-      "id": "c-hildegunn",
-      "name": "Hildegunn",
-      "company": "",
-      "email": "hildegunn@bymari.no",
-      "phone": "",
-      "status": "Ny",
-      "requested_service": "Nettsider",
-      "internal_notes": "Kunde registrert i bymari CRM.",
-      "next_activity_date": "2026-09-18T10:00:00.000Z",
-      "is_archived": false,
-      "created_at": "2026-09-16T10:00:00.000Z",
-      "updated_at": "2026-09-17T10:00:00.000Z"
     }
   ],
   "forms": [
@@ -4087,5 +4073,8 @@
     }
   ],
   "quotes": [],
-  "deletedClientIds": []
+  "deletedClientIds": [
+    "c-hildegunn",
+    "hildegunn@bymari.no"
+  ]
 }

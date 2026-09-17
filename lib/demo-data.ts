@@ -14,34 +14,6 @@ export const initialClients: Client[] = [
     is_archived: false,
     created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
     updated_at: new Date().toISOString()
-  },
-  {
-    id: "c-mari",
-    name: "Mari",
-    company: "By Mari",
-    email: "hei@bymari.no",
-    phone: "",
-    status: "Aktiv kunde",
-    requested_service: "Nettsider & Visuell profil",
-    internal_notes: "Administrator og kunde i bymari CRM.",
-    next_activity_date: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
-    is_archived: false,
-    created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: "c-hildegunn",
-    name: "Hildegunn",
-    company: "",
-    email: "hildegunn@bymari.no",
-    phone: "",
-    status: "Ny",
-    requested_service: "Nettsider",
-    internal_notes: "Kunde registrert i bymari CRM.",
-    next_activity_date: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-    is_archived: false,
-    created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-    updated_at: new Date().toISOString()
   }
 ];
 

@@ -217,6 +217,16 @@ export const dataStore = {
     if (typeof window !== "undefined") {
       const localDeleted = getStored<string[]>(DELETED_CLIENTS_STORAGE_KEY, []);
       localDeleted.forEach(id => deletedClientIds.add(id));
+    } else {
+      const serverData = loadServerFile();
+      if (serverData) {
+        if (Array.isArray(serverData.deletedClientIds)) {
+          serverData.deletedClientIds.forEach((id: string) => deletedClientIds.add(id));
+        }
+        if (Array.isArray(serverData.clients) && serverData.clients.length > 0) {
+          clients = serverData.clients;
+        }
+      }
     }
 
     const supabase = getSupabase();
@@ -235,10 +245,10 @@ export const dataStore = {
 
     let combinedClients: Client[] = clients.filter(c => !deletedClientIds.has(c.id) && !deletedClientIds.has(c.email?.toLowerCase()));
 
-    // Only include initialClients that have NOT been deleted
+    // Only include initialClients that have NOT been deleted and don't already exist by id
     initialClients.forEach(ic => {
       if (!deletedClientIds.has(ic.id) && !deletedClientIds.has(ic.email?.toLowerCase())) {
-        if (!combinedClients.some(c => c.id === ic.id || c.email?.toLowerCase() === ic.email?.toLowerCase())) {
+        if (!combinedClients.some(c => c.id === ic.id)) {
           combinedClients.push(ic);
         }
       }
@@ -251,8 +261,11 @@ export const dataStore = {
         if (!error && data && data.length > 0) {
           data.forEach((c: any) => {
             if (!deletedClientIds.has(c.id) && !deletedClientIds.has(c.email?.toLowerCase())) {
-              if (!combinedClients.some(existing => existing.id === c.id || existing.email?.toLowerCase() === c.email?.toLowerCase())) {
-                combinedClients.push(c as Client);
+              const existingIndex = combinedClients.findIndex(existing => existing.id === c.id);
+              if (existingIndex === -1) {
+                if (!combinedClients.some(existing => existing.email?.toLowerCase() === c.email?.toLowerCase())) {
+                  combinedClients.push(c as Client);
+                }
               }
             }
           });
@@ -272,8 +285,11 @@ export const dataStore = {
         if (scData?.content && Array.isArray(scData.content)) {
           scData.content.forEach((c: any) => {
             if (!deletedClientIds.has(c.id) && !deletedClientIds.has(c.email?.toLowerCase())) {
-              if (!combinedClients.some(existing => existing.id === c.id || existing.email?.toLowerCase() === c.email?.toLowerCase())) {
-                combinedClients.push(c as Client);
+              const existingIndex = combinedClients.findIndex(existing => existing.id === c.id);
+              if (existingIndex === -1) {
+                if (!combinedClients.some(existing => existing.email?.toLowerCase() === c.email?.toLowerCase())) {
+                  combinedClients.push(c as Client);
+                }
               }
             }
           });
@@ -288,8 +304,11 @@ export const dataStore = {
       if (local.length > 0) {
         local.forEach(l => {
           if (!deletedClientIds.has(l.id) && !deletedClientIds.has(l.email?.toLowerCase())) {
-            if (!combinedClients.some(existing => existing.id === l.id || existing.email?.toLowerCase() === l.email?.toLowerCase())) {
-              combinedClients.push(l);
+            const existingIndex = combinedClients.findIndex(existing => existing.id === l.id);
+            if (existingIndex === -1) {
+              if (!combinedClients.some(existing => existing.email?.toLowerCase() === l.email?.toLowerCase())) {
+                combinedClients.push(l);
+              }
             }
           }
         });
@@ -348,7 +367,7 @@ export const dataStore = {
     }
 
     // 1. Memory and Storage Sync
-    clients.unshift(newClient);
+    clients = [newClient, ...clients.filter(c => c.id !== newClient.id && c.email.toLowerCase() !== newClient.email.toLowerCase())];
     syncStore();
 
     // 2. Supabase SQL table
@@ -441,10 +460,19 @@ export const dataStore = {
     const supabase = getSupabase();
     if (supabase) {
       try {
-        await supabase.from("clients").update({
-          ...updates,
+        await supabase.from("clients").upsert([{
+          id: updated.id,
+          name: updated.name,
+          company: updated.company || null,
+          email: updated.email,
+          phone: updated.phone || null,
+          status: updated.status || "Ny",
+          requested_service: updated.requested_service || null,
+          internal_notes: updated.internal_notes || null,
+          next_activity_date: updated.next_activity_date || null,
+          is_archived: updated.is_archived || false,
           updated_at: new Date().toISOString()
-        }).eq("id", id);
+        }]);
       } catch (err) {
         console.warn("Supabase update client error:", err);
       }

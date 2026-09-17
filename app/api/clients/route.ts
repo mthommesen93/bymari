@@ -3,6 +3,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { initialClients } from "@/lib/demo-data";
 import { dataStore } from "@/lib/store";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);

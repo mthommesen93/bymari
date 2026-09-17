@@ -32,7 +32,7 @@ export default function KunderPage() {
   const loadClients = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/clients");
+      const res = await fetch("/api/clients", { cache: "no-store" });
       const json = await res.json();
       let data: Client[] = json.clients || [];
 

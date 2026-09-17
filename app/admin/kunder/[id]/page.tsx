@@ -65,7 +65,7 @@ export default function KundeDetailPage() {
     setLoading(true);
     let c: Client | null = null;
     try {
-      const res = await fetch(`/api/clients/${id}`);
+      const res = await fetch(`/api/clients/${id}`, { cache: "no-store" });
       if (res.ok) {
         const json = await res.json();
         c = json.client || null;
